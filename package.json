@@ -1,0 +1,13 @@
+{
+  "name": "cwa-admin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/write-runtime-config.mjs && node server.mjs",
+    "check": "node --check server.mjs && node --check scripts/write-runtime-config.mjs && node --check public/app.js"
+  },
+  "engines": {
+    "node": ">=20 <25"
+  }
+}
