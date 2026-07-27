@@ -27,9 +27,12 @@ const getRuntimeApiBaseUrl = () => {
   }
 
   const normalizedHostname = hostname.startsWith("www.") ? hostname.slice(4) : hostname;
-  const apiHostname = normalizedHostname.startsWith("api.")
-    ? normalizedHostname
-    : `api.${normalizedHostname}`;
+  const appHostname = normalizedHostname.startsWith("admin.")
+    ? normalizedHostname.slice("admin.".length)
+    : normalizedHostname;
+  const apiHostname = appHostname.startsWith("api.")
+    ? appHostname
+    : `api.${appHostname}`;
   const apiPort = port ? `:${port}` : "";
 
   return `${protocol}//${apiHostname}${apiPort}/api`;
