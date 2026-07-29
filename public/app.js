@@ -76,6 +76,10 @@ const entityConfigs = {
       { key: "isVerified", label: "Verified", type: "boolean" },
       { key: "isActive", label: "Active", type: "active" },
       { key: "isPremium", label: "Premium", type: "boolean" },
+      { key: "lastLogin", label: "Entry Time", type: "date" },
+      { key: "lastLoginDay", label: "Day" },
+      { key: "lastLoginYear", label: "Year" },
+      { key: "lastLoginIpAddress", label: "IP Address" },
       { key: "createdAt", label: "Created", type: "date" },
     ],
     fields: [
