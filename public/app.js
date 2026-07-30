@@ -41,6 +41,17 @@ const getRuntimeApiBaseUrl = () => {
 
 const apiBaseUrl = getRuntimeApiBaseUrl();
 
+const quizQuestionsExample = [
+  {
+    question: "What is the best first step when writing an AI prompt?",
+    questionType: "single",
+    options: ["Add clear context", "Use random words", "Hide the goal", "Skip examples"],
+    correctAnswers: ["Add clear context"],
+    marks: 1,
+    explanation: "Clear context helps the model understand the task and produce a useful answer.",
+  },
+];
+
 const navItems = [
   { key: "dashboard", label: "Dashboard", section: "Operate" },
   { key: "learning", label: "Learning", section: "Operate" },
@@ -50,6 +61,7 @@ const navItems = [
   { key: "courses", label: "Courses", section: "Content" },
   { key: "modules", label: "Modules", section: "Content" },
   { key: "lessons", label: "Lessons", section: "Content" },
+  { key: "quizzes", label: "Quizzes", section: "Content" },
   { key: "aiTools", label: "AI Tools", section: "Content" },
   { key: "categories", label: "Categories", section: "Content" },
   { key: "certificates", label: "Certificates", section: "Trust" },
@@ -191,6 +203,44 @@ const entityConfigs = {
     ],
     actions: ["edit", "publish", "archive", "delete"],
   },
+  quizzes: {
+    title: "Quizzes",
+    endpoint: "/auth/quizzes",
+    unwrap: (response) => response.data || [],
+    filters: [
+      { name: "status", label: "Status", options: [["", "All"], ["draft", "Draft"], ["published", "Published"], ["archived", "Archived"]] },
+    ],
+    columns: [
+      { key: "title", label: "Title" },
+      { key: "course.title", label: "Course" },
+      { key: "module.title", label: "Module" },
+      { key: "lesson.title", label: "Lesson" },
+      { key: "questions", label: "Questions", type: "count" },
+      { key: "totalMarks", label: "Marks" },
+      { key: "passingMarks", label: "Pass" },
+      { key: "status", label: "Status", type: "status" },
+    ],
+    fields: [
+      { name: "title", label: "Title", required: true },
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "course", label: "Course ID", required: true },
+      { name: "module", label: "Module ID" },
+      { name: "lesson", label: "Lesson ID" },
+      {
+        name: "questions",
+        label: "Questions, options, and correct answers JSON",
+        type: "json",
+        required: true,
+        example: quizQuestionsExample,
+        help: "Use an array. correctAnswers must match option text exactly. Supported questionType values: single, multiple, text.",
+      },
+      { name: "passingMarks", label: "Passing marks", type: "number" },
+      { name: "timeLimit", label: "Time limit minutes", type: "number" },
+      { name: "attemptsAllowed", label: "Attempts allowed", type: "number", defaultValue: 1 },
+      { name: "status", label: "Status", type: "select", options: [["draft", "Draft"], ["published", "Published"], ["archived", "Archived"]] },
+    ],
+    actions: ["view", "edit", "publish", "archive", "delete"],
+  },
   aiTools: {
     title: "AI Tools",
     endpoint: "/auth/aitools",
@@ -311,6 +361,7 @@ const formatCell = (item, column) => {
   if (column.type === "active") return `<span class="pill ${value === false ? "danger" : "ok"}">${value === false ? "Inactive" : "Active"}</span>`;
   if (column.type === "status") return `<span class="pill ${["published", "active"].includes(String(value)) ? "ok" : "warn"}">${escapeHtml(value || "-")}</span>`;
   if (column.type === "activeStatus") return `<span class="pill ${value === "active" ? "ok" : "warn"}">${escapeHtml(value || "-")}</span>`;
+  if (column.type === "count") return escapeHtml(Array.isArray(value) ? value.length : Number(value || 0));
 
   if (Array.isArray(value)) return escapeHtml(value.join(", "));
   if (value && typeof value === "object") return escapeHtml(value.title || value.name || value.email || value._id || "-");
@@ -386,6 +437,19 @@ const getPayloadFromForm = (form, fields, mode = "create") => {
         .split(",")
         .map((entry) => entry.trim())
         .filter(Boolean);
+      return;
+    }
+
+    if (field.type === "json") {
+      if (value === "" && field.required) {
+        throw new Error(`${field.label} is required`);
+      }
+
+      try {
+        payload[field.name] = JSON.parse(String(value || "null"));
+      } catch {
+        throw new Error(`${field.label} must be valid JSON`);
+      }
       return;
     }
 
@@ -724,6 +788,7 @@ const renderLearning = () => `
     <button class="btn secondary" data-view="courses" type="button">Manage courses</button>
     <button class="btn secondary" data-view="modules" type="button">Manage modules</button>
     <button class="btn secondary" data-view="lessons" type="button">Manage lessons</button>
+    <button class="btn secondary" data-view="quizzes" type="button">Manage quizzes</button>
     <button class="btn secondary" data-view="certificates" type="button">Manage certificates</button>
   </section>
 `;
@@ -744,6 +809,21 @@ const renderFormFields = (config, item = {}, mode = "create") =>
     .filter((field) => !(field.createOnly && mode !== "create"))
     .map((field) => {
       const value = item[field.name] ?? field.defaultValue ?? "";
+      if (field.type === "json") {
+        const jsonValue = value
+          ? JSON.stringify(value, null, 2)
+          : field.example
+            ? JSON.stringify(field.example, null, 2)
+            : "";
+
+        return `
+          <label class="field field-wide">
+            <span>${escapeHtml(field.label)}</span>
+            ${field.help ? `<small>${escapeHtml(field.help)}</small>` : ""}
+            <textarea class="json-field" name="${field.name}" spellcheck="false" ${field.required ? "required" : ""}>${escapeHtml(jsonValue)}</textarea>
+          </label>
+        `;
+      }
       if (field.type === "textarea") {
         return `
           <label class="field">
@@ -1242,9 +1322,9 @@ const saveRecord = async (event) => {
   const key = form.dataset.entity;
   const id = form.dataset.id;
   const config = entityConfigs[key];
-  const payload = getPayloadFromForm(new FormData(form), config.fields, id ? "edit" : "create");
 
   try {
+    const payload = getPayloadFromForm(new FormData(form), config.fields, id ? "edit" : "create");
     setBusy(true);
     await request(id ? `${config.endpoint}/${id}` : config.endpoint, {
       method: id ? "PATCH" : "POST",

@@ -103,11 +103,22 @@ h2 {
   gap: 8px;
 }
 
+.field-wide {
+  grid-column: 1 / -1;
+}
+
 .field span,
 .check-field span {
   color: #344054;
   font-size: 14px;
   font-weight: 800;
+}
+
+.field small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
 .field input,
@@ -135,6 +146,13 @@ h2 {
   min-height: 96px;
   padding: 12px;
   resize: vertical;
+}
+
+.field textarea.json-field {
+  min-height: 260px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .field input:focus,
