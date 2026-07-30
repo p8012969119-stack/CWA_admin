@@ -349,6 +349,72 @@ h2 {
   align-items: center;
 }
 
+/* Dashboard metric and panel refinements */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.metric-card {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+  transition: transform .16s ease, box-shadow .16s ease;
+  min-height: 120px;
+}
+
+.metric-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.metric-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.14), rgba(16, 185, 129, 0.12));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 18px;
+  margin-top: 22px;
+  align-items: start;
+}
+
+.panel-large,
+.panel-small {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chart-wrap {
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff, #f6f8ff);
+  border: 1px solid rgba(37, 99, 235, 0.08);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+}
+
+.chart-canvas {
+  width: 100%;
+  height: 200px;
+  display: block;
+}
+
 .settings-card,
 .profile-card {
   max-width: 820px;
