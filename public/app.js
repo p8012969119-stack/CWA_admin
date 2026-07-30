@@ -1050,7 +1050,24 @@ const initCharts = () => {
 
     const tools = makeDataset((state.analytics?.topAiTools||[]).map(t=>({title:t.name,count:t.count||1})),'count');
     const ctx4 = document.getElementById('chart-ai-tool-usage');
-    if (ctx4 && tools.labels.length) new Chart(ctx4.getContext('2d'),{type:'doughnut',data:{labels:tools.labels,datasets:[{data:tools.data,backgroundColor:tools.labels.map((_,index)=>index % 2 === 0 ? 'rgba(37,99,235,0.9)' : 'rgba(16,185,129,0.9)')} ]}},options:{plugins:{legend:{position:'right'}}}});  } catch (e){console.warn('Chart init failed',e)}
+    if (ctx4 && tools.labels.length) {
+      new Chart(ctx4.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: tools.labels,
+          datasets: [{
+            data: tools.data,
+            backgroundColor: tools.labels.map((_, index) => (index % 2 === 0 ? 'rgba(37,99,235,0.9)' : 'rgba(16,185,129,0.9)'))
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { position: 'right' }
+          }
+        }
+      });
+    }
+  } catch (e) { console.warn('Chart init failed', e); }
 };
 
 const findItem = (key, id) => (state.data[key] || []).find((item) => String(item._id) === String(id));
