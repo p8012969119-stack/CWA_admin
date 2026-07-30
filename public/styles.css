@@ -489,26 +489,20 @@ h2 {
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  background: linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08));
-  border: 1px solid rgba(37, 99, 235, 0.12);
+    background: var(--panel);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.05);
     margin-bottom: 32px;
-  max-width: 600px;
-  color: var(--muted);
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
+    color: var(--text);
+  }
 
 .panel-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: 12px;
     padding-bottom: 8px;
-    border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   }
 
   .panel-header h2 {
@@ -518,60 +512,40 @@ h2 {
     color: var(--text);
   }
 
-  .panel-header .panel-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .panel-header .pill {
-    font-size: 0.75rem;
-    padding: 8px 10px;
-    border-radius: 999px;
-    letter-spacing: 0.02em;
-  }
-
-  .chart-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  .chart-subtitle {
+    margin: 4px 0 0;
     color: var(--muted);
-    font-size: 0.88rem;
-  }
-
-  .chart-label span {
-    display: inline-flex;
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: var(--primary);
-  }
-
-  .chart-label span.secondary {
-    background: var(--secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
   }
 
   .chart-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
 
   .chart-actions button {
-    border: 1px solid rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 999px;
     background: var(--panel);
     color: var(--muted);
     min-height: 36px;
     padding: 0 14px;
     font-size: 0.88rem;
-    transition: background .18s ease, color .18s ease;
+    transition: background .18s ease, color .18s ease, transform .18s ease;
   }
 
   .chart-actions button:hover {
     background: rgba(37, 99, 235, 0.08);
     color: var(--primary);
-}
+    transform: translateY(-1px);
+  }
+
+  .chart-actions button:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  }
 
 .dashboard-panels {
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -664,19 +664,51 @@ const renderDashboard = () => {
 
     <div class="grid dashboard-panels">
       <section class="card panel-large">
-        <div class="panel-header"><h2>User Growth</h2><span class="pill ok">Live</span></div>
+        <div class="panel-header">
+          <div>
+            <h2>User Growth</h2>
+            <p class="chart-subtitle">Tracking new users over the past week</p>
+          </div>
+          <div class="chart-actions">
+            <button type="button">Last 7 Days</button>
+          </div>
+        </div>
         <div class="chart-wrap"><canvas id="chart-user-growth" class="chart-canvas" data-chart="userGrowth"></canvas></div>
       </section>
       <section class="card panel-small">
-        <div class="panel-header"><h2>Monthly Registrations</h2></div>
+        <div class="panel-header">
+          <div>
+            <h2>Monthly Registrations</h2>
+            <p class="chart-subtitle">Compare signups per week</p>
+          </div>
+          <div class="chart-actions">
+            <button type="button">This Month</button>
+          </div>
+        </div>
         <div class="chart-wrap"><canvas id="chart-monthly-registrations" class="chart-canvas" data-chart="monthlyRegistrations"></canvas></div>
       </section>
       <section class="card panel-small">
-        <div class="panel-header"><h2>Popular Courses</h2></div>
+        <div class="panel-header">
+          <div>
+            <h2>Popular Courses</h2>
+            <p class="chart-subtitle">Top learning paths this week</p>
+          </div>
+          <div class="chart-actions">
+            <button type="button">View All</button>
+          </div>
+        </div>
         <div class="chart-wrap"><canvas id="chart-popular-courses" class="chart-canvas" data-chart="popularCourses"></canvas></div>
       </section>
       <section class="card panel-small">
-        <div class="panel-header"><h2>AI Tool Usage</h2></div>
+        <div class="panel-header">
+          <div>
+            <h2>AI Tool Usage</h2>
+            <p class="chart-subtitle">Usage share across top tools</p>
+          </div>
+          <div class="chart-actions">
+            <button type="button">Top 5</button>
+          </div>
+        </div>
         <div class="chart-wrap"><canvas id="chart-ai-tool-usage" class="chart-canvas" data-chart="topAiTools"></canvas></div>
       </section>
     </div>
