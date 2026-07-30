@@ -537,10 +537,15 @@ const switchView = async (view) => {
   }
 };
 
-const metricCard = (label, value, note = "") => `
+const metricCard = (label, value, note = "", icon = "") => `
   <section class="card metric-card">
-    <p class="metric-label">${escapeHtml(label)}</p>
-    <p class="metric-value">${escapeHtml(value)}</p>
+    <div class="metric-card-head">
+      ${icon ? `<div class="metric-icon">${icon}</div>` : ""}
+      <div>
+        <p class="metric-label">${escapeHtml(label)}</p>
+        <p class="metric-value">${escapeHtml(value)}</p>
+      </div>
+    </div>
     ${note ? `<p class="metric-note">${escapeHtml(note)}</p>` : ""}
   </section>
 `;
@@ -633,33 +638,45 @@ const renderDashboard = () => {
   const analytics = state.analytics || {};
 
   return `
+    <section class="hero-card card">
+      <div>
+        <p class="eyebrow">Welcome back</p>
+        <h2>Good morning, ${escapeHtml(state.admin?.fullName || "Admin")}</h2>
+        <p class="hero-copy">Here’s what’s happening across your learning platform today.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn secondary">Add course</button>
+        <button class="btn secondary">Review AI tools</button>
+      </div>
+    </section>
+
     <div class="grid metrics">
-      ${metricCard("Total Users", users.total ?? 0, `${users.active ?? 0} active`)}
-      ${metricCard("Active Users", users.active ?? 0, `${users.dailyActive ?? 0} today`)}
-      ${metricCard("Total Courses", courses.total ?? 0, `${courses.published ?? 0} published`)}
-      ${metricCard("Total Modules", modules.total ?? 0, `${modules.lessons ?? 0} lessons`)}
-      ${metricCard("Total AI Tools", aiTools.total ?? 0, `${aiTools.active ?? 0} active`)}
-      ${metricCard("Certificates Issued", certs.issued ?? 0)}
-      ${metricCard("New Registrations", users.newRegistrations ?? 0, "last 7 days")}
-      ${metricCard("Course Completion", `${learning.averageProgress ?? 0}%`, `${learning.completedEnrollments ?? 0} complete`)}
-      ${metricCard("Daily Active Users", users.dailyActive ?? 0)}
+      ${metricCard("Total Users", users.total ?? 0, `${users.active ?? 0} active`, "👥")}
+      ${metricCard("Active Users", users.active ?? 0, `${users.dailyActive ?? 0} today`, "⚡")}
+      ${metricCard("Total Courses", courses.total ?? 0, `${courses.published ?? 0} published`, "📚")}
+      ${metricCard("Total Modules", modules.total ?? 0, `${modules.lessons ?? 0} lessons`, "🧩")}
+      ${metricCard("Total AI Tools", aiTools.total ?? 0, `${aiTools.active ?? 0} active`, "🤖")}
+      ${metricCard("Certificates Issued", certs.issued ?? 0, "Issued", "🎓")}
+      ${metricCard("New Registrations", users.newRegistrations ?? 0, "last 7 days", "📝")}
+      ${metricCard("Course Completion", `${learning.averageProgress ?? 0}%`, `${learning.completedEnrollments ?? 0} complete`, "✅")}
+      ${metricCard("Daily Active Users", users.dailyActive ?? 0, "", "📈")}
     </div>
 
     <div class="grid dashboard-panels">
-      <section class="card">
-        <h2>User Growth</h2>
+      <section class="card panel-large">
+        <div class="panel-header"><h2>User Growth</h2><span class="pill ok">Live</span></div>
         <div class="chart-wrap"><canvas id="chart-user-growth" class="chart-canvas" data-chart="userGrowth"></canvas></div>
       </section>
-      <section class="card">
-        <h2>Monthly Registrations</h2>
+      <section class="card panel-small">
+        <div class="panel-header"><h2>Monthly Registrations</h2></div>
         <div class="chart-wrap"><canvas id="chart-monthly-registrations" class="chart-canvas" data-chart="monthlyRegistrations"></canvas></div>
       </section>
-      <section class="card">
-        <h2>Popular Courses</h2>
+      <section class="card panel-small">
+        <div class="panel-header"><h2>Popular Courses</h2></div>
         <div class="chart-wrap"><canvas id="chart-popular-courses" class="chart-canvas" data-chart="popularCourses"></canvas></div>
       </section>
-      <section class="card">
-        <h2>AI Tool Usage</h2>
+      <section class="card panel-small">
+        <div class="panel-header"><h2>AI Tool Usage</h2></div>
         <div class="chart-wrap"><canvas id="chart-ai-tool-usage" class="chart-canvas" data-chart="topAiTools"></canvas></div>
       </section>
     </div>
@@ -1021,20 +1038,19 @@ const initCharts = () => {
 
     const userGrowth = makeDataset(state.analytics?.userGrowth||[],'count');
     const ctx1 = document.getElementById('chart-user-growth');
-    if (ctx1 && userGrowth.labels.length) new Chart(ctx1.getContext('2d'),{type:'line',data:{labels:userGrowth.labels,datasets:[{label:'Users',data:userGrowth.data,backgroundColor:'rgba(16,185,129,0.12)',borderColor:'rgba(16,185,129,1)',tension:0.3,fill:true}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+    if (ctx1 && userGrowth.labels.length) new Chart(ctx1.getContext('2d'),{type:'line',data:{labels:userGrowth.labels,datasets:[{label:'Users',data:userGrowth.data,backgroundColor:'rgba(37,99,235,0.12)',borderColor:'rgba(37,99,235,1)',tension:0.3,fill:true}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
 
     const monthly = makeDataset(state.analytics?.monthlyRegistrations||[],'count');
     const ctx2 = document.getElementById('chart-monthly-registrations');
-    if (ctx2 && monthly.labels.length) new Chart(ctx2.getContext('2d'),{type:'bar',data:{labels:monthly.labels,datasets:[{label:'Regs',data:monthly.data,backgroundColor:'rgba(6,182,212,0.9)'}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+    if (ctx2 && monthly.labels.length) new Chart(ctx2.getContext('2d'),{type:'bar',data:{labels:monthly.labels,datasets:[{label:'Regs',data:monthly.data,backgroundColor:'rgba(16,185,129,0.9)'}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
 
     const popular = makeDataset(state.analytics?.popularCourses||[],'learners');
     const ctx3 = document.getElementById('chart-popular-courses');
-    if (ctx3 && popular.labels.length) new Chart(ctx3.getContext('2d'),{type:'bar',data:{labels:popular.labels,datasets:[{label:'Learners',data:popular.data,backgroundColor:'rgba(16,185,129,0.9)'}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+    if (ctx3 && popular.labels.length) new Chart(ctx3.getContext('2d'),{type:'bar',data:{labels:popular.labels,datasets:[{label:'Learners',data:popular.data,backgroundColor:'rgba(37,99,235,0.9)'}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
 
     const tools = makeDataset((state.analytics?.topAiTools||[]).map(t=>({title:t.name,count:t.count||1})),'count');
     const ctx4 = document.getElementById('chart-ai-tool-usage');
-    if (ctx4 && tools.labels.length) new Chart(ctx4.getContext('2d'),{type:'doughnut',data:{labels:tools.labels,datasets:[{data:tools.data,backgroundColor:[ 'rgba(16,185,129,0.9)','rgba(6,182,212,0.9)','rgba(52,211,153,0.9)','rgba(99,102,241,0.9)']}]},options:{plugins:{legend:{position:'right'}}}});
-  } catch (e){console.warn('Chart init failed',e)}
+    if (ctx4 && tools.labels.length) new Chart(ctx4.getContext('2d'),{type:'doughnut',data:{labels:tools.labels,datasets:[{data:tools.data,backgroundColor:tools.labels.map((_,index)=>index % 2 === 0 ? 'rgba(37,99,235,0.9)' : 'rgba(16,185,129,0.9)')} ]}},options:{plugins:{legend:{position:'right'}}}});  } catch (e){console.warn('Chart init failed',e)}
 };
 
 const findItem = (key, id) => (state.data[key] || []).find((item) => String(item._id) === String(id));
