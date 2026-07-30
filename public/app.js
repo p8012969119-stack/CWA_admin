@@ -10,6 +10,8 @@ const state = {
   settings: null,
   data: {},
   selectedIds: new Set(),
+  auditSearch: "",
+  auditType: "",
   loading: false,
   message: "",
   error: "",
@@ -368,6 +370,258 @@ const formatCell = (item, column) => {
   return escapeHtml(value || "-");
 };
 
+const plainValue = (item, path, fallback = "-") => {
+  const value = getValue(item, path);
+
+  if (Array.isArray(value)) return value.length ? value.join(", ") : fallback;
+  if (value && typeof value === "object") return value.title || value.name || value.email || value.fullName || value._id || fallback;
+  return value === undefined || value === null || value === "" ? fallback : value;
+};
+
+const compactText = (value, fallback = "No description added yet.", limit = 140) => {
+  const text = String(value || fallback).trim();
+  return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
+};
+
+const initials = (value = "Admin") =>
+  String(value || "Admin")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("") || "A";
+
+const recordTitle = (item) => item.title || item.name || item.fullName || item.email || "Untitled";
+
+const statusClass = (value) => {
+  const status = String(value ?? "").toLowerCase();
+  if (["published", "active", "yes", "verified", "pass", "completed"].includes(status)) return "ok";
+  if (["inactive", "archived", "revoked", "fail", "deleted", "error"].includes(status)) return "danger";
+  if (["draft", "pending", "false", "not started"].includes(status)) return "warn";
+  return "muted";
+};
+
+const statusPill = (value, fallback = "Draft") =>
+  `<span class="pill ${statusClass(value || fallback)}">${escapeHtml(value || fallback)}</span>`;
+
+const iconMarkup = (name, label = "") =>
+  `<span class="ui-icon" aria-hidden="true"><i data-lucide="${escapeHtml(name)}"></i></span>${label ? `<span>${escapeHtml(label)}</span>` : ""}`;
+
+const avatarMarkup = (label, imageUrl = "", className = "") => {
+  if (imageUrl) {
+    return `<span class="avatar ${className}"><img src="${escapeHtml(imageUrl)}" alt="" loading="lazy" /></span>`;
+  }
+
+  return `<span class="avatar ${className}" aria-hidden="true">${escapeHtml(initials(label))}</span>`;
+};
+
+const statChip = (label, value, icon = "circle") => `
+  <div class="stat-chip">
+    ${iconMarkup(icon)}
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <b>${escapeHtml(value)}</b>
+    </div>
+  </div>
+`;
+
+const metaItem = (label, value) => `
+  <div class="meta-item">
+    <span>${escapeHtml(label)}</span>
+    <b>${escapeHtml(value)}</b>
+  </div>
+`;
+
+const progressBar = (value = 0) => {
+  const safeValue = Math.max(0, Math.min(100, Number(value || 0)));
+  return `
+    <div class="progress-track" aria-label="Progress ${safeValue}%">
+      <i style="width:${safeValue}%"></i>
+    </div>
+  `;
+};
+
+const cardShell = (key, item, body, extraClass = "") => `
+  <article class="entity-card ${key}-card ${extraClass}">
+    ${body}
+    <div class="entity-actions">${renderActions(key, item)}</div>
+  </article>
+`;
+
+const renderUserCard = (item) => {
+  const progress = Number(item.progressPercentage || item.learningProgress || item.progress?.progressPercentage || 0);
+
+  return cardShell("users", item, `
+    <div class="entity-head">
+      ${state.selectedIds ? `<input class="select-dot" type="checkbox" data-select-id="${escapeHtml(item._id)}" ${state.selectedIds.has(item._id) ? "checked" : ""} aria-label="Select ${escapeHtml(recordTitle(item))}" />` : ""}
+      ${avatarMarkup(item.fullName || item.email, item.avatar || item.profileImage)}
+      <div>
+        <h3>${escapeHtml(item.fullName || "Learner")}</h3>
+        <p>${escapeHtml(item.email || "-")}</p>
+      </div>
+      ${statusPill(item.isActive === false ? "Inactive" : "Active")}
+    </div>
+    <div class="entity-meta">
+      ${metaItem("Role", item.role || "User")}
+      ${metaItem("Joined", formatDate(item.createdAt))}
+      ${metaItem("Verified", item.isVerified ? "Yes" : "No")}
+      ${metaItem("Premium", item.isPremium ? "Yes" : "No")}
+    </div>
+    <div class="progress-block">
+      <div><span>Learning progress</span><b>${escapeHtml(progress)}%</b></div>
+      ${progressBar(progress)}
+    </div>
+  `);
+};
+
+const renderAdminCard = (item) =>
+  cardShell("admins", item, `
+    <div class="entity-head">
+      ${avatarMarkup(item.fullName || item.email, item.avatar || item.profileImage, "avatar-admin")}
+      <div>
+        <h3>${escapeHtml(item.fullName || "Admin")}</h3>
+        <p>${escapeHtml(item.email || "-")}</p>
+      </div>
+      ${statusPill(item.isActive === false ? "Inactive" : "Active")}
+    </div>
+    <div class="permission-band">
+      <span>${escapeHtml(item.role || "admin")}</span>
+      <b>${escapeHtml(item.role === "superadmin" ? "Full workspace access" : "Operational access")}</b>
+    </div>
+    <div class="entity-meta">
+      ${metaItem("Role", item.role || "admin")}
+      ${metaItem("Last login", formatDate(item.lastLogin))}
+      ${metaItem("Joined", formatDate(item.createdAt))}
+    </div>
+  `);
+
+const renderCourseCard = (item) =>
+  cardShell("courses", item, `
+    <div class="course-thumb">
+      ${item.thumbnail ? `<img src="${escapeHtml(item.thumbnail)}" alt="" loading="lazy" />` : `<i data-lucide="graduation-cap"></i>`}
+      ${statusPill(item.status)}
+    </div>
+    <div class="entity-copy">
+      <p class="eyebrow">${escapeHtml(item.level || "Course")}</p>
+      <h3>${escapeHtml(item.title || "Untitled course")}</h3>
+      <p>${escapeHtml(compactText(item.shortDescription || item.description))}</p>
+    </div>
+    <div class="entity-meta">
+      ${metaItem("Duration", `${Number(item.duration || 0)} min`)}
+      ${metaItem("Students", item.enrolledUsers || item.students || item.learners || "-")}
+      ${metaItem("Price", item.isFree ? "Free" : `Rs ${Number(item.price || 0)}`)}
+      ${metaItem("Updated", formatDate(item.updatedAt || item.createdAt))}
+    </div>
+  `);
+
+const renderModuleCard = (item) =>
+  cardShell("modules", item, `
+    <div class="entity-head">
+      ${avatarMarkup(`M${item.order || ""}`, "", "avatar-module")}
+      <div>
+        <p class="eyebrow">Module ${escapeHtml(item.order || "-")}</p>
+        <h3>${escapeHtml(item.title || "Untitled module")}</h3>
+        <p>${escapeHtml(plainValue(item, "course.title", "No course linked"))}</p>
+      </div>
+      ${statusPill(item.status)}
+    </div>
+    <p class="entity-description">${escapeHtml(compactText(item.description))}</p>
+    <div class="entity-meta">
+      ${metaItem("Lessons", item.lessonCount || item.lessons?.length || "-")}
+      ${metaItem("Duration", `${Number(item.duration || 0)} min`)}
+      ${metaItem("Order", item.order || "-")}
+    </div>
+  `);
+
+const renderLessonCard = (item) =>
+  cardShell("lessons", item, `
+    <div class="entity-head">
+      ${avatarMarkup(`L${item.order || ""}`, "", "avatar-lesson")}
+      <div>
+        <p class="eyebrow">${escapeHtml(plainValue(item, "module.title", "Course lesson"))}</p>
+        <h3>${escapeHtml(item.title || "Untitled lesson")}</h3>
+        <p>${escapeHtml(plainValue(item, "course.title", "No course linked"))}</p>
+      </div>
+      ${statusPill(item.status)}
+    </div>
+    <div class="entity-meta">
+      ${metaItem("Type", item.videoUrl ? "Video" : item.content ? "Reading" : "Lesson")}
+      ${metaItem("Duration", `${Number(item.duration || 0)} min`)}
+      ${metaItem("Order", item.order || "-")}
+      ${metaItem("Preview", item.isPreview ? "Yes" : "No")}
+    </div>
+  `);
+
+const renderQuizCard = (item) =>
+  cardShell("quizzes", item, `
+    <div class="entity-head">
+      ${avatarMarkup("QZ", "", "avatar-quiz")}
+      <div>
+        <p class="eyebrow">${escapeHtml(plainValue(item, "course.title", "Course quiz"))}</p>
+        <h3>${escapeHtml(item.title || "Untitled quiz")}</h3>
+        <p>${escapeHtml(compactText(item.description, "Questions, options, and answers are stored from the quiz API."))}</p>
+      </div>
+      ${statusPill(item.status)}
+    </div>
+    <div class="entity-meta">
+      ${metaItem("Questions", Array.isArray(item.questions) ? item.questions.length : 0)}
+      ${metaItem("Marks", item.totalMarks || "-")}
+      ${metaItem("Pass", item.passingMarks || "-")}
+      ${metaItem("Time", item.timeLimit ? `${item.timeLimit} min` : "-")}
+    </div>
+  `);
+
+const renderToolCard = (item) =>
+  cardShell("aiTools", item, `
+    <div class="entity-head">
+      ${avatarMarkup(item.name, item.logo, "avatar-tool")}
+      <div>
+        <p class="eyebrow">${escapeHtml(item.flowType || "AI tool")}</p>
+        <h3>${escapeHtml(item.name || "AI tool")}</h3>
+        <p>${escapeHtml(compactText(item.description))}</p>
+      </div>
+      ${statusPill(item.status || "active")}
+    </div>
+    <div class="tool-integration">
+      <span>${iconMarkup(item.apiEndpoint ? "plug-zap" : "plug", item.apiEndpoint ? "API connected" : "Manual launch")}</span>
+      <b>${escapeHtml(item.pricingType || "free")}</b>
+    </div>
+    <div class="entity-meta">
+      ${metaItem("Category", plainValue(item, "category.name", item.category || "-"))}
+      ${metaItem("Featured", item.isFeatured ? "Yes" : "No")}
+      ${metaItem("Website", item.websiteUrl ? "Ready" : "-")}
+    </div>
+  `);
+
+const renderGenericCard = (key, item) => {
+  const config = entityConfigs[key];
+  return cardShell(key, item, `
+    <div class="entity-head">
+      ${avatarMarkup(recordTitle(item), "", `avatar-${key}`)}
+      <div>
+        <p class="eyebrow">${escapeHtml(config.title.slice(0, -1) || config.title)}</p>
+        <h3>${escapeHtml(recordTitle(item))}</h3>
+        <p>${escapeHtml(item.description || item.message || item.email || item.slug || "Managed record")}</p>
+      </div>
+      ${statusPill(item.status || (item.isActive === false ? "Inactive" : "Active"))}
+    </div>
+    <div class="entity-meta">
+      ${config.columns.slice(0, 4).map((column) => metaItem(column.label, formatCell(item, column).replace(/<[^>]*>/g, ""))).join("")}
+    </div>
+  `);
+};
+
+const renderEntityCard = (key, item) => {
+  if (key === "users") return renderUserCard(item);
+  if (key === "admins") return renderAdminCard(item);
+  if (key === "courses") return renderCourseCard(item);
+  if (key === "modules") return renderModuleCard(item);
+  if (key === "lessons") return renderLessonCard(item);
+  if (key === "quizzes") return renderQuizCard(item);
+  if (key === "aiTools") return renderToolCard(item);
+  return renderGenericCard(key, item);
+};
+
 const request = async (path, options = {}) => {
   const headers = {
     "Content-Type": "application/json",
@@ -601,16 +855,19 @@ const switchView = async (view) => {
   }
 };
 
-const metricCard = (label, value, note = "", icon = "") => `
-  <section class="card metric-card">
+const metricCard = (label, value, note = "", icon = "activity", trend = "") => `
+  <section class="card metric-card reveal">
     <div class="metric-card-head">
-      ${icon ? `<div class="metric-icon">${icon}</div>` : ""}
+      <div class="metric-icon"><i data-lucide="${escapeHtml(icon)}"></i></div>
       <div>
         <p class="metric-label">${escapeHtml(label)}</p>
-        <p class="metric-value">${escapeHtml(value)}</p>
+        <p class="metric-value" data-count="${escapeHtml(value)}">${escapeHtml(value)}</p>
       </div>
     </div>
-    ${note ? `<p class="metric-note">${escapeHtml(note)}</p>` : ""}
+    <div class="metric-footer">
+      ${note ? `<p class="metric-note">${escapeHtml(note)}</p>` : "<span></span>"}
+      ${trend ? `<span class="trend-badge">${escapeHtml(trend)}</span>` : ""}
+    </div>
   </section>
 `;
 
@@ -702,32 +959,31 @@ const renderDashboard = () => {
   const analytics = state.analytics || {};
 
   return `
-    <section class="hero-card card">
+    <section class="hero-card card reveal">
       <div>
-        <p class="eyebrow">Welcome back</p>
+        <p class="eyebrow">Command center</p>
         <h2>Good morning, ${escapeHtml(state.admin?.fullName || "Admin")}</h2>
-        <p class="hero-copy">Here’s what’s happening across your learning platform today.</p>
+        <p class="hero-copy">Live platform health, learning performance, users, and AI tool activity in one focused admin workspace.</p>
       </div>
       <div class="hero-actions">
-        <button class="btn secondary">Add course</button>
-        <button class="btn secondary">Review AI tools</button>
+        <button class="btn" data-view="courses" type="button">${iconMarkup("plus", "Add course")}</button>
+        <button class="btn secondary" data-view="aiTools" type="button">${iconMarkup("sparkles", "Review AI tools")}</button>
       </div>
     </section>
 
     <div class="grid metrics">
-      ${metricCard("Total Users", users.total ?? 0, `${users.active ?? 0} active`, "👥")}
-      ${metricCard("Active Users", users.active ?? 0, `${users.dailyActive ?? 0} today`, "⚡")}
-      ${metricCard("Total Courses", courses.total ?? 0, `${courses.published ?? 0} published`, "📚")}
-      ${metricCard("Total Modules", modules.total ?? 0, `${modules.lessons ?? 0} lessons`, "🧩")}
-      ${metricCard("Total AI Tools", aiTools.total ?? 0, `${aiTools.active ?? 0} active`, "🤖")}
-      ${metricCard("Certificates Issued", certs.issued ?? 0, "Issued", "🎓")}
-      ${metricCard("New Registrations", users.newRegistrations ?? 0, "last 7 days", "📝")}
-      ${metricCard("Course Completion", `${learning.averageProgress ?? 0}%`, `${learning.completedEnrollments ?? 0} complete`, "✅")}
-      ${metricCard("Daily Active Users", users.dailyActive ?? 0, "", "📈")}
+      ${metricCard("Total Users", users.total ?? 0, `${users.active ?? 0} active`, "users", "+ live")}
+      ${metricCard("Daily Active", users.dailyActive ?? 0, `${users.weeklyActive ?? 0} weekly`, "activity", "today")}
+      ${metricCard("Courses", courses.total ?? 0, `${courses.published ?? 0} published`, "book-open", "content")}
+      ${metricCard("AI Tools", aiTools.total ?? 0, `${aiTools.active ?? 0} active`, "bot", "tools")}
+      ${metricCard("Certificates", certs.issued ?? 0, "issued", "award", "trust")}
+      ${metricCard("Registrations", users.newRegistrations ?? 0, "last 7 days", "user-plus", "growth")}
+      ${metricCard("Avg Completion", `${learning.averageProgress ?? 0}%`, `${learning.completedEnrollments ?? 0} complete`, "gauge", "learning")}
+      ${metricCard("Lessons", modules.lessons ?? 0, `${modules.total ?? 0} modules`, "layers", "library")}
     </div>
 
     <div class="grid dashboard-panels">
-      <section class="card panel-large">
+      <section class="card panel-large analytics-card reveal">
         <div class="panel-header">
           <div>
             <h2>User Growth</h2>
@@ -739,7 +995,7 @@ const renderDashboard = () => {
         </div>
         <div class="chart-wrap"><canvas id="chart-user-growth" class="chart-canvas" data-chart="userGrowth"></canvas></div>
       </section>
-      <section class="card panel-small">
+      <section class="card panel-small analytics-card reveal">
         <div class="panel-header">
           <div>
             <h2>Monthly Registrations</h2>
@@ -751,7 +1007,7 @@ const renderDashboard = () => {
         </div>
         <div class="chart-wrap"><canvas id="chart-monthly-registrations" class="chart-canvas" data-chart="monthlyRegistrations"></canvas></div>
       </section>
-      <section class="card panel-small">
+      <section class="card panel-small analytics-card reveal">
         <div class="panel-header">
           <div>
             <h2>Popular Courses</h2>
@@ -763,7 +1019,7 @@ const renderDashboard = () => {
         </div>
         <div class="chart-wrap"><canvas id="chart-popular-courses" class="chart-canvas" data-chart="popularCourses"></canvas></div>
       </section>
-      <section class="card panel-small">
+      <section class="card panel-small analytics-card reveal">
         <div class="panel-header">
           <div>
             <h2>AI Tool Usage</h2>
@@ -780,27 +1036,50 @@ const renderDashboard = () => {
 };
 
 const renderLearning = () => `
-  <section class="card feature-grid">
+  <section class="page-hero card reveal">
     <div>
-      <h2>Learning modules</h2>
-      <p>Admins can review courses, modules, lessons, progress, and certificates from the content management sections.</p>
+      <p class="eyebrow">Learning operations</p>
+      <h2>Build and maintain every course path from one clean control room.</h2>
+      <p>Review courses, modules, lessons, quizzes, progress, and certificates without leaving the admin portal.</p>
     </div>
-    <button class="btn secondary" data-view="courses" type="button">Manage courses</button>
-    <button class="btn secondary" data-view="modules" type="button">Manage modules</button>
-    <button class="btn secondary" data-view="lessons" type="button">Manage lessons</button>
-    <button class="btn secondary" data-view="quizzes" type="button">Manage quizzes</button>
-    <button class="btn secondary" data-view="certificates" type="button">Manage certificates</button>
+    <button class="btn" data-view="courses" type="button">${iconMarkup("plus", "Create content")}</button>
+  </section>
+  <section class="quick-grid">
+    ${[
+      ["courses", "Courses", "Published paths, pricing, levels, and thumbnails.", "book-open"],
+      ["modules", "Modules", "Order course sections and map them to live courses.", "layers-3"],
+      ["lessons", "Lessons", "Manage lesson content, videos, order, and visibility.", "play-square"],
+      ["quizzes", "Quizzes", "Create API-backed questions, options, and answers.", "clipboard-check"],
+      ["certificates", "Certificates", "Review issued and locked certificate records.", "award"],
+    ].map(([view, title, copy, icon]) => `
+      <button class="quick-card reveal" data-view="${view}" type="button">
+        ${iconMarkup(icon)}
+        <span>
+          <b>${title}</b>
+          <small>${copy}</small>
+        </span>
+      </button>
+    `).join("")}
   </section>
 `;
 
 const renderWorkspace = () => `
-  <section class="card feature-grid">
+  <section class="workspace-shell card reveal">
     <div>
-      <h2>AI workspace and chat</h2>
-      <p>Manage AI tools here, then use the main CrackWithAI app for the learner-facing workspace experience.</p>
+      <p class="eyebrow">AI Workspace</p>
+      <h2>Manage the AI tools that power learner workflows.</h2>
+      <p>Keep tool cards, integrations, categories, featured status, and visibility organized from the admin side.</p>
     </div>
-    <button class="btn secondary" data-view="aiTools" type="button">Manage AI tools</button>
-    <button class="btn secondary" data-view="categories" type="button">Manage categories</button>
+    <div class="chat-preview" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+      <b></b>
+    </div>
+    <div class="hero-actions">
+      <button class="btn" data-view="aiTools" type="button">${iconMarkup("bot", "Manage AI tools")}</button>
+      <button class="btn secondary" data-view="categories" type="button">${iconMarkup("folder-tree", "Manage categories")}</button>
+    </div>
   </section>
 `;
 
@@ -864,12 +1143,26 @@ const renderFormFields = (config, item = {}, mode = "create") =>
 const renderEntity = (key) => {
   const config = entityConfigs[key];
   const items = state.data[key] || [];
+  const isEmpty = !items.length;
+  const pageCopy = {
+    users: "Registered learner accounts, premium access, verification, and lifecycle controls.",
+    admins: "Operator profiles, permissions, login status, and secure management actions.",
+    courses: "Course cards with status, pricing, thumbnails, duration, and publishing tools.",
+    modules: "Structured module boxes mapped to courses with ordering and lesson metadata.",
+    lessons: "Lesson inventory with course relation, module, duration, content type, and visibility.",
+    quizzes: "MongoDB-backed quiz records with questions, options, answers, marks, and status.",
+    aiTools: "AI tool library with logos, pricing, integrations, categories, and visibility controls.",
+    categories: "Tool category organization, ordering, and visibility.",
+    certificates: "Certificate records, issue state, course relation, and revocation controls.",
+    notifications: "Audience messaging records and delivery metadata.",
+  };
 
   return `
-    <div class="toolbar">
+    <section class="toolbar card reveal">
       <div>
+        <p class="eyebrow">${escapeHtml(config.title)} management</p>
         <h2>${escapeHtml(config.title)}</h2>
-        <p>${items.length} records loaded</p>
+        <p>${escapeHtml(pageCopy[key] || "Create, review, and manage records with the existing admin API.")}</p>
       </div>
       <div class="toolbar-controls">
         ${config.searchable ? `<input id="${key}-search" placeholder="Search ${escapeHtml(config.title.toLowerCase())}" />` : ""}
@@ -883,29 +1176,22 @@ const renderEntity = (key) => {
         <button class="btn secondary" data-refresh="${key}" type="button">Refresh</button>
         <button class="btn" data-open-form="${key}" type="button">Create</button>
       </div>
-    </div>
+    </section>
     ${config.bulk ? renderBulkActions() : ""}
-    <section class="table-panel">
-      <table>
-        <thead>
-          <tr>
-            ${config.bulk ? "<th></th>" : ""}
-            ${config.columns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("")}
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items
-            .map((item) => `
-              <tr>
-                ${config.bulk ? `<td><input type="checkbox" data-select-id="${escapeHtml(item._id)}" ${state.selectedIds.has(item._id) ? "checked" : ""} /></td>` : ""}
-                ${config.columns.map((column) => `<td>${formatCell(item, column)}</td>`).join("")}
-                <td><div class="row-actions">${renderActions(key, item)}</div></td>
-              </tr>
-            `)
-            .join("") || `<tr><td colspan="${config.columns.length + 2}">No records found.</td></tr>`}
-        </tbody>
-      </table>
+    <section class="entity-summary">
+      ${statChip("Loaded records", items.length, "database")}
+      ${statChip("Primary action", "Create", "plus-circle")}
+      ${statChip("Data source", config.endpoint, "route")}
+    </section>
+    <section class="entity-grid ${key}-grid">
+      ${items.map((item) => renderEntityCard(key, item)).join("")}
+      ${isEmpty ? `
+        <div class="empty-state card">
+          ${iconMarkup("inbox")}
+          <h3>No ${escapeHtml(config.title.toLowerCase())} found</h3>
+          <p>Use Create or adjust the filters to add and manage records.</p>
+        </div>
+      ` : ""}
     </section>
   `;
 };
@@ -924,24 +1210,27 @@ const renderBulkActions = () => `
 
 const renderActions = (key, item) => {
   const config = entityConfigs[key];
+  const actionButton = (label, attributes, className = "mini", icon = "circle") =>
+    `<button class="${className}" ${attributes} type="button">${iconMarkup(icon, label)}</button>`;
+
   return (config.actions || [])
     .map((action) => {
-      if (action === "view") return `<button class="mini" data-view-record="${key}:${item._id}" type="button">View</button>`;
-      if (action === "edit") return `<button class="mini" data-edit-record="${key}:${item._id}" type="button">Edit</button>`;
+      if (action === "view") return actionButton("View", `data-view-record="${key}:${item._id}"`, "mini", "eye");
+      if (action === "edit") return actionButton("Edit", `data-edit-record="${key}:${item._id}"`, "mini", "pencil");
       if (action === "delete") {
         const isSelf = key === "admins" && String(item._id) === String(state.admin?._id);
-        return `<button class="mini danger-text" data-delete-record="${key}:${item._id}" type="button" ${isSelf ? "disabled" : ""}>Delete</button>`;
+        return actionButton("Delete", `data-delete-record="${key}:${item._id}" ${isSelf ? "disabled" : ""}`, "mini danger-text", "trash-2");
       }
-      if (action === "password") return `<button class="mini" data-password-record="${key}:${item._id}" type="button">Reset password</button>`;
-      if (action === "premium") return `<button class="mini" data-user-premium="${item._id}:${item.isPremium ? "false" : "true"}" type="button">${item.isPremium ? "Remove premium" : "Assign premium"}</button>`;
-      if (action === "status") return `<button class="mini" data-user-status="${key}:${item._id}:${item.isActive === false ? "true" : "false"}" type="button">${item.isActive === false ? "Activate" : "Deactivate"}</button>`;
-      if (action === "publish") return `<button class="mini" data-status-record="${key}:${item._id}:published" type="button">Publish</button>`;
-      if (action === "archive") return `<button class="mini" data-status-record="${key}:${item._id}:archived" type="button">Archive</button>`;
-      if (action === "duplicate") return `<button class="mini" data-duplicate-record="${key}:${item._id}" type="button">Duplicate</button>`;
-      if (action === "feature") return `<button class="mini" data-tool-feature="${item._id}:${item.isFeatured ? "false" : "true"}" type="button">${item.isFeatured ? "Unfeature" : "Feature"}</button>`;
-      if (action === "hide") return `<button class="mini" data-tool-hide="${item._id}:${item.status === "active" ? "inactive" : "active"}" type="button">${item.status === "active" ? "Hide" : "Show"}</button>`;
-      if (action === "show") return `<button class="mini" data-category-show="${item._id}:${item.isActive ? "false" : "true"}" type="button">${item.isActive ? "Hide" : "Show"}</button>`;
-      if (action === "revoke") return `<button class="mini" data-revoke-cert="${item._id}" type="button">Revoke</button>`;
+      if (action === "password") return actionButton("Reset password", `data-password-record="${key}:${item._id}"`, "mini", "key-round");
+      if (action === "premium") return actionButton(item.isPremium ? "Remove premium" : "Assign premium", `data-user-premium="${item._id}:${item.isPremium ? "false" : "true"}"`, "mini", "badge-dollar-sign");
+      if (action === "status") return actionButton(item.isActive === false ? "Activate" : "Deactivate", `data-user-status="${key}:${item._id}:${item.isActive === false ? "true" : "false"}"`, "mini", item.isActive === false ? "user-check" : "user-x");
+      if (action === "publish") return actionButton("Publish", `data-status-record="${key}:${item._id}:published"`, "mini", "send");
+      if (action === "archive") return actionButton("Archive", `data-status-record="${key}:${item._id}:archived"`, "mini", "archive");
+      if (action === "duplicate") return actionButton("Duplicate", `data-duplicate-record="${key}:${item._id}"`, "mini", "copy");
+      if (action === "feature") return actionButton(item.isFeatured ? "Unfeature" : "Feature", `data-tool-feature="${item._id}:${item.isFeatured ? "false" : "true"}"`, "mini", "star");
+      if (action === "hide") return actionButton(item.status === "active" ? "Hide" : "Show", `data-tool-hide="${item._id}:${item.status === "active" ? "inactive" : "active"}"`, "mini", item.status === "active" ? "eye-off" : "eye");
+      if (action === "show") return actionButton(item.isActive ? "Hide" : "Show", `data-category-show="${item._id}:${item.isActive ? "false" : "true"}"`, "mini", item.isActive ? "eye-off" : "eye");
+      if (action === "revoke") return actionButton("Revoke", `data-revoke-cert="${item._id}"`, "mini danger-text", "ban");
       return "";
     })
     .join("");
@@ -984,94 +1273,213 @@ const renderDetailModal = (key, item) => `
 const renderAnalytics = () => {
   const analytics = state.analytics || {};
   return `
-    <div class="grid dashboard-panels">
-      <section class="card"><h2>User Growth</h2>${bars(analytics.userGrowth)}</section>
-      <section class="card"><h2>Course Completion</h2>${bars(analytics.learningProgress, "_id", "count")}</section>
-      <section class="card"><h2>Monthly Registrations</h2>${bars(analytics.monthlyRegistrations)}</section>
-      <section class="card"><h2>Top Courses</h2>${bars(analytics.popularCourses, "title", "learners")}</section>
-      <section class="card"><h2>Top AI Tools</h2>${bars((analytics.topAiTools || []).map((tool) => ({ title: tool.name, count: tool.isFeatured ? 2 : 1 })), "title", "count")}</section>
-      <section class="card">
-        <h2>Active Users</h2>
-        <div class="activity-split">
-          ${metricCard("Daily", analytics.activeUsers?.daily ?? 0)}
-          ${metricCard("Weekly", analytics.activeUsers?.weekly ?? 0)}
-          ${metricCard("Monthly", analytics.activeUsers?.monthly ?? 0)}
-        </div>
-      </section>
+    <section class="page-hero card reveal">
+      <div>
+        <p class="eyebrow">Trust and analytics</p>
+        <h2>Performance signals for the full CrackWithAI platform.</h2>
+        <p>Charts and KPI blocks are loaded from the existing analytics API and styled for fast operational review.</p>
+      </div>
+    </section>
+    <section class="analytics-kpis">
+      ${metricCard("Daily active", analytics.activeUsers?.daily ?? 0, "active today", "sun")}
+      ${metricCard("Weekly active", analytics.activeUsers?.weekly ?? 0, "active this week", "calendar-days")}
+      ${metricCard("Monthly active", analytics.activeUsers?.monthly ?? 0, "active this month", "calendar-range")}
+    </section>
+    <div class="grid dashboard-panels analytics-layout">
+      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>User Growth</h2><p class="chart-subtitle">New users by period</p></div></div>${bars(analytics.userGrowth)}</section>
+      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>Course Completion</h2><p class="chart-subtitle">Progress distribution</p></div></div>${bars(analytics.learningProgress, "_id", "count")}</section>
+      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>Monthly Registrations</h2><p class="chart-subtitle">Registration trend</p></div></div>${bars(analytics.monthlyRegistrations)}</section>
+      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>Popular Courses</h2><p class="chart-subtitle">Learner demand</p></div></div>${bars(analytics.popularCourses, "title", "learners")}</section>
+      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>Top AI Tools</h2><p class="chart-subtitle">Featured and active usage signals</p></div></div>${bars((analytics.topAiTools || []).map((tool) => ({ title: tool.name, count: tool.count || (tool.isFeatured ? 2 : 1) })), "title", "count")}</section>
     </div>
   `;
 };
 
 const renderSettings = () => {
   const settings = state.settings || {};
+  const settingGroups = [
+    {
+      title: "General Settings",
+      icon: "settings",
+      fields: [["platformName", "Platform name"], ["logoUrl", "Logo URL"], ["contactEmail", "Contact email"]],
+    },
+    {
+      title: "Account Settings",
+      icon: "user-cog",
+      fields: [["privacyPolicyUrl", "Privacy policy URL"], ["termsUrl", "Terms URL"]],
+    },
+    {
+      title: "API Configuration",
+      icon: "server-cog",
+      fields: [["storageProvider", "Storage provider"]],
+    },
+  ];
+
   return `
-    <section class="card settings-card">
-      <h2>Platform Settings</h2>
-      <form class="form settings-form" id="settings-form">
-        ${[
-          ["platformName", "Platform name"],
-          ["logoUrl", "Logo URL"],
-          ["contactEmail", "Contact email"],
-          ["privacyPolicyUrl", "Privacy policy URL"],
-          ["termsUrl", "Terms URL"],
-          ["storageProvider", "Storage provider"],
-        ]
-          .map(([name, label]) => `
-            <label class="field">
-              <span>${label}</span>
-              <input name="${name}" value="${escapeHtml(settings[name] || "")}" />
-            </label>
-          `)
-          .join("")}
-        <label class="check-field">
-          <input name="maintenanceMode" type="checkbox" ${settings.maintenanceMode ? "checked" : ""} />
-          <span>Maintenance mode</span>
-        </label>
-        <div class="config-flags">
-          <span class="pill ${settings.smtpConfigured ? "ok" : "warn"}">SMTP ${settings.smtpConfigured ? "configured" : "missing"}</span>
-          <span class="pill ${settings.jwtConfigured ? "ok" : "warn"}">JWT ${settings.jwtConfigured ? "configured" : "missing"}</span>
-          <span class="pill muted">${escapeHtml(settings.environment || "development")}</span>
-        </div>
-        <button class="btn" type="submit">Save settings</button>
-      </form>
+    <section class="page-hero card reveal">
+      <div>
+        <p class="eyebrow">System controls</p>
+        <h2>Settings built for confident operations.</h2>
+        <p>Grouped configuration cards use the same settings payload and save endpoint already in the portal.</p>
+      </div>
     </section>
+    <form class="settings-form" id="settings-form">
+      <div class="settings-grid">
+        ${settingGroups.map((group) => `
+          <section class="settings-box card reveal">
+            <div class="settings-box-head">
+              ${iconMarkup(group.icon)}
+              <h3>${escapeHtml(group.title)}</h3>
+            </div>
+            ${group.fields.map(([name, label]) => `
+              <label class="field">
+                <span>${escapeHtml(label)}</span>
+                <input name="${name}" value="${escapeHtml(settings[name] || "")}" />
+              </label>
+            `).join("")}
+          </section>
+        `).join("")}
+        <section class="settings-box card reveal">
+          <div class="settings-box-head">
+            ${iconMarkup("shield-check")}
+            <h3>Security</h3>
+          </div>
+          <label class="switch-field">
+            <input name="maintenanceMode" type="checkbox" ${settings.maintenanceMode ? "checked" : ""} />
+            <span></span>
+            <b>Maintenance mode</b>
+          </label>
+          <div class="config-flags">
+            <span class="pill ${settings.jwtConfigured ? "ok" : "warn"}">JWT ${settings.jwtConfigured ? "configured" : "missing"}</span>
+            <span class="pill muted">${escapeHtml(settings.environment || "development")}</span>
+          </div>
+        </section>
+        <section class="settings-box card reveal">
+          <div class="settings-box-head">
+            ${iconMarkup("mail-check")}
+            <h3>Email and SMTP</h3>
+          </div>
+          <div class="config-flags stacked">
+            <span class="pill ${settings.smtpConfigured ? "ok" : "warn"}">SMTP ${settings.smtpConfigured ? "configured" : "missing"}</span>
+            <span class="pill muted">Contact: ${escapeHtml(settings.contactEmail || "-")}</span>
+          </div>
+        </section>
+        <section class="settings-box card reveal">
+          <div class="settings-box-head">
+            ${iconMarkup("palette")}
+            <h3>Appearance</h3>
+          </div>
+          <p class="muted-copy">Primary blue and secondary green are applied globally across cards, charts, focus states, and actions.</p>
+        </section>
+      </div>
+      <div class="sticky-save">
+        <button class="btn" type="submit">${iconMarkup("save", "Save settings")}</button>
+      </div>
+    </form>
   `;
 };
 
 const renderAuditLogs = () => {
   const logs = state.data.auditLogs || [];
+  const search = state.auditSearch.trim().toLowerCase();
+  const type = state.auditType.trim().toLowerCase();
+  const filteredLogs = logs.filter((log) => {
+    const haystack = [
+      log.action,
+      log.admin?.email,
+      log.entityType,
+      log.entityId,
+      log.description,
+      log.ipAddress,
+      log.device,
+    ].join(" ").toLowerCase();
+    const matchesSearch = !search || haystack.includes(search);
+    const matchesType = !type || String(log.action || "").toLowerCase().includes(type);
+    return matchesSearch && matchesType;
+  });
+
   return `
-    <section class="table-panel">
-      <table>
-        <thead><tr><th>Action</th><th>Admin</th><th>Entity</th><th>Description</th><th>Time</th></tr></thead>
-        <tbody>
-          ${logs
-            .map((log) => `
-              <tr>
-                <td>${escapeHtml(log.action)}</td>
-                <td>${escapeHtml(log.admin?.email || "-")}</td>
-                <td>${escapeHtml(log.entityType || "-")}</td>
-                <td>${escapeHtml(log.description || "-")}</td>
-                <td>${formatDate(log.createdAt)}</td>
-              </tr>
-            `)
-            .join("") || `<tr><td colspan="5">No audit logs yet.</td></tr>`}
-        </tbody>
-      </table>
+    <section class="toolbar card reveal">
+      <div>
+        <p class="eyebrow">Audit trail</p>
+        <h2>Audit Logs</h2>
+        <p>Review admin activity with clean event cards and status-coded actions.</p>
+      </div>
+      <div class="toolbar-controls">
+        <input id="audit-search" placeholder="Search logs" value="${escapeHtml(state.auditSearch)}" />
+        <select id="audit-type" aria-label="Filter audit action">
+          ${[
+            ["", "All actions"],
+            ["login", "Login"],
+            ["create", "Create"],
+            ["update", "Update"],
+            ["delete", "Delete"],
+          ].map(([value, label]) => `<option value="${value}" ${state.auditType === value ? "selected" : ""}>${label}</option>`).join("")}
+        </select>
+        <button class="btn secondary" data-refresh-logs type="button">Refresh</button>
+      </div>
+    </section>
+    <section class="log-grid">
+      ${filteredLogs
+        .map((log) => `
+          <article class="log-card card reveal">
+            <div class="log-action">
+              ${statusPill(log.action || "Activity")}
+              <time>${formatDate(log.createdAt)}</time>
+            </div>
+            <h3>${escapeHtml(log.description || log.action || "Admin activity")}</h3>
+            <div class="entity-meta">
+              ${metaItem("Admin", log.admin?.email || "-")}
+              ${metaItem("Entity", log.entityType || "-")}
+              ${metaItem("Record", log.entityId || "-")}
+              ${metaItem("IP / device", log.ipAddress || log.device || "-")}
+            </div>
+          </article>
+        `)
+        .join("") || `
+          <div class="empty-state card">
+            ${iconMarkup("file-search")}
+            <h3>No audit logs found</h3>
+            <p>Platform actions will appear here when available from the API or when filters match.</p>
+          </div>
+        `}
     </section>
   `;
 };
 
 const renderProfile = () => `
-  <section class="card profile-card">
-    <h2>${escapeHtml(state.admin?.fullName || "Admin")}</h2>
-    <p>${escapeHtml(state.admin?.email || "")}</p>
-    <span class="pill ok">${escapeHtml(state.admin?.role === "superadmin" ? "admin" : state.admin?.role || "admin")}</span>
-    <div class="profile-grid">
-      <p><b>Status</b><span>${state.admin?.isActive ? "Active" : "Inactive"}</span></p>
-      <p><b>Last login</b><span>${formatDate(state.admin?.lastLogin)}</span></p>
-      <p><b>Created</b><span>${formatDate(state.admin?.createdAt)}</span></p>
+  <section class="profile-hero card reveal">
+    ${avatarMarkup(state.admin?.fullName || state.admin?.email, state.admin?.avatar || state.admin?.profileImage, "avatar-profile")}
+    <div>
+      <p class="eyebrow">Admin profile</p>
+      <h2>${escapeHtml(state.admin?.fullName || "Admin")}</h2>
+      <p>${escapeHtml(state.admin?.email || "")}</p>
     </div>
+    ${statusPill(state.admin?.isActive ? "Active" : "Inactive")}
+  </section>
+  <section class="profile-dashboard">
+    <article class="card reveal">
+      <h3>Personal details</h3>
+      <div class="entity-meta">
+        ${metaItem("Role", state.admin?.role || "admin")}
+        ${metaItem("Email", state.admin?.email || "-")}
+        ${metaItem("Joined", formatDate(state.admin?.createdAt))}
+        ${metaItem("Last login", formatDate(state.admin?.lastLogin))}
+      </div>
+    </article>
+    <article class="card reveal">
+      <h3>Account security</h3>
+      <div class="security-list">
+        <span>${iconMarkup("shield-check", "Authenticated admin session")}</span>
+        <span>${iconMarkup("key-round", "Password reset is available from Admins page")}</span>
+        <span>${iconMarkup("activity", "Audit events are tracked in Audit Logs")}</span>
+      </div>
+    </article>
+    <article class="card reveal profile-form-card">
+      <h3>Edit profile</h3>
+      <p class="muted-copy">Profile editing continues through the existing admin management action flow.</p>
+      <button class="btn secondary" data-view="admins" type="button">${iconMarkup("users", "Open admins")}</button>
+    </article>
   </section>
 `;
 
@@ -1123,9 +1531,9 @@ const renderApp = () => {
             </div>
           </div>
           <div class="actions">
-            <button id="notifications" class="icon-btn" title="Notifications">🔔</button>
-            <button id="messages" class="icon-btn" title="Messages">✉️</button>
-            <button id="theme-toggle" class="icon-btn" title="Toggle theme">🌓</button>
+            <button id="notifications" class="icon-btn" title="Notifications">${iconMarkup("bell")}</button>
+            <button id="messages" class="icon-btn" title="Messages">${iconMarkup("mail")}</button>
+            <button id="theme-toggle" class="icon-btn" title="Toggle theme">${iconMarkup("moon")}</button>
             <div class="profile"><span class="admin-name">${escapeHtml(state.admin?.fullName || "Admin")}</span></div>
             <button class="btn danger" id="logout" type="button">Logout</button>
           </div>
@@ -1141,6 +1549,7 @@ const renderApp = () => {
   if (window.lucide && typeof lucide.replace === 'function') try{ lucide.replace(); }catch(e){}
   bindEvents();
   initCharts();
+  initCountUps();
 };
 
 const initCharts = () => {
@@ -1182,6 +1591,27 @@ const initCharts = () => {
   } catch (e) { console.warn('Chart init failed', e); }
 };
 
+const initCountUps = () => {
+  document.querySelectorAll("[data-count]").forEach((node) => {
+    const rawValue = String(node.dataset.count || "");
+    const numeric = Number(rawValue.replace(/[^0-9.]/g, ""));
+
+    if (!Number.isFinite(numeric) || numeric <= 0 || rawValue.includes("%")) return;
+
+    const start = performance.now();
+    const duration = 650;
+
+    const tick = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const current = Math.round(numeric * progress);
+      node.textContent = rawValue.replace(/[0-9.]+/, current.toString());
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+
+    requestAnimationFrame(tick);
+  });
+};
+
 const findItem = (key, id) => (state.data[key] || []).find((item) => String(item._id) === String(id));
 
 const bindEvents = () => {
@@ -1202,6 +1632,28 @@ const bindEvents = () => {
   document.querySelector("#logout")?.addEventListener("click", () => logout());
   document.querySelectorAll("[data-refresh]").forEach((button) => {
     button.addEventListener("click", () => loadEntity(button.dataset.refresh));
+  });
+  document.querySelectorAll(".toolbar select[id*='-']").forEach((select) => {
+    const key = select.id.split("-")[0];
+    if (entityConfigs[key]) {
+      select.addEventListener("change", () => loadEntity(key));
+    }
+  });
+  Object.keys(entityConfigs).forEach((key) => {
+    document.querySelector(`#${key}-search`)?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") loadEntity(key);
+    });
+  });
+  document.querySelector("[data-refresh-logs]")?.addEventListener("click", loadAuditLogs);
+  document.querySelector("#audit-search")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      state.auditSearch = event.target.value || "";
+      render();
+    }
+  });
+  document.querySelector("#audit-type")?.addEventListener("change", (event) => {
+    state.auditType = event.target.value || "";
+    render();
   });
   document.querySelectorAll("[data-open-form]").forEach((button) => {
     button.addEventListener("click", () => openForm(button.dataset.openForm));
