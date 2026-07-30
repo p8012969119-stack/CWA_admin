@@ -491,14 +491,7 @@ h2 {
   gap: 20px;
   background: linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08));
   border: 1px solid rgba(37, 99, 235, 0.12);
-}
-
-.hero-card h2 {
-  font-size: clamp(2rem, 2.4vw, 2.5rem);
-  margin-bottom: 8px;
-}
-
-.hero-copy {
+    margin-bottom: 32px;
   max-width: 600px;
   color: var(--muted);
 }
