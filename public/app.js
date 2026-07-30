@@ -25,7 +25,8 @@ const getRuntimeApiBaseUrl = () => {
   const { protocol, hostname, port } = window.location;
 
   if (hostname === "localhost" || hostname === "127.0.0.1") {
-    return "http://localhost:3000/api";
+    const apiPort = port ? `:${port}` : "";
+    return `${protocol}//${hostname}${apiPort}/api`;
   }
 
   const normalizedHostname = hostname.startsWith("www.") ? hostname.slice(4) : hostname;
