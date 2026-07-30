@@ -143,7 +143,7 @@ h2 {
 .toolbar input:focus,
 .toolbar select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .check-field {
@@ -403,7 +403,7 @@ td {
 :root{
   --space-1:8px; --space-2:16px; --space-3:24px; --space-4:32px;
   --bg: #F8FAFC; --sidebar:#0F172A; --card:#FFFFFF; --border:#E6EEF3; --muted:#6B7280;
-  --text:#0F172A; --primary:#10B981; --secondary:#34D399; --accent:#06B6D4;
+  --text:#0F172A; --primary:#2563EB; --primary-strong:#1E40AF; --secondary:#60A5FA; --accent:#60A5FA;
   --shadow-sm: 0 6px 18px rgba(2,6,23,0.06); --shadow-md: 0 12px 30px rgba(2,6,23,0.08);
   --radius-lg:20px; --radius-md:12px; --radius-sm:8px;
 }
@@ -421,7 +421,7 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI
 .nav button{background:transparent;border:0;color:rgba(255,255,255,0.9);text-align:left;padding:10px;border-radius:12px;font-weight:700;display:flex;gap:10px;align-items:center}
 .nav button .icon{width:18px;height:18px}
 .nav button:hover{background:rgba(255,255,255,0.04)}
-.nav button.active{background:linear-gradient(90deg,rgba(16,185,129,0.12),rgba(6,182,212,0.04));box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02)}
+.nav button.active{background:linear-gradient(90deg,rgba(37,99,235,0.12),rgba(96,165,250,0.04));box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02)}
 
 .main{padding:var(--space-3);min-height:100vh}
 
@@ -441,7 +441,7 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI
 .metric-card{background:var(--card);border-radius:var(--radius-lg);padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-sm);transition:transform .18s ease,box-shadow .18s ease}
 .metric-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md)}
 .kpi{display:flex;align-items:center;gap:14px}
-.kpi .kpi-icon{width:64px;height:64px;border-radius:14px;background:linear-gradient(180deg,rgba(16,185,129,0.12),rgba(6,182,212,0.04));display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--primary);font-size:18px}
+.kpi .kpi-icon{width:64px;height:64px;border-radius:14px;background:linear-gradient(180deg,rgba(37,99,235,0.12),rgba(96,165,250,0.04));display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--primary);font-size:18px}
 .metric-label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase}
 .metric-value{font-size:30px;font-weight:900}
 .metric-note{font-size:13px;color:var(--muted)}
