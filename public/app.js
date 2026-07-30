@@ -647,19 +647,19 @@ const renderDashboard = () => {
     <div class="grid dashboard-panels">
       <section class="card">
         <h2>User Growth</h2>
-        ${bars(analytics.userGrowth)}
+        <div class="chart-wrap"><canvas id="chart-user-growth" class="chart-canvas" data-chart="userGrowth"></canvas></div>
       </section>
       <section class="card">
         <h2>Monthly Registrations</h2>
-        ${bars(analytics.monthlyRegistrations)}
+        <div class="chart-wrap"><canvas id="chart-monthly-registrations" class="chart-canvas" data-chart="monthlyRegistrations"></canvas></div>
       </section>
       <section class="card">
         <h2>Popular Courses</h2>
-        ${bars(analytics.popularCourses, "title", "learners")}
+        <div class="chart-wrap"><canvas id="chart-popular-courses" class="chart-canvas" data-chart="popularCourses"></canvas></div>
       </section>
       <section class="card">
         <h2>AI Tool Usage</h2>
-        ${bars((analytics.topAiTools || []).map((tool) => ({ title: tool.name, count: tool.isFeatured ? 2 : 1 })), "title", "count")}
+        <div class="chart-wrap"><canvas id="chart-ai-tool-usage" class="chart-canvas" data-chart="topAiTools"></canvas></div>
       </section>
     </div>
   `;
@@ -981,11 +981,24 @@ const renderApp = () => {
       </aside>
       <section class="main">
         <header class="topbar">
-          <div>
-            <h1>${escapeHtml(viewTitle())}</h1>
-            <p class="admin-name">${escapeHtml(state.admin?.fullName || "")} - ${escapeHtml(state.admin?.role === "superadmin" ? "admin" : state.admin?.role || "admin")}</p>
+          <div class="left">
+            <button id="sidebar-toggle" class="icon-btn" title="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div>
+              <h1>${escapeHtml(viewTitle())}</h1>
+              <p class="breadcrumb">${escapeHtml(state.admin?.fullName || "")} · <span class="current-date">${new Date().toLocaleDateString()}</span></p>
+            </div>
+            <div class="search" role="search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <input id="global-search" placeholder="Search courses, users, tools..." />
+            </div>
           </div>
-          <button class="btn danger" id="logout" type="button">Logout</button>
+          <div class="actions">
+            <button id="notifications" class="icon-btn" title="Notifications">🔔</button>
+            <button id="messages" class="icon-btn" title="Messages">✉️</button>
+            <button id="theme-toggle" class="icon-btn" title="Toggle theme">🌓</button>
+            <div class="profile"><span class="admin-name">${escapeHtml(state.admin?.fullName || "Admin")}</span></div>
+            <button class="btn danger" id="logout" type="button">Logout</button>
+          </div>
         </header>
         ${state.error ? `<div class="alert error">${escapeHtml(state.error)}</div>` : ""}
         ${state.message ? `<div class="alert info">${escapeHtml(state.message)}</div>` : ""}
@@ -995,12 +1008,48 @@ const renderApp = () => {
     </section>
   `;
 
+  if (window.lucide && typeof lucide.replace === 'function') try{ lucide.replace(); }catch(e){}
   bindEvents();
+  initCharts();
+};
+
+const initCharts = () => {
+  if (typeof Chart === 'undefined') return;
+  try {
+    const makeDataset = (arr, valueKey='count') => ({labels:(arr||[]).map(a=>a._id||a.title||a.name||''),data:(arr||[]).map(a=>Number(a[valueKey]||0))});
+
+    const userGrowth = makeDataset(state.analytics?.userGrowth||[],'count');
+    const ctx1 = document.getElementById('chart-user-growth');
+    if (ctx1 && userGrowth.labels.length) new Chart(ctx1.getContext('2d'),{type:'line',data:{labels:userGrowth.labels,datasets:[{label:'Users',data:userGrowth.data,backgroundColor:'rgba(16,185,129,0.12)',borderColor:'rgba(16,185,129,1)',tension:0.3,fill:true}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+
+    const monthly = makeDataset(state.analytics?.monthlyRegistrations||[],'count');
+    const ctx2 = document.getElementById('chart-monthly-registrations');
+    if (ctx2 && monthly.labels.length) new Chart(ctx2.getContext('2d'),{type:'bar',data:{labels:monthly.labels,datasets:[{label:'Regs',data:monthly.data,backgroundColor:'rgba(6,182,212,0.9)'}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+
+    const popular = makeDataset(state.analytics?.popularCourses||[],'learners');
+    const ctx3 = document.getElementById('chart-popular-courses');
+    if (ctx3 && popular.labels.length) new Chart(ctx3.getContext('2d'),{type:'bar',data:{labels:popular.labels,datasets:[{label:'Learners',data:popular.data,backgroundColor:'rgba(16,185,129,0.9)'}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+
+    const tools = makeDataset((state.analytics?.topAiTools||[]).map(t=>({title:t.name,count:t.count||1})),'count');
+    const ctx4 = document.getElementById('chart-ai-tool-usage');
+    if (ctx4 && tools.labels.length) new Chart(ctx4.getContext('2d'),{type:'doughnut',data:{labels:tools.labels,datasets:[{data:tools.data,backgroundColor:[ 'rgba(16,185,129,0.9)','rgba(6,182,212,0.9)','rgba(52,211,153,0.9)','rgba(99,102,241,0.9)']}]},options:{plugins:{legend:{position:'right'}}}});
+  } catch (e){console.warn('Chart init failed',e)}
 };
 
 const findItem = (key, id) => (state.data[key] || []).find((item) => String(item._id) === String(id));
 
 const bindEvents = () => {
+  document.querySelector("#sidebar-toggle")?.addEventListener("click", () => {
+    document.querySelector('.layout')?.classList.toggle('sidebar-collapsed');
+  });
+  document.querySelector('#theme-toggle')?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+  });
+  document.querySelector('#global-search')?.addEventListener('input', (e) => {
+    // lightweight client-side hinting: filter current list view if available
+    const q = String(e.target.value || '').trim().toLowerCase();
+    if (!q) return;
+  });
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => switchView(button.dataset.view));
   });

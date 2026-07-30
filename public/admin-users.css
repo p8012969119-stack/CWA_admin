@@ -1,0 +1,20 @@
+body{font-family:Inter,system-ui,Arial,sans-serif;background:#f6f8fa;color:#0f172a;margin:20px}
+.container{max-width:980px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.header h1{font-size:28px;margin:0}
+.table{background:white;border-radius:8px;padding:16px;box-shadow:0 1px 2px rgba(15,23,42,0.06)}
+.row{display:flex;align-items:center;padding:18px 8px;border-bottom:1px solid #eef2f6}
+.row:last-child{border-bottom:0}
+.col.name{flex:1}
+.col.email{flex:1}
+.col.role{width:140px;text-align:center}
+.col.active{width:100px;text-align:center}
+.col.actions{width:320px;text-align:right}
+.button{display:inline-block;padding:8px 12px;margin-left:8px;border-radius:8px;background:#eef2f3;color:#0b1220;border:0;cursor:pointer}
+.button.danger{background:#feecee;color:#c6403a}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#e6ffef;color:#0b6b3a;font-weight:600}
+.small{font-size:13px;color:#6b7280}
+.controls{display:flex;gap:8px}
+.checkbox{margin-right:12px}
+/* responsive */
+@media(max-width:720px){.col.email{display:none}.col.role{display:none}}

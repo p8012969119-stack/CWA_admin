@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admins</title>
+  <link rel="stylesheet" href="/admin-users.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Admins</h1>
+      <div>
+        <button id="refresh" class="button">Refresh</button>
+        <button id="create" class="button">Create</button>
+      </div>
+    </div>
+
+    <div id="count" class="small">Loading...</div>
+
+    <div class="table" id="usersTable">
+      <!-- rows inserted here -->
+    </div>
+  </div>
+
+<script>
+async function loadUsers(){
+  const res = await fetch('/api/users');
+  const users = res.ok ? await res.json() : [];
+  const table = document.getElementById('usersTable');
+  const count = document.getElementById('count');
+  count.textContent = users.length + ' records loaded';
+  table.innerHTML='';
+  users.forEach(u=>{
+    const row = document.createElement('div');
+    row.className='row';
+    row.innerHTML = `
+      <div class="col name">${escapeHtml(u.name||'—')}</div>
+      <div class="col email">${escapeHtml(u.email||'—')}</div>
+      <div class="col role">${escapeHtml(u.role||'user')}</div>
+      <div class="col active">${u.active?'<span class="badge">Active</span>':'<span class="small">Inactive</span>'}</div>
+      <div class="col actions">
+        <div class="controls">
+          <button class="button" data-id="${u.id}" data-action="edit">Edit</button>
+          <button class="button" data-id="${u.id}" data-action="reset">Reset password</button>
+          <button class="button" data-id="${u.id}" data-action="deactivate">Deactivate</button>
+          <button class="button danger" data-id="${u.id}" data-action="delete">Delete</button>
+        </div>
+      </div>
+    `;
+    table.appendChild(row);
+  });
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>\"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+document.getElementById('refresh').addEventListener('click', loadUsers);
+
+document.getElementById('usersTable').addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  if(action==='delete'){
+    if(!confirm('Delete user?')) return;
+    await fetch('/api/users/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({deleted:true}) });
+    loadUsers();
+  } else if(action==='deactivate'){
+    await fetch('/api/users/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({active:false}) });
+    loadUsers();
+  } else if(action==='reset'){
+    alert('Reset password: not implemented');
+  } else if(action==='edit'){
+    const newRole = prompt('Set role (admin/user/superadmin):');
+    if(newRole) {
+      await fetch('/api/users/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({role:newRole}) });
+      loadUsers();
+    }
+  }
+});
+
+loadUsers().catch(err=>{ document.getElementById('count').textContent='Failed to load users'; console.error(err); });
+</script>
+</body>
+</html>
