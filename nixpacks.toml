@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_22"]
 cmds = ["echo 'No dependencies required'"]
 
 [phases.build]
-cmds = ["npm run check"]
+cmds = ["node --check server.mjs && node --check scripts/write-runtime-config.mjs && node --check public/app.js"]
 
 [start]
-cmd = "npm start"
+cmd = "node scripts/write-runtime-config.mjs && node server.mjs"
