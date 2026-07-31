@@ -647,6 +647,406 @@ h3 {
   height: 230px;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.premium-analytics-grid {
+  align-items: stretch;
+  grid-template-columns: minmax(0, 1.22fr) minmax(430px, 0.88fr);
+}
+
+.premium-analytics-grid .analytics-card {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  border-radius: 20px;
+  border-color: rgba(37, 99, 235, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.94)),
+    var(--panel);
+  box-shadow: 0 20px 55px rgba(37, 99, 235, 0.09), 0 10px 24px rgba(34, 197, 94, 0.05);
+}
+
+.premium-analytics-grid .panel-large {
+  min-height: 780px;
+}
+
+.premium-analytics-grid .panel-small {
+  min-height: 370px;
+}
+
+.analytics-card-header {
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.analytics-card-header h2 {
+  font-size: 1.18rem;
+  font-weight: 950;
+}
+
+.chart-actions select {
+  min-height: 38px;
+  padding: 0 34px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, var(--panel), var(--panel-soft)),
+    var(--panel);
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.analytics-preview-note {
+  margin: -2px 0 14px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(37, 99, 235, 0.28);
+  border-radius: 14px;
+  background: rgba(219, 234, 254, 0.5);
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.growth-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.growth-summary div,
+.registration-summary div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(34, 197, 94, 0.05));
+}
+
+.growth-summary span,
+.registration-summary span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.growth-summary strong,
+.registration-summary strong {
+  display: block;
+  color: var(--text);
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+.premium-chart-frame {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-height: 560px;
+  padding: 20px;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 251, 255, 0.96)),
+    repeating-linear-gradient(0deg, transparent 0 52px, rgba(148, 163, 184, 0.09) 53px);
+}
+
+.premium-chart-frame::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  pointer-events: none;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent 45%, rgba(34, 197, 94, 0.07));
+  opacity: 0.7;
+}
+
+.growth-canvas {
+  position: relative;
+  height: 520px;
+}
+
+.calendar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-actions .icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+}
+
+.calendar-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.calendar-title-row strong {
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.calendar-title-row span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.registration-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.calendar-weekday {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 950;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.calendar-cell {
+  display: grid;
+  min-height: 48px;
+  align-content: space-between;
+  padding: 7px;
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  border-radius: 12px;
+  background: #eff6ff;
+  color: var(--text);
+  text-align: left;
+  transition: transform 0.16s var(--ease), box-shadow 0.16s var(--ease), border-color 0.16s var(--ease);
+}
+
+.calendar-cell:hover,
+.calendar-cell:focus-visible,
+.calendar-cell.selected {
+  border-color: rgba(37, 99, 235, 0.42);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.16);
+  transform: translateY(-1px);
+}
+
+.calendar-cell span {
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.calendar-cell b {
+  font-size: 0.86rem;
+  font-weight: 950;
+}
+
+.calendar-empty {
+  min-height: 48px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.heat-0 { background: #f8fbff; }
+.heat-1 { background: #dbeafe; }
+.heat-2 { background: #bfdbfe; }
+.heat-3 { background: #bbf7d0; }
+.heat-4 { background: #4ade80; color: #052e16; }
+.heat-5 { background: linear-gradient(135deg, #2563eb, #16a34a); color: #ffffff; }
+
+.calendar-day-report {
+  display: grid;
+  gap: 3px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(34, 197, 94, 0.18);
+  border-radius: 16px;
+  background: rgba(220, 252, 231, 0.55);
+}
+
+.calendar-day-report span,
+.calendar-day-report em {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.calendar-day-report strong {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.registration-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.registration-summary div {
+  padding: 12px;
+}
+
+.registration-summary strong {
+  font-size: 0.92rem;
+}
+
+.courses-usage-card {
+  gap: 0;
+}
+
+.course-usage-list {
+  display: grid;
+  gap: 12px;
+}
+
+.course-usage-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 108px;
+  gap: 12px;
+  align-items: center;
+  padding: 13px;
+  border: 1px solid rgba(37, 99, 235, 0.11);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.84);
+  animation: rise 0.48s var(--ease) both;
+}
+
+.course-thumb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary-soft), var(--secondary-soft));
+  color: var(--primary);
+}
+
+.course-usage-main {
+  min-width: 0;
+}
+
+.course-usage-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.course-usage-topline h3 {
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+  font-size: 0.94rem;
+  font-weight: 950;
+}
+
+.course-usage-topline p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.course-usage-topline .trend-badge {
+  white-space: nowrap;
+}
+
+.course-usage-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.course-usage-metrics b {
+  color: var(--text);
+  font-weight: 950;
+}
+
+.course-progress-line {
+  height: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8eef7;
+}
+
+.course-progress-line i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  animation: growWidth 0.75s var(--ease) both;
+}
+
+.course-sparkline {
+  width: 108px;
+  height: 42px;
+}
+
+.course-sparkline polygon {
+  fill: rgba(37, 99, 235, 0.12);
+}
+
+.course-sparkline polyline {
+  fill: none;
+  stroke: var(--secondary-strong);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.dashboard-secondary-panels {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-secondary-panels .analytics-card {
+  max-width: 640px;
+}
+
+.analytics-skeleton-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.22fr) minmax(430px, 0.88fr);
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.skeleton-card {
+  min-height: 370px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, rgba(219, 234, 254, 0.7), rgba(255, 255, 255, 0.92), rgba(220, 252, 231, 0.7));
+  background-size: 220% 100%;
+  animation: skeletonSweep 1.2s ease-in-out infinite;
+  box-shadow: var(--shadow-sm);
+}
+
+.skeleton-large {
+  grid-row: span 2;
+  min-height: 780px;
+}
+
 .bars {
   display: grid;
   gap: 13px;
@@ -1370,6 +1770,15 @@ pre {
   }
 }
 
+@keyframes skeletonSweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: -220% 50%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1411,6 +1820,11 @@ pre {
   .profile-dashboard {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .premium-analytics-grid,
+  .analytics-skeleton-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.9fr);
+  }
 }
 
 @media (max-width: 860px) {
@@ -1448,12 +1862,35 @@ pre {
 
   .quick-grid,
   .dashboard-panels,
+  .premium-analytics-grid,
+  .analytics-skeleton-grid,
   .log-grid {
     grid-template-columns: 1fr;
   }
 
   .panel-large {
     grid-row: auto;
+  }
+
+  .premium-analytics-grid .panel-large,
+  .skeleton-large {
+    min-height: 560px;
+  }
+
+  .premium-chart-frame {
+    min-height: 360px;
+  }
+
+  .growth-canvas {
+    height: 330px;
+  }
+
+  .course-usage-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .course-sparkline {
+    grid-column: 2;
   }
 }
 
@@ -1487,5 +1924,58 @@ pre {
   .entity-head .pill {
     grid-column: 1 / -1;
     justify-self: start;
+  }
+
+  .analytics-card-header,
+  .calendar-title-row,
+  .course-usage-topline {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .growth-summary,
+  .registration-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-actions,
+  .chart-actions,
+  .chart-actions select {
+    width: 100%;
+  }
+
+  .calendar-actions .mini {
+    flex: 1;
+  }
+
+  .registration-calendar {
+    gap: 5px;
+  }
+
+  .calendar-cell {
+    min-height: 44px;
+    padding: 6px;
+    border-radius: 10px;
+  }
+
+  .calendar-cell span {
+    font-size: 0.66rem;
+  }
+
+  .calendar-cell b {
+    font-size: 0.76rem;
+  }
+
+  .course-usage-row {
+    grid-template-columns: 1fr;
+  }
+
+  .course-thumb,
+  .course-sparkline {
+    grid-column: auto;
+  }
+
+  .course-sparkline {
+    width: 100%;
   }
 }
