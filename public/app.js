@@ -718,6 +718,58 @@ const renderLessonCard = (item) =>
     </div>
   `);
 
+const renderLessonsTable = (items, isEmpty) => `
+  <section class="card lessons-table-card reveal">
+    <div class="lessons-table-wrap">
+      <table class="lessons-table">
+        <thead>
+          <tr>
+            <th scope="col">Lesson</th>
+            <th scope="col">Course</th>
+            <th scope="col">Module</th>
+            <th scope="col">Status</th>
+            <th scope="col">Type</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Order</th>
+            <th scope="col">Preview</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item) => `
+            <tr>
+              <td>
+                <span class="lessons-table-lesson">
+                  ${avatarMarkup(`L${item.order || ""}`, "", "avatar-lesson")}
+                  <span>
+                    <b>${escapeHtml(item.title || "Untitled lesson")}</b>
+                    <small>${escapeHtml(compactText(item.description || item.content, "Lesson content"))}</small>
+                  </span>
+                </span>
+              </td>
+              <td>${escapeHtml(plainValue(item, "course.title", "No course linked"))}</td>
+              <td>${escapeHtml(plainValue(item, "module.title", "Course lesson"))}</td>
+              <td>${statusPill(item.status)}</td>
+              <td>${escapeHtml(item.videoUrl ? "Video" : item.content ? "Reading" : "Lesson")}</td>
+              <td>${escapeHtml(`${Number(item.duration || 0)} min`)}</td>
+              <td>${escapeHtml(item.order || "-")}</td>
+              <td>${escapeHtml(item.isPreview ? "Yes" : "No")}</td>
+              <td><div class="entity-actions lessons-table-actions">${renderActions("lessons", item)}</div></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+    ${isEmpty ? `
+      <div class="empty-state">
+        ${iconMarkup("inbox")}
+        <h3>No lessons found</h3>
+        <p>Use Create or adjust the filters to add and manage records.</p>
+      </div>
+    ` : ""}
+  </section>
+`;
+
 const renderQuizCard = (item) =>
   cardShell("quizzes", item, `
     <div class="entity-head">
@@ -758,6 +810,58 @@ const renderToolCard = (item) =>
       ${metaItem("Website", item.websiteUrl ? "Ready" : "-")}
     </div>
   `);
+
+const renderAiToolsTable = (items, isEmpty) => `
+  <section class="card ai-tools-table-card reveal">
+    <div class="ai-tools-table-wrap">
+      <table class="ai-tools-table">
+        <thead>
+          <tr>
+            <th scope="col">AI Tool</th>
+            <th scope="col">Flow</th>
+            <th scope="col">Status</th>
+            <th scope="col">API</th>
+            <th scope="col">Pricing</th>
+            <th scope="col">Category</th>
+            <th scope="col">Featured</th>
+            <th scope="col">Website</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item) => `
+            <tr>
+              <td>
+                <span class="ai-tools-table-tool">
+                  ${avatarMarkup(item.name, item.logo, "avatar-tool")}
+                  <span>
+                    <b>${escapeHtml(item.name || "AI tool")}</b>
+                    <small>${escapeHtml(compactText(item.description, item.slug || "Managed AI tool"))}</small>
+                  </span>
+                </span>
+              </td>
+              <td>${escapeHtml(item.flowType || "-")}</td>
+              <td>${statusPill(item.status || "active")}</td>
+              <td>${escapeHtml(item.apiEndpoint ? "Connected" : "Manual")}</td>
+              <td>${escapeHtml(item.pricingType || "free")}</td>
+              <td>${escapeHtml(plainValue(item, "category.name", item.category || "-"))}</td>
+              <td>${escapeHtml(item.isFeatured ? "Yes" : "No")}</td>
+              <td>${escapeHtml(item.websiteUrl ? "Ready" : "-")}</td>
+              <td><div class="entity-actions ai-tools-table-actions">${renderActions("aiTools", item)}</div></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+    ${isEmpty ? `
+      <div class="empty-state">
+        ${iconMarkup("inbox")}
+        <h3>No AI tools found</h3>
+        <p>Use Create or adjust the filters to add and manage records.</p>
+      </div>
+    ` : ""}
+  </section>
+`;
 
 const renderGenericCard = (key, item) => {
   const config = entityConfigs[key];
@@ -1735,7 +1839,7 @@ const renderEntity = (key) => {
       ${statChip("Primary action", "Create", "plus-circle")}
       ${statChip("Data source", config.endpoint, "route")}
     </section>
-    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesTable(items, isEmpty) : key === "modules" ? renderModulesTable(items, isEmpty) : `
+    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesTable(items, isEmpty) : key === "modules" ? renderModulesTable(items, isEmpty) : key === "lessons" ? renderLessonsTable(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
         ${isEmpty ? `

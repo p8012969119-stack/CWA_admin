@@ -3411,3 +3411,152 @@ body {
     padding: 14px;
   }
 }
+
+/* Lessons and AI tools table structure */
+.lessons-table-card,
+.ai-tools-table-card {
+  padding: 18px;
+}
+
+.lessons-table-wrap,
+.ai-tools-table-wrap {
+  overflow-x: auto;
+}
+
+.lessons-table,
+.ai-tools-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+}
+
+.lessons-table {
+  min-width: 1120px;
+}
+
+.ai-tools-table {
+  min-width: 1160px;
+}
+
+.lessons-table th,
+.lessons-table td,
+.ai-tools-table th,
+.ai-tools-table td {
+  padding: 9px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.lessons-table th,
+.ai-tools-table th {
+  color: #8f7a6b;
+  font-size: 0.64rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lessons-table tbody tr,
+.ai-tools-table tbody tr {
+  background: #fffaf5;
+  box-shadow: inset 0 0 0 1px #eadfd3;
+}
+
+.lessons-table tbody td:first-child,
+.ai-tools-table tbody td:first-child {
+  border-radius: 12px 0 0 12px;
+}
+
+.lessons-table tbody td:last-child,
+.ai-tools-table tbody td:last-child {
+  border-radius: 0 12px 12px 0;
+}
+
+.lessons-table-lesson,
+.ai-tools-table-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 520px;
+}
+
+.lessons-table-lesson {
+  min-width: 330px;
+}
+
+.ai-tools-table-tool {
+  min-width: 350px;
+}
+
+.lessons-table-lesson .avatar,
+.ai-tools-table-tool .avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  font-size: 0.8rem;
+}
+
+.lessons-table-lesson b,
+.ai-tools-table-tool b {
+  display: block;
+  color: #120c08;
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.lessons-table-lesson small,
+.ai-tools-table-tool small {
+  display: -webkit-box;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #8a7668;
+  font-size: 0.74rem;
+  font-weight: 750;
+  line-height: 1.25;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.lessons-table td,
+.ai-tools-table td {
+  color: #7f6b5f;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.lessons-table .pill,
+.ai-tools-table .pill {
+  min-height: 26px;
+  padding: 0 11px;
+  font-size: 0.68rem;
+}
+
+.lessons-table-actions,
+.ai-tools-table-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.lessons-table-actions {
+  min-width: 270px;
+}
+
+.ai-tools-table-actions {
+  min-width: 250px;
+}
+
+.lessons-table-actions .mini,
+.ai-tools-table-actions .mini {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 0.68rem;
+}
+
+@media (max-width: 760px) {
+  .lessons-table-card,
+  .ai-tools-table-card {
+    padding: 14px;
+  }
+}
