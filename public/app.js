@@ -2111,7 +2111,7 @@ const renderAuditLogs = () => {
       <div>
         <p class="eyebrow">Audit trail</p>
         <h2>Audit Logs</h2>
-        <p>Review admin activity with clean event cards and status-coded actions.</p>
+        <p>Review admin activity with a clean table view and status-coded actions.</p>
       </div>
       <div class="toolbar-controls">
         <input id="audit-search" placeholder="Search logs" value="${escapeHtml(state.auditSearch)}" />
@@ -2127,30 +2127,43 @@ const renderAuditLogs = () => {
         <button class="btn secondary" data-refresh-logs type="button">Refresh</button>
       </div>
     </section>
-    <section class="log-grid">
-      ${filteredLogs
-        .map((log) => `
-          <article class="log-card card reveal">
-            <div class="log-action">
-              ${statusPill(log.action || "Activity")}
-              <time>${formatDate(log.createdAt)}</time>
-            </div>
-            <h3>${escapeHtml(log.description || log.action || "Admin activity")}</h3>
-            <div class="entity-meta">
-              ${metaItem("Admin", log.admin?.email || "-")}
-              ${metaItem("Entity", log.entityType || "-")}
-              ${metaItem("Record", log.entityId || "-")}
-              ${metaItem("IP / device", log.ipAddress || log.device || "-")}
-            </div>
-          </article>
-        `)
-        .join("") || `
-          <div class="empty-state card">
-            ${iconMarkup("file-search")}
-            <h3>No audit logs found</h3>
-            <p>Platform actions will appear here when available from the API or when filters match.</p>
-          </div>
-        `}
+    <section class="card audit-table-card reveal">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th scope="col">Action</th>
+              <th scope="col">Activity</th>
+              <th scope="col">Admin</th>
+              <th scope="col">Entity</th>
+              <th scope="col">Record</th>
+              <th scope="col">IP / Device</th>
+              <th scope="col">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredLogs.map((log) => `
+              <tr>
+                <td>${statusPill(log.action || "Activity")}</td>
+                <td class="audit-description">${escapeHtml(log.description || log.action || "Admin activity")}</td>
+                <td>${escapeHtml(log.admin?.email || "-")}</td>
+                <td>${escapeHtml(log.entityType || "-")}</td>
+                <td>${escapeHtml(log.entityId || "-")}</td>
+                <td>${escapeHtml(log.ipAddress || log.device || "-")}</td>
+                <td>${escapeHtml(formatDate(log.createdAt))}</td>
+              </tr>
+            `).join("") || `
+              <tr>
+                <td colspan="7" class="audit-empty">
+                  ${iconMarkup("file-search")}
+                  <span>No audit logs found</span>
+                  <small>Platform actions will appear here when available from the API or when filters match.</small>
+                </td>
+              </tr>
+            `}
+          </tbody>
+        </table>
+      </div>
     </section>
   `;
 };
