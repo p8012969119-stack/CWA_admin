@@ -9,3 +9,7 @@ cmds = ["node --check server.mjs && node --check scripts/write-runtime-config.mj
 
 [start]
 cmd = "node scripts/write-runtime-config.mjs && node server.mjs"
+
+[variables]
+NODE_ENV = "production"
+ADMIN_API_BASE_URL = "https://api.crackwithai.net/api"

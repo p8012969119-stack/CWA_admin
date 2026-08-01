@@ -788,10 +788,13 @@ const loadSession = async () => {
     return;
   }
 
+  renderSessionLoading();
+
   try {
     const response = await request("/admins/me");
     state.admin = response.data;
     await loadDashboard();
+    render();
   } catch {
     logout();
   }
@@ -1306,6 +1309,22 @@ const renderLogin = () => {
   document.querySelector("#toggle-setup").addEventListener("click", () => {
     document.querySelector("#setup-form").classList.toggle("hidden");
   });
+};
+
+const renderSessionLoading = () => {
+  app.innerHTML = `
+    <section class="auth-view">
+      <div class="auth-panel session-panel">
+        <p class="brand">CrackWithAI Admin</p>
+        <h1>Opening admin panel</h1>
+        <p class="subtitle">Checking your secure session...</p>
+        <div class="loading-line"></div>
+        <button class="link-btn" id="reset-session" type="button">Return to login</button>
+      </div>
+    </section>
+  `;
+
+  document.querySelector("#reset-session")?.addEventListener("click", () => logout());
 };
 
 const renderDashboard = () => {
