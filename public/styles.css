@@ -2569,3 +2569,139 @@ body {
     height: 40px;
   }
 }
+
+/* Compact analytics panels */
+.premium-analytics-grid {
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.82fr);
+  align-items: start;
+}
+
+.premium-analytics-grid .analytics-card {
+  padding: 20px;
+}
+
+.premium-analytics-grid .panel-large,
+.premium-analytics-grid .panel-small {
+  min-height: 0;
+}
+
+.analytics-card-header {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+
+.analytics-card-header h2 {
+  font-size: 1.05rem;
+}
+
+.chart-subtitle {
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.growth-summary {
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.growth-summary div {
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.growth-summary span {
+  margin-bottom: 4px;
+  font-size: 0.66rem;
+}
+
+.growth-summary strong {
+  font-size: 1.22rem;
+}
+
+.premium-chart-frame {
+  flex: 0 0 auto;
+  min-height: 0;
+  height: 255px;
+  padding: 14px;
+}
+
+.growth-canvas {
+  height: 225px;
+}
+
+.registration-calendar {
+  gap: 6px;
+}
+
+.calendar-cell {
+  min-height: 38px;
+  padding: 6px;
+  border-radius: 12px;
+}
+
+.calendar-cell span,
+.calendar-cell b {
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.calendar-title-row {
+  margin-bottom: 10px;
+}
+
+.calendar-title-row strong {
+  font-size: 0.96rem;
+}
+
+.calendar-title-row span {
+  font-size: 0.78rem;
+}
+
+.calendar-day-report {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+
+.calendar-day-report strong {
+  font-size: 0.92rem;
+}
+
+.registration-summary {
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.registration-summary div {
+  padding: 10px;
+  border-radius: 14px;
+}
+
+.registration-summary span {
+  margin-bottom: 4px;
+  font-size: 0.64rem;
+}
+
+.registration-summary strong {
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1180px) {
+  .premium-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .premium-analytics-grid .analytics-card {
+    padding: 16px;
+  }
+
+  .premium-chart-frame {
+    height: 220px;
+  }
+
+  .growth-canvas {
+    height: 190px;
+  }
+}
