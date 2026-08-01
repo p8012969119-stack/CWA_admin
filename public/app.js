@@ -2181,19 +2181,27 @@ const renderProfile = () => `
   <section class="profile-dashboard">
     <article class="card reveal">
       <h3>Personal details</h3>
-      <div class="entity-meta">
-        ${metaItem("Role", state.admin?.role || "admin")}
-        ${metaItem("Email", state.admin?.email || "-")}
-        ${metaItem("Joined", formatDate(state.admin?.createdAt))}
-        ${metaItem("Last login", formatDate(state.admin?.lastLogin))}
+      <div class="profile-table-wrap">
+        <table class="profile-table">
+          <tbody>
+            <tr><th scope="row">Role</th><td>${escapeHtml(state.admin?.role || "admin")}</td></tr>
+            <tr><th scope="row">Email</th><td>${escapeHtml(state.admin?.email || "-")}</td></tr>
+            <tr><th scope="row">Joined</th><td>${escapeHtml(formatDate(state.admin?.createdAt))}</td></tr>
+            <tr><th scope="row">Last login</th><td>${escapeHtml(formatDate(state.admin?.lastLogin))}</td></tr>
+          </tbody>
+        </table>
       </div>
     </article>
     <article class="card reveal">
       <h3>Account security</h3>
-      <div class="security-list">
-        <span>${iconMarkup("shield-check", "Authenticated admin session")}</span>
-        <span>${iconMarkup("key-round", "Password reset is available from Admins page")}</span>
-        <span>${iconMarkup("activity", "Audit events are tracked in Audit Logs")}</span>
+      <div class="profile-table-wrap">
+        <table class="profile-table security-table">
+          <tbody>
+            <tr><th scope="row">${iconMarkup("shield-check", "Session")}</th><td>Authenticated admin session</td></tr>
+            <tr><th scope="row">${iconMarkup("key-round", "Password")}</th><td>Password reset is available from Admins page</td></tr>
+            <tr><th scope="row">${iconMarkup("activity", "Audit")}</th><td>Audit events are tracked in Audit Logs</td></tr>
+          </tbody>
+        </table>
       </div>
     </article>
     <article class="card reveal profile-form-card">
