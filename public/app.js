@@ -1991,6 +1991,9 @@ const initCharts = () => {
           }]
         },
         options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
           plugins: {
             legend: { position: 'right' }
           }
