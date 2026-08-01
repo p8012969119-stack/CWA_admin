@@ -1206,6 +1206,56 @@ const bars = (items, labelKey = "_id", valueKey = "count") => {
   `;
 };
 
+const analyticsTableCard = (title, subtitle, items, labelKey = "_id", valueKey = "count") => {
+  const list = items || [];
+  const max = Math.max(...list.map((item) => Number(item[valueKey] || 0)), 1);
+
+  return `
+    <section class="card analytics-card analytics-table-card reveal">
+      <div class="panel-header">
+        <div>
+          <h2>${escapeHtml(title)}</h2>
+          <p class="chart-subtitle">${escapeHtml(subtitle)}</p>
+        </div>
+        <span class="analytics-table-count">${list.length} rows</span>
+      </div>
+      <div class="analytics-table-wrap">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Value</th>
+              <th scope="col">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map((item) => {
+              const value = Number(item[valueKey] || 0);
+              const width = Math.max((value / max) * 100, value ? 6 : 0);
+              const label = item[labelKey] || item.title || item.name || "-";
+              return `
+                <tr>
+                  <td>${escapeHtml(label)}</td>
+                  <td><strong>${escapeHtml(value)}</strong></td>
+                  <td>
+                    <span class="analytics-share">
+                      <i style="width:${width}%"></i>
+                    </span>
+                  </td>
+                </tr>
+              `;
+            }).join("") || `
+              <tr>
+                <td colspan="3" class="analytics-empty">No data yet.</td>
+              </tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+};
+
 const compactNumber = (value) => new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 }).format(Number(value || 0));
 const wholeNumber = (value) => new Intl.NumberFormat().format(Math.round(Number(value || 0)));
 const percentLabel = (value) => `${Number(value || 0).toFixed(Number(value || 0) >= 10 ? 0 : 1)}%`;
@@ -1944,11 +1994,11 @@ const renderAnalytics = () => {
       ${metricCard("Monthly active", analytics.activeUsers?.monthly ?? 0, "active this month", "calendar-range")}
     </section>
     <div class="grid dashboard-panels analytics-layout">
-      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>User Growth</h2><p class="chart-subtitle">New users by period</p></div></div>${bars(analytics.userGrowth)}</section>
-      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>Course Completion</h2><p class="chart-subtitle">Progress distribution</p></div></div>${bars(analytics.learningProgress, "_id", "count")}</section>
-      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>Monthly Registrations</h2><p class="chart-subtitle">Registration trend</p></div></div>${bars(analytics.monthlyRegistrations)}</section>
-      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>Popular Courses</h2><p class="chart-subtitle">Learner demand</p></div></div>${bars(analytics.popularCourses, "title", "learners")}</section>
-      <section class="card analytics-card reveal"><div class="panel-header"><div><h2>Top AI Tools</h2><p class="chart-subtitle">Featured and active usage signals</p></div></div>${bars((analytics.topAiTools || []).map((tool) => ({ title: tool.name, count: tool.count || (tool.isFeatured ? 2 : 1) })), "title", "count")}</section>
+      ${analyticsTableCard("User Growth", "New users by period", analytics.userGrowth)}
+      ${analyticsTableCard("Course Completion", "Progress distribution", analytics.learningProgress, "_id", "count")}
+      ${analyticsTableCard("Monthly Registrations", "Registration trend", analytics.monthlyRegistrations)}
+      ${analyticsTableCard("Popular Courses", "Learner demand", analytics.popularCourses, "title", "learners")}
+      ${analyticsTableCard("Top AI Tools", "Featured and active usage signals", (analytics.topAiTools || []).map((tool) => ({ title: tool.name, count: tool.count || (tool.isFeatured ? 2 : 1) })), "title", "count")}
     </div>
   `;
 };
