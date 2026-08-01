@@ -32,8 +32,7 @@ const getRuntimeApiBaseUrl = () => {
   const { protocol, hostname, port } = window.location;
 
   if (hostname === "localhost" || hostname === "127.0.0.1") {
-    const apiPort = port ? `:${port}` : "";
-    return `${protocol}//${hostname}${apiPort}/api`;
+    return `${protocol}//${hostname}:3000/api`;
   }
 
   const normalizedHostname = hostname.startsWith("www.") ? hostname.slice(4) : hostname;
@@ -60,23 +59,23 @@ const quizQuestionsExample = [
 ];
 
 const navItems = [
-  { key: "dashboard", label: "Dashboard", section: "Operate" },
-  { key: "learning", label: "Learning", section: "Operate" },
-  { key: "workspace", label: "AI Workspace", section: "Operate" },
-  { key: "users", label: "Users", section: "Admin" },
-  { key: "admins", label: "Admins", section: "Admin" },
-  { key: "courses", label: "Courses", section: "Content" },
-  { key: "modules", label: "Modules", section: "Content" },
-  { key: "lessons", label: "Lessons", section: "Content" },
-  { key: "quizzes", label: "Quizzes", section: "Content" },
-  { key: "aiTools", label: "AI Tools", section: "Content" },
-  { key: "categories", label: "Categories", section: "Content" },
-  { key: "certificates", label: "Certificates", section: "Trust" },
-  { key: "analytics", label: "Analytics", section: "Trust" },
-  { key: "notifications", label: "Notifications", section: "Trust" },
-  { key: "settings", label: "Settings", section: "System" },
-  { key: "auditLogs", label: "Audit Logs", section: "System" },
-  { key: "profile", label: "Profile", section: "System" },
+  { key: "dashboard", label: "Dashboard", section: "Operate", icon: "home" },
+  { key: "learning", label: "Learning", section: "Operate", icon: "monitor" },
+  { key: "workspace", label: "AI Workspace", section: "Operate", icon: "bot" },
+  { key: "users", label: "Users", section: "Admin", icon: "users" },
+  { key: "admins", label: "Admins", section: "Admin", icon: "shield" },
+  { key: "courses", label: "Courses", section: "Content", icon: "book-open" },
+  { key: "modules", label: "Modules", section: "Content", icon: "layers" },
+  { key: "lessons", label: "Lessons", section: "Content", icon: "play-square" },
+  { key: "quizzes", label: "Quizzes", section: "Content", icon: "help-circle" },
+  { key: "aiTools", label: "AI Tools", section: "Content", icon: "wand-2" },
+  { key: "categories", label: "Categories", section: "Content", icon: "grid" },
+  { key: "certificates", label: "Certificates", section: "Trust", icon: "award" },
+  { key: "analytics", label: "Analytics", section: "Trust", icon: "bar-chart-3" },
+  { key: "notifications", label: "Notifications", section: "Trust", icon: "bell" },
+  { key: "settings", label: "Settings", section: "System", icon: "settings" },
+  { key: "auditLogs", label: "Audit Logs", section: "System", icon: "file-text" },
+  { key: "profile", label: "Profile", section: "System", icon: "user-circle" },
 ];
 
 const entityConfigs = {
@@ -1836,18 +1835,27 @@ const renderApp = () => {
   app.innerHTML = `
     <section class="layout">
       <aside class="sidebar">
-        <p class="brand">CWA Admin</p>
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">C</span>
+          <span><b>CrackWithAI</b><small>Admin Panel</small></span>
+        </div>
         <nav class="nav">
           ${sections
             .map((section) => `
               <p class="nav-section">${escapeHtml(section)}</p>
               ${navItems
                 .filter((item) => item.section === section)
-                .map((item) => `<button class="${state.view === item.key ? "active" : ""}" data-view="${item.key}" type="button">${escapeHtml(item.label)}</button>`)
+                .map((item) => `<button class="${state.view === item.key ? "active" : ""}" data-view="${item.key}" type="button">${iconMarkup(item.icon || "circle", item.label)}</button>`)
                 .join("")}
             `)
             .join("")}
         </nav>
+        <div class="sidebar-upgrade">
+          <b>${iconMarkup("crown", "Go Premium")}</b>
+          <p>Unlock all premium features & tools</p>
+          <button class="btn" data-view="settings" type="button">Upgrade Now</button>
+        </div>
+        <p class="sidebar-copy">© 2026 CrackWithAI<br />All rights reserved.</p>
       </aside>
       <section class="main">
         <header class="topbar">
@@ -1864,7 +1872,7 @@ const renderApp = () => {
           </div>
           <div class="actions">
             <button id="notifications" class="icon-btn" title="Notifications">${iconMarkup("bell")}</button>
-            <button id="messages" class="icon-btn" title="Messages">${iconMarkup("mail")}</button>
+            <button id="messages" class="icon-btn" title="Fullscreen">${iconMarkup("maximize-2")}</button>
             <button id="theme-toggle" class="icon-btn" title="Toggle theme">${iconMarkup("moon")}</button>
             <div class="profile"><span class="admin-name">${escapeHtml(state.admin?.fullName || "Admin")}</span></div>
             <button class="btn danger" id="logout" type="button">Logout</button>
@@ -1894,9 +1902,9 @@ const initCharts = () => {
     if (ctx1 && growthModel.points.length) {
       const chartContext = ctx1.getContext('2d');
       const gradient = chartContext.createLinearGradient(0, 0, 0, 280);
-      gradient.addColorStop(0, 'rgba(37,99,235,0.24)');
-      gradient.addColorStop(0.72, 'rgba(34,197,94,0.08)');
-      gradient.addColorStop(1, 'rgba(37,99,235,0)');
+      gradient.addColorStop(0, 'rgba(117,63,24,0.26)');
+      gradient.addColorStop(0.72, 'rgba(184,123,56,0.1)');
+      gradient.addColorStop(1, 'rgba(117,63,24,0)');
 
       new Chart(chartContext, {
         type: 'line',
@@ -1906,12 +1914,12 @@ const initCharts = () => {
             label: 'Total users',
             data: growthModel.points.map((point) => point.total),
             pointBackgroundColor: '#ffffff',
-            pointBorderColor: 'rgba(37,99,235,1)',
+            pointBorderColor: 'rgba(91,45,16,1)',
             pointBorderWidth: 3,
             pointHoverRadius: 6,
             pointRadius: 4,
             backgroundColor: gradient,
-            borderColor: 'rgba(37,99,235,1)',
+            borderColor: 'rgba(91,45,16,1)',
             borderWidth: 4,
             tension: 0.34,
             fill: true,
@@ -1942,12 +1950,12 @@ const initCharts = () => {
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: '#64748b', font: { weight: 700 } },
+              ticks: { color: '#8a7668', font: { weight: 700 } },
             },
             y: {
               beginAtZero: false,
-              grid: { color: 'rgba(148,163,184,0.18)', drawBorder: false },
-              ticks: { color: '#64748b', callback: (value) => compactNumber(value) },
+              grid: { color: 'rgba(117,63,24,0.12)', drawBorder: false },
+              ticks: { color: '#8a7668', callback: (value) => compactNumber(value) },
             },
           },
         },
@@ -1963,7 +1971,7 @@ const initCharts = () => {
           labels: tools.labels,
           datasets: [{
             data: tools.data,
-            backgroundColor: tools.labels.map((_, index) => (index % 2 === 0 ? 'rgba(37,99,235,0.9)' : 'rgba(16,185,129,0.9)'))
+            backgroundColor: tools.labels.map((_, index) => (index % 2 === 0 ? 'rgba(91,45,16,0.94)' : 'rgba(184,123,56,0.88)'))
           }]
         },
         options: {
