@@ -580,6 +580,58 @@ const renderCourseCard = (item) =>
     </div>
   `);
 
+const renderCoursesTable = (items, isEmpty) => `
+  <section class="card courses-table-card reveal">
+    <div class="courses-table-wrap">
+      <table class="courses-table">
+        <thead>
+          <tr>
+            <th scope="col">Course</th>
+            <th scope="col">Level</th>
+            <th scope="col">Status</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Students</th>
+            <th scope="col">Price</th>
+            <th scope="col">Updated</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item) => `
+            <tr>
+              <td>
+                <span class="courses-table-course">
+                  <span class="course-table-thumb">
+                    ${item.thumbnail ? `<img src="${escapeHtml(item.thumbnail)}" alt="" loading="lazy" />` : `<i data-lucide="graduation-cap"></i>`}
+                  </span>
+                  <span>
+                    <b>${escapeHtml(item.title || "Untitled course")}</b>
+                    <small>${escapeHtml(compactText(item.shortDescription || item.description, item.slug || "Managed course"))}</small>
+                  </span>
+                </span>
+              </td>
+              <td>${escapeHtml(item.level || "-")}</td>
+              <td>${statusPill(item.status)}</td>
+              <td>${escapeHtml(`${Number(item.duration || 0)} min`)}</td>
+              <td>${escapeHtml(item.enrolledUsers || item.students || item.learners || "-")}</td>
+              <td>${escapeHtml(item.isFree ? "Free" : `Rs ${Number(item.price || 0)}`)}</td>
+              <td>${escapeHtml(formatDate(item.updatedAt || item.createdAt))}</td>
+              <td><div class="entity-actions courses-table-actions">${renderActions("courses", item)}</div></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+    ${isEmpty ? `
+      <div class="empty-state">
+        ${iconMarkup("inbox")}
+        <h3>No courses found</h3>
+        <p>Use Create or adjust the filters to add and manage records.</p>
+      </div>
+    ` : ""}
+  </section>
+`;
+
 const renderModuleCard = (item) =>
   cardShell("modules", item, `
     <div class="entity-head">
@@ -1635,7 +1687,7 @@ const renderEntity = (key) => {
       ${statChip("Primary action", "Create", "plus-circle")}
       ${statChip("Data source", config.endpoint, "route")}
     </section>
-    ${key === "users" ? renderUsersTable(items, isEmpty) : `
+    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesTable(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
         ${isEmpty ? `
