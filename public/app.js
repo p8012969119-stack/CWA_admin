@@ -878,6 +878,45 @@ const metricCard = (label, value, note = "", icon = "activity", trend = "") => `
   </section>
 `;
 
+const renderDashboardMetricsTable = (rows) => `
+  <section class="card metrics-table-card reveal">
+    <div class="metrics-table-head">
+      <div>
+        <p class="eyebrow">Live metrics</p>
+        <h2>Platform overview</h2>
+      </div>
+      <span>${rows.length} tracked signals</span>
+    </div>
+    <div class="metrics-table-wrap">
+      <table class="metrics-table">
+        <thead>
+          <tr>
+            <th scope="col">Metric</th>
+            <th scope="col">Value</th>
+            <th scope="col">Detail</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>
+                <span class="metric-table-name">
+                  <span class="metric-icon metric-table-icon"><i data-lucide="${escapeHtml(row.icon)}"></i></span>
+                  <span>${escapeHtml(row.label)}</span>
+                </span>
+              </td>
+              <td><strong class="metric-table-value" data-count="${escapeHtml(row.value)}">${escapeHtml(row.value)}</strong></td>
+              <td>${escapeHtml(row.note || "-")}</td>
+              <td>${row.trend ? `<span class="trend-badge">${escapeHtml(row.trend)}</span>` : "-"}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  </section>
+`;
+
 const bars = (items, labelKey = "_id", valueKey = "count") => {
   const list = items || [];
   const max = Math.max(...list.map((item) => Number(item[valueKey] || 0)), 1);
@@ -1336,6 +1375,16 @@ const renderDashboard = () => {
   const certs = stats.certificates || {};
   const learning = stats.learning || {};
   const analytics = state.analytics || {};
+  const dashboardMetrics = [
+    { label: "Total Users", value: users.total ?? 0, note: `${users.active ?? 0} active`, icon: "users", trend: "+ live" },
+    { label: "Daily Active", value: users.dailyActive ?? 0, note: `${users.weeklyActive ?? 0} weekly`, icon: "activity", trend: "today" },
+    { label: "Courses", value: courses.total ?? 0, note: `${courses.published ?? 0} published`, icon: "book-open", trend: "content" },
+    { label: "AI Tools", value: aiTools.total ?? 0, note: `${aiTools.active ?? 0} active`, icon: "bot", trend: "tools" },
+    { label: "Certificates", value: certs.issued ?? 0, note: "issued", icon: "award", trend: "trust" },
+    { label: "Registrations", value: users.newRegistrations ?? 0, note: "last 7 days", icon: "user-plus", trend: "growth" },
+    { label: "Avg Completion", value: `${learning.averageProgress ?? 0}%`, note: `${learning.completedEnrollments ?? 0} complete`, icon: "gauge", trend: "learning" },
+    { label: "Lessons", value: modules.lessons ?? 0, note: `${modules.total ?? 0} modules`, icon: "layers", trend: "library" }
+  ];
 
   return `
     <section class="hero-card card reveal">
@@ -1350,16 +1399,7 @@ const renderDashboard = () => {
       </div>
     </section>
 
-    <div class="grid metrics">
-      ${metricCard("Total Users", users.total ?? 0, `${users.active ?? 0} active`, "users", "+ live")}
-      ${metricCard("Daily Active", users.dailyActive ?? 0, `${users.weeklyActive ?? 0} weekly`, "activity", "today")}
-      ${metricCard("Courses", courses.total ?? 0, `${courses.published ?? 0} published`, "book-open", "content")}
-      ${metricCard("AI Tools", aiTools.total ?? 0, `${aiTools.active ?? 0} active`, "bot", "tools")}
-      ${metricCard("Certificates", certs.issued ?? 0, "issued", "award", "trust")}
-      ${metricCard("Registrations", users.newRegistrations ?? 0, "last 7 days", "user-plus", "growth")}
-      ${metricCard("Avg Completion", `${learning.averageProgress ?? 0}%`, `${learning.completedEnrollments ?? 0} complete`, "gauge", "learning")}
-      ${metricCard("Lessons", modules.lessons ?? 0, `${modules.total ?? 0} modules`, "layers", "library")}
-    </div>
+    ${renderDashboardMetricsTable(dashboardMetrics)}
 
     ${!state.analytics && state.loading ? analyticsSkeleton() : `
     <div class="grid dashboard-panels premium-analytics-grid">
