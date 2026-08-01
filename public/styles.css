@@ -3560,3 +3560,79 @@ body {
     padding: 14px;
   }
 }
+
+/* Analytics page compact structure */
+.analytics-layout {
+  align-items: start;
+  gap: 16px;
+}
+
+.analytics-layout .analytics-card {
+  min-height: 0;
+  padding: 18px;
+}
+
+.analytics-layout .panel-header {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.analytics-layout .panel-header h2 {
+  font-size: 1.05rem;
+  line-height: 1.1;
+}
+
+.analytics-layout .chart-subtitle {
+  font-size: 0.78rem;
+}
+
+.analytics-layout .bars {
+  gap: 9px;
+}
+
+.analytics-layout .bar-row {
+  grid-template-columns: minmax(125px, 0.9fr) minmax(160px, 2.1fr) 34px;
+  gap: 10px;
+  min-height: 30px;
+  font-size: 0.78rem;
+}
+
+.analytics-layout .bar-row span:first-child {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #3f2a1d;
+  line-height: 1.15;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.analytics-layout .bar-row div {
+  height: 9px;
+}
+
+.analytics-layout .bar-row span:last-child {
+  color: #3f2a1d;
+  font-weight: 950;
+  text-align: right;
+}
+
+.analytics-layout .analytics-card:nth-child(3) {
+  min-height: 180px;
+}
+
+.analytics-layout .analytics-card:empty {
+  display: none;
+}
+
+@media (max-width: 980px) {
+  .analytics-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .analytics-layout .bar-row {
+    grid-template-columns: 1fr 1.2fr 28px;
+  }
+}
