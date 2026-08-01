@@ -651,6 +651,54 @@ const renderModuleCard = (item) =>
     </div>
   `);
 
+const renderModulesTable = (items, isEmpty) => `
+  <section class="card modules-table-card reveal">
+    <div class="modules-table-wrap">
+      <table class="modules-table">
+        <thead>
+          <tr>
+            <th scope="col">Module</th>
+            <th scope="col">Course</th>
+            <th scope="col">Status</th>
+            <th scope="col">Lessons</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Order</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item) => `
+            <tr>
+              <td>
+                <span class="modules-table-module">
+                  ${avatarMarkup(`M${item.order || ""}`, "", "avatar-module")}
+                  <span>
+                    <b>${escapeHtml(item.title || "Untitled module")}</b>
+                    <small>${escapeHtml(compactText(item.description, "Structured module content"))}</small>
+                  </span>
+                </span>
+              </td>
+              <td>${escapeHtml(plainValue(item, "course.title", "No course linked"))}</td>
+              <td>${statusPill(item.status)}</td>
+              <td>${escapeHtml(item.lessonCount || item.lessons?.length || "-")}</td>
+              <td>${escapeHtml(`${Number(item.duration || 0)} min`)}</td>
+              <td>${escapeHtml(item.order || "-")}</td>
+              <td><div class="entity-actions modules-table-actions">${renderActions("modules", item)}</div></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+    ${isEmpty ? `
+      <div class="empty-state">
+        ${iconMarkup("inbox")}
+        <h3>No modules found</h3>
+        <p>Use Create or adjust the filters to add and manage records.</p>
+      </div>
+    ` : ""}
+  </section>
+`;
+
 const renderLessonCard = (item) =>
   cardShell("lessons", item, `
     <div class="entity-head">
@@ -1687,7 +1735,7 @@ const renderEntity = (key) => {
       ${statChip("Primary action", "Create", "plus-circle")}
       ${statChip("Data source", config.endpoint, "route")}
     </section>
-    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesTable(items, isEmpty) : `
+    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesTable(items, isEmpty) : key === "modules" ? renderModulesTable(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
         ${isEmpty ? `
