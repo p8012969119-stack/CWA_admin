@@ -2813,3 +2813,107 @@ body {
     width: 100%;
   }
 }
+
+/* Final compact registration and AI usage sizing */
+.registration-card {
+  width: min(100%, 540px);
+  justify-self: end;
+}
+
+.registration-card .analytics-card-header {
+  gap: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.registration-card .calendar-actions {
+  gap: 8px;
+}
+
+.registration-card .calendar-actions .icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+}
+
+.registration-card .calendar-actions .mini {
+  min-height: 34px;
+  padding: 0 18px;
+  font-size: 0.72rem;
+}
+
+.registration-card .calendar-title-row {
+  margin-bottom: 8px;
+}
+
+.registration-card .registration-calendar {
+  grid-template-columns: repeat(7, minmax(34px, 1fr));
+  gap: 6px;
+}
+
+.registration-card .calendar-weekday {
+  font-size: 0.62rem;
+}
+
+.registration-card .calendar-cell {
+  min-height: 34px;
+  height: 34px;
+  padding: 5px 6px;
+  border-radius: 10px;
+}
+
+.registration-card .calendar-cell span,
+.registration-card .calendar-cell b {
+  font-size: 0.72rem;
+  line-height: 0.95;
+}
+
+.registration-card .calendar-day-report {
+  margin-top: 8px;
+  padding: 9px 11px;
+}
+
+.registration-card .registration-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dashboard-secondary-panels .analytics-card .panel-header {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.dashboard-secondary-panels .chart-wrap {
+  height: 220px;
+  min-height: 220px;
+  max-height: 220px;
+}
+
+#chart-ai-tool-usage {
+  height: 198px;
+  max-height: 198px;
+}
+
+@media (max-width: 1180px) {
+  .registration-card {
+    justify-self: stretch;
+    width: 100%;
+    max-width: 620px;
+  }
+}
+
+@media (max-width: 620px) {
+  .registration-card .analytics-card-header {
+    align-items: flex-start;
+  }
+
+  .registration-card .calendar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .registration-card .registration-summary {
+    grid-template-columns: 1fr;
+  }
+}
