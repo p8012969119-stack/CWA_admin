@@ -478,6 +478,68 @@ const renderUserCard = (item) => {
   `);
 };
 
+const renderUsersTable = (items, isEmpty) => `
+  <section class="card users-table-card reveal">
+    <div class="users-table-wrap">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th scope="col">Select</th>
+            <th scope="col">User</th>
+            <th scope="col">Status</th>
+            <th scope="col">Role</th>
+            <th scope="col">Joined</th>
+            <th scope="col">Verified</th>
+            <th scope="col">Premium</th>
+            <th scope="col">Progress</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item) => {
+            const progress = Number(item.progressPercentage || item.learningProgress || item.progress?.progressPercentage || 0);
+            return `
+              <tr>
+                <td>
+                  ${state.selectedIds ? `<input class="select-dot" type="checkbox" data-select-id="${escapeHtml(item._id)}" ${state.selectedIds.has(item._id) ? "checked" : ""} aria-label="Select ${escapeHtml(recordTitle(item))}" />` : ""}
+                </td>
+                <td>
+                  <span class="users-table-user">
+                    ${avatarMarkup(item.fullName || item.email, item.avatar || item.profileImage)}
+                    <span>
+                      <b>${escapeHtml(item.fullName || "Learner")}</b>
+                      <small>${escapeHtml(item.email || "-")}</small>
+                    </span>
+                  </span>
+                </td>
+                <td>${statusPill(item.isActive === false ? "Inactive" : "Active")}</td>
+                <td>${escapeHtml(item.role || "user")}</td>
+                <td>${escapeHtml(formatDate(item.createdAt))}</td>
+                <td>${escapeHtml(item.isVerified ? "Yes" : "No")}</td>
+                <td>${escapeHtml(item.isPremium ? "Yes" : "No")}</td>
+                <td>
+                  <div class="users-table-progress">
+                    <span>${escapeHtml(progress)}%</span>
+                    ${progressBar(progress)}
+                  </div>
+                </td>
+                <td><div class="entity-actions users-table-actions">${renderActions("users", item)}</div></td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+    ${isEmpty ? `
+      <div class="empty-state">
+        ${iconMarkup("inbox")}
+        <h3>No users found</h3>
+        <p>Use Create or adjust the filters to add and manage records.</p>
+      </div>
+    ` : ""}
+  </section>
+`;
+
 const renderAdminCard = (item) =>
   cardShell("admins", item, `
     <div class="entity-head">
@@ -1573,16 +1635,18 @@ const renderEntity = (key) => {
       ${statChip("Primary action", "Create", "plus-circle")}
       ${statChip("Data source", config.endpoint, "route")}
     </section>
-    <section class="entity-grid ${key}-grid">
-      ${items.map((item) => renderEntityCard(key, item)).join("")}
-      ${isEmpty ? `
-        <div class="empty-state card">
-          ${iconMarkup("inbox")}
-          <h3>No ${escapeHtml(config.title.toLowerCase())} found</h3>
-          <p>Use Create or adjust the filters to add and manage records.</p>
-        </div>
-      ` : ""}
-    </section>
+    ${key === "users" ? renderUsersTable(items, isEmpty) : `
+      <section class="entity-grid ${key}-grid">
+        ${items.map((item) => renderEntityCard(key, item)).join("")}
+        ${isEmpty ? `
+          <div class="empty-state card">
+            ${iconMarkup("inbox")}
+            <h3>No ${escapeHtml(config.title.toLowerCase())} found</h3>
+            <p>Use Create or adjust the filters to add and manage records.</p>
+          </div>
+        ` : ""}
+      </section>
+    `}
   `;
 };
 

@@ -3052,3 +3052,125 @@ body {
     min-width: 680px;
   }
 }
+
+/* Users table structure */
+.users-table-card {
+  padding: 18px;
+}
+
+.users-table-wrap {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+}
+
+.users-table th,
+.users-table td {
+  padding: 9px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.users-table th {
+  color: #8f7a6b;
+  font-size: 0.64rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.users-table tbody tr {
+  background: #fffaf5;
+  box-shadow: inset 0 0 0 1px #eadfd3;
+}
+
+.users-table tbody td:first-child {
+  width: 54px;
+  border-radius: 12px 0 0 12px;
+}
+
+.users-table tbody td:last-child {
+  border-radius: 0 12px 12px 0;
+}
+
+.users-table-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+}
+
+.users-table-user .avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+}
+
+.users-table-user b {
+  display: block;
+  color: #120c08;
+  font-size: 0.88rem;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.users-table-user small {
+  display: block;
+  margin-top: 3px;
+  color: #8a7668;
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.users-table td {
+  color: #7f6b5f;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.users-table .pill {
+  min-height: 26px;
+  padding: 0 11px;
+  font-size: 0.68rem;
+}
+
+.users-table-progress {
+  display: grid;
+  min-width: 120px;
+  gap: 6px;
+}
+
+.users-table-progress span {
+  color: #120c08;
+  font-size: 0.76rem;
+  font-weight: 950;
+}
+
+.users-table-progress .progress-track {
+  height: 7px;
+}
+
+.users-table-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  min-width: 430px;
+}
+
+.users-table-actions .mini {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 0.68rem;
+}
+
+@media (max-width: 760px) {
+  .users-table-card {
+    padding: 14px;
+  }
+}
