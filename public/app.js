@@ -1871,9 +1871,6 @@ const renderApp = () => {
             </div>
           </div>
           <div class="actions">
-            <button id="notifications" class="icon-btn" title="Notifications">${iconMarkup("bell")}</button>
-            <button id="messages" class="icon-btn" title="Fullscreen">${iconMarkup("maximize-2")}</button>
-            <button id="theme-toggle" class="icon-btn" title="Toggle theme">${iconMarkup("moon")}</button>
             <div class="profile"><span class="admin-name">${escapeHtml(state.admin?.fullName || "Admin")}</span></div>
             <button class="btn danger" id="logout" type="button">Logout</button>
           </div>
