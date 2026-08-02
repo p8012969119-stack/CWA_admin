@@ -296,24 +296,23 @@ const entityConfigs = {
   },
   certificates: {
     title: "Certificates",
-    endpoint: "/auth/certificates",
+    endpoint: "/certificates",
     unwrap: (response) => response.data || [],
     columns: [
-      { key: "title", label: "Title" },
+      { key: "certificateId", label: "Certificate ID" },
+      { key: "recipientName", label: "Recipient" },
       { key: "user.email", label: "User" },
-      { key: "course.title", label: "Course" },
+      { key: "courseName", label: "Course" },
+      { key: "percentage", label: "Score" },
       { key: "status", label: "Status", type: "status" },
-      { key: "issuedDate", label: "Issued", type: "date" },
+      { key: "issuedAt", label: "Issued", type: "date" },
     ],
     fields: [
       { name: "user", label: "User ID", required: true },
       { name: "course", label: "Course ID", required: true },
-      { name: "title", label: "Title" },
-      { name: "certificateUrl", label: "Certificate URL" },
-      { name: "completionDate", label: "Completion date", type: "date" },
       { name: "status", label: "Status", type: "select", options: [["active", "Active"], ["revoked", "Revoked"]] },
     ],
-    actions: ["edit", "revoke", "delete"],
+    actions: ["view", "revoke"],
   },
   notifications: {
     title: "Notifications",
@@ -2530,7 +2529,11 @@ const bindEvents = () => {
     });
   });
   document.querySelectorAll("[data-revoke-cert]").forEach((button) => {
-    button.addEventListener("click", () => patchAndReload(`${entityConfigs.certificates.endpoint}/${button.dataset.revokeCert}`, "revoke", {}, "certificates", "PATCH"));
+    button.addEventListener("click", () => {
+      const reason = prompt("Enter revoke reason for this certificate:");
+      if (reason === null) return;
+      patchAndReload(`${entityConfigs.certificates.endpoint}/${button.dataset.revokeCert}`, "revoke", { reason: reason.trim() }, "certificates", "PATCH");
+    });
   });
   document.querySelectorAll("[data-duplicate-record]").forEach((button) => {
     button.addEventListener("click", () => duplicateRecord(button.dataset.duplicateRecord));
