@@ -5,6 +5,7 @@ Admin-only frontend for CrackWithAI.
 ## Dokploy env
 
 ```env
+
 ADMIN_API_BASE_URL=https://api.crackwithai.net/api
 PORT=3000
 ```
