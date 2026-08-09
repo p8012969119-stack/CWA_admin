@@ -1615,45 +1615,56 @@ const renderLogin = () => {
   app.innerHTML = `
     <section class="auth-view">
       <div class="auth-panel">
-        <p class="brand">CrackWithAI Admin</p>
-        <h1>Admin sign in</h1>
-        <p class="subtitle">Use an admin account to manage CrackWithAI.</p>
-        ${state.error ? `<div class="alert error">${escapeHtml(state.error)}</div>` : ""}
-        ${state.message ? `<div class="alert info">${escapeHtml(state.message)}</div>` : ""}
-        <form class="form" id="login-form">
-          <label class="field">
-            <span>Email</span>
-            <input name="email" type="email" autocomplete="email" required />
-          </label>
-          <label class="field">
-            <span>Password</span>
-            <input name="password" type="password" autocomplete="current-password" required />
-          </label>
-          <button class="btn" type="submit" ${state.loading ? "disabled" : ""}>
-            ${state.loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
-        <div class="setup-divider"></div>
-        <button class="link-btn" id="toggle-setup" type="button">Create first admin</button>
-        <form class="form hidden" id="setup-form">
-          <label class="field">
-            <span>Setup secret</span>
-            <input name="setupSecret" type="password" autocomplete="off" required />
-          </label>
-          <label class="field">
-            <span>Full name</span>
-            <input name="fullName" autocomplete="name" required />
-          </label>
-          <label class="field">
-            <span>Email</span>
-            <input name="email" type="email" autocomplete="email" required />
-          </label>
-          <label class="field">
-            <span>Password</span>
-            <input name="password" type="password" autocomplete="new-password" minlength="6" required />
-          </label>
-          <button class="btn secondary" type="submit" ${state.loading ? "disabled" : ""}>Create admin</button>
-        </form>
+        <div class="auth-panel-inner">
+          <p class="brand">CrackWithAI Admin</p>
+          <div class="login-hero">
+            <h1>Login to your account</h1>
+            <p class="subtitle">Enter your credentials to access the admin dashboard.</p>
+          </div>
+          ${state.error ? `<div class="alert error">${escapeHtml(state.error)}</div>` : ""}
+          ${state.message ? `<div class="alert info">${escapeHtml(state.message)}</div>` : ""}
+          <form class="form login-form" id="login-form">
+            <label class="field">
+              <span>Email</span>
+              <input name="email" type="email" autocomplete="email" required />
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input name="password" type="password" autocomplete="current-password" required />
+            </label>
+            <div class="form-row">
+              <label class="check-field">
+                <input name="remember" type="checkbox" />
+                <span>Remember me</span>
+              </label>
+              <button class="link-btn forgot-link" type="button">Forgot password?</button>
+            </div>
+            <button class="btn login-btn" type="submit" ${state.loading ? "disabled" : ""}>
+              ${state.loading ? "Signing in..." : "Login"}
+            </button>
+          </form>
+          <div class="setup-divider"></div>
+          <button class="link-btn" id="toggle-setup" type="button">Create first admin</button>
+          <form class="form hidden" id="setup-form">
+            <label class="field">
+              <span>Setup secret</span>
+              <input name="setupSecret" type="password" autocomplete="off" required />
+            </label>
+            <label class="field">
+              <span>Full name</span>
+              <input name="fullName" autocomplete="name" required />
+            </label>
+            <label class="field">
+              <span>Email</span>
+              <input name="email" type="email" autocomplete="email" required />
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input name="password" type="password" autocomplete="new-password" minlength="6" required />
+            </label>
+            <button class="btn secondary" type="submit" ${state.loading ? "disabled" : ""}>Create admin</button>
+          </form>
+        </div>
       </div>
     </section>
   `;
