@@ -12,9 +12,17 @@ PORT=3000
 
 ## Deploy build
 
-Use Nixpacks for deployment. The admin repo intentionally does not include a
-Dockerfile, so platforms should not auto-select Docker and run `docker buildx build`
-without a context path.
+Use Dockerfile deployment.
+
+If the deploy platform asks for Docker settings, set:
+
+```txt
+Dockerfile Path: Dockerfile
+Build Context: .
+```
+
+For Docker Compose deployments, use the included `docker-compose.yml`; it already
+sets `build.context: .`.
 
 The app stores only the admin JWT in browser `localStorage` and sends it as a Bearer token to admin-protected backend routes.
 
