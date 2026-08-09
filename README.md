@@ -12,11 +12,9 @@ PORT=3000
 
 ## Deploy build
 
-Railway uses Nixpacks through `railway.json`, so it will not invoke Docker by default.
-
-Use Docker Compose when another platform asks for a Docker build context. The included
-`docker-compose.yml` sets `build.context: .`, which avoids running `docker buildx build`
-without a final app path.
+Use Nixpacks for deployment. The admin repo intentionally does not include a
+Dockerfile, so platforms should not auto-select Docker and run `docker buildx build`
+without a context path.
 
 The app stores only the admin JWT in browser `localStorage` and sends it as a Bearer token to admin-protected backend routes.
 
