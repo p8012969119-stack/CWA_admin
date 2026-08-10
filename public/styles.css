@@ -6784,6 +6784,43 @@ body.lessons-admin-page .stat-chip {
   min-height: 92px;
 }
 
+body.lessons-admin-page .lesson-summary-grid {
+  gap: 18px;
+}
+
+body.lessons-admin-page .lesson-summary-chip {
+  min-height: 118px;
+  gap: 18px;
+  padding: 18px;
+  border-color: #dde5dd;
+  animation: lessonSummaryEnter 0.42s var(--ease) both;
+}
+
+body.lessons-admin-page .lesson-summary-chip:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+body.lessons-admin-page .lesson-summary-chip:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+body.lessons-admin-page .lesson-summary-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 38px rgba(11, 15, 12, 0.1);
+}
+
+body.lessons-admin-page .lesson-summary-records:hover {
+  border-color: #0b0f0c;
+}
+
+body.lessons-admin-page .lesson-summary-create:hover {
+  border-color: #16a34a;
+}
+
+body.lessons-admin-page .lesson-summary-source:hover {
+  border-color: #e3262e;
+}
+
 body.lessons-admin-page .stat-chip .ui-icon {
   width: 48px;
   height: 48px;
@@ -6800,6 +6837,181 @@ body.lessons-admin-page .entity-summary .stat-chip:nth-child(2) .ui-icon {
 body.lessons-admin-page .entity-summary .stat-chip:nth-child(3) .ui-icon {
   background: #fee2e2;
   color: #e3262e;
+}
+
+.lesson-summary-visual {
+  display: inline-flex;
+  width: 76px;
+  height: 76px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 18px;
+  flex: 0 0 76px;
+}
+
+.lesson-summary-visual svg {
+  width: 54px;
+  height: 54px;
+}
+
+.visual-records {
+  background: #f3f4f3;
+  color: #0b0f0c;
+}
+
+.visual-create {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.visual-source {
+  background: #fee2e2;
+  color: #e3262e;
+}
+
+.lesson-summary-visual rect,
+.lesson-summary-visual path,
+.lesson-summary-visual circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lesson-summary-visual .record-page {
+  fill: #ffffff;
+  animation: recordsStack 2.4s ease-in-out infinite;
+}
+
+.lesson-summary-visual .record-page-two {
+  animation-delay: 0.22s;
+}
+
+.lesson-summary-visual .database-rim,
+.lesson-summary-visual .database-body {
+  animation: recordsPulse 2.4s ease-in-out infinite;
+}
+
+.lesson-summary-visual .create-doc {
+  fill: #ffffff;
+}
+
+.lesson-summary-visual .create-plus {
+  animation: createPulse 2s ease-in-out infinite;
+  transform-origin: 54px 51px;
+}
+
+.lesson-summary-visual .create-line {
+  stroke: #065f46;
+  animation: createLineDraw 2s ease-in-out infinite;
+}
+
+.lesson-summary-visual .server-box {
+  fill: #ffffff;
+}
+
+.lesson-summary-visual .server-link {
+  stroke: #991b1b;
+  animation: sourceLinkPulse 2.5s ease-in-out infinite;
+}
+
+.lesson-summary-visual .packet-one {
+  animation: packetMoveOne 2.5s ease-in-out infinite;
+}
+
+.lesson-summary-visual .packet-two {
+  animation: packetMoveTwo 2.5s ease-in-out infinite;
+}
+
+@keyframes lessonSummaryEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes recordsStack {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  45% {
+    transform: translateY(5px);
+  }
+}
+
+@keyframes recordsPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.64;
+  }
+}
+
+@keyframes createPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08) rotate(6deg);
+  }
+}
+
+@keyframes createLineDraw {
+  0%,
+  100% {
+    stroke-dasharray: 18 0;
+  }
+
+  50% {
+    stroke-dasharray: 8 10;
+  }
+}
+
+@keyframes sourceLinkPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes packetMoveOne {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(-8px);
+  }
+}
+
+@keyframes packetMoveTwo {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(8px);
+  }
 }
 
 body.lessons-admin-page .btn {
@@ -7354,6 +7566,24 @@ body.lessons-admin-page textarea:focus-visible {
 @media (max-width: 380px) {
   .lesson-card-actions {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.lessons-admin-page .lesson-summary-chip,
+  .lesson-summary-visual .record-page,
+  .lesson-summary-visual .database-rim,
+  .lesson-summary-visual .database-body,
+  .lesson-summary-visual .create-plus,
+  .lesson-summary-visual .create-line,
+  .lesson-summary-visual .server-link,
+  .lesson-summary-visual .packet-one,
+  .lesson-summary-visual .packet-two {
+    animation: none !important;
+  }
+
+  body.lessons-admin-page .lesson-summary-chip:hover {
+    transform: none;
   }
 }
 

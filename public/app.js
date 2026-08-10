@@ -465,6 +465,77 @@ const statChip = (label, value, icon = "circle") => `
   </div>
 `;
 
+const lessonSummaryIllustration = (type) => {
+  if (type === "records") {
+    return `
+      <span class="lesson-summary-visual visual-records" aria-hidden="true">
+        <svg viewBox="0 0 76 76" focusable="false">
+          <rect class="record-page record-page-one" x="20" y="15" width="28" height="34" rx="4"></rect>
+          <rect class="record-page record-page-two" x="26" y="21" width="28" height="34" rx="4"></rect>
+          <path class="database-rim" d="M18 49c0-5 9-9 20-9s20 4 20 9-9 9-20 9-20-4-20-9Z"></path>
+          <path class="database-body" d="M18 49v10c0 5 9 9 20 9s20-4 20-9V49"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "create") {
+    return `
+      <span class="lesson-summary-visual visual-create" aria-hidden="true">
+        <svg viewBox="0 0 76 76" focusable="false">
+          <rect class="create-doc" x="20" y="14" width="34" height="46" rx="6"></rect>
+          <path class="create-fold" d="M44 14v12h10"></path>
+          <path class="create-line" d="M28 34h18M28 43h14"></path>
+          <path class="create-plus" d="M54 42v18M45 51h18"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  return `
+    <span class="lesson-summary-visual visual-source" aria-hidden="true">
+      <svg viewBox="0 0 76 76" focusable="false">
+        <rect class="server-box" x="18" y="17" width="40" height="16" rx="5"></rect>
+        <rect class="server-box server-box-two" x="18" y="43" width="40" height="16" rx="5"></rect>
+        <path class="server-link" d="M38 33v10"></path>
+        <circle class="server-dot" cx="27" cy="25" r="2.5"></circle>
+        <circle class="server-dot packet-one" cx="48" cy="25" r="3"></circle>
+        <circle class="server-dot packet-two" cx="28" cy="51" r="3"></circle>
+      </svg>
+    </span>
+  `;
+};
+
+const lessonSummaryCard = (label, value, type) => `
+  <div class="stat-chip lesson-summary-chip lesson-summary-${type}">
+    ${lessonSummaryIllustration(type)}
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <b ${Number.isFinite(Number(value)) ? `data-count="${escapeHtml(value)}"` : ""}>${escapeHtml(value)}</b>
+    </div>
+  </div>
+`;
+
+const renderEntitySummary = (key, count, endpoint) => {
+  if (key === "lessons") {
+    return `
+      <section class="entity-summary lesson-summary-grid">
+        ${lessonSummaryCard("Loaded records", count, "records")}
+        ${lessonSummaryCard("Primary action", "Create", "create")}
+        ${lessonSummaryCard("Data source", endpoint, "source")}
+      </section>
+    `;
+  }
+
+  return `
+    <section class="entity-summary">
+      ${statChip("Loaded records", count, "database")}
+      ${statChip("Primary action", "Create", "plus-circle")}
+      ${statChip("Data source", endpoint, "route")}
+    </section>
+  `;
+};
+
 const metaItem = (label, value) => `
   <div class="meta-item">
     <span>${escapeHtml(label)}</span>
@@ -2291,11 +2362,7 @@ const renderEntity = (key) => {
       </div>
     </section>
     ${config.bulk ? renderBulkActions() : ""}
-    <section class="entity-summary">
-      ${statChip("Loaded records", items.length, "database")}
-      ${statChip("Primary action", "Create", "plus-circle")}
-      ${statChip("Data source", config.endpoint, "route")}
-    </section>
+    ${renderEntitySummary(key, items.length, config.endpoint)}
     ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsGrid(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
