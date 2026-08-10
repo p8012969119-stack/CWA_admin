@@ -6725,7 +6725,7 @@ textarea:focus-visible {
   height: 24px !important;
 }
 
-@media (max-width: 1240px) {
+@media (max-width: 900px) {
   .dashboard-panels.premium-analytics-grid {
     grid-template-columns: 1fr !important;
     max-width: 720px !important;
@@ -6736,6 +6736,85 @@ textarea:focus-visible {
   .dashboard-panels.premium-analytics-grid > .monthly-registration-card,
   .dashboard-panels.premium-analytics-grid > .courses-usage-card {
     height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
+/* Dashboard analytics row structure */
+.dashboard-panels.premium-analytics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(280px, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 18px !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+}
+
+.dashboard-panels.premium-analytics-grid > .analytics-growth-card,
+.dashboard-panels.premium-analytics-grid > .monthly-registration-card,
+.dashboard-panels.premium-analytics-grid > .courses-usage-card {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 560px !important;
+  height: auto !important;
+  padding: 18px !important;
+  overflow: visible !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header {
+  min-height: 58px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-growth-card .premium-chart-frame {
+  flex: 1 1 auto !important;
+  height: 330px !important;
+  min-height: 330px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-growth-card .growth-canvas {
+  height: 304px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-calendar {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell {
+  min-height: 34px !important;
+  height: 34px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .courses-usage-card .course-usage-list {
+  display: grid !important;
+  gap: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .courses-usage-card .course-usage-row {
+  grid-template-columns: 40px minmax(0, 1fr) 58px !important;
+  min-height: 64px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .courses-usage-card .course-thumb {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+}
+
+@media (max-width: 900px) {
+  .dashboard-panels.premium-analytics-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 720px !important;
+    margin-inline: auto !important;
+  }
+
+  .dashboard-panels.premium-analytics-grid > .analytics-growth-card,
+  .dashboard-panels.premium-analytics-grid > .monthly-registration-card,
+  .dashboard-panels.premium-analytics-grid > .courses-usage-card {
     min-height: 0 !important;
   }
 }
