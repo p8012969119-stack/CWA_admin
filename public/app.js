@@ -499,33 +499,44 @@ const userPipelineStageKey = (item) => {
   return "new";
 };
 
-const renderUserPipelineCard = (item) => {
+const renderUserPipelineRow = (item) => {
   const progress = userProgressValue(item);
   const stage = userPipelineStageKey(item);
+  const stageIndex = userPipelineStages.findIndex((pipelineStage) => pipelineStage.key === stage);
   const joinedLabel = formatDate(item.createdAt);
   const verifiedLabel = item.isVerified ? "Verified" : "Unverified";
   const premiumLabel = item.isPremium ? "Premium" : "Free";
+  const activeLabel = item.isActive === false ? "Inactive" : "Active";
 
   return `
-    <article class="user-pipeline-card user-stage-${stage}">
-      <div class="user-pipeline-card-head">
+    <article class="user-pipeline-row user-stage-${stage}">
+      <div class="user-pipeline-select">
         ${state.selectedIds ? `<input class="select-dot" type="checkbox" data-select-id="${escapeHtml(item._id)}" ${state.selectedIds.has(item._id) ? "checked" : ""} aria-label="Select ${escapeHtml(recordTitle(item))}" />` : ""}
+      </div>
+      <div class="user-pipeline-person">
         ${avatarMarkup(item.fullName || item.email, item.avatar || item.profileImage)}
         <div>
           <h3>${escapeHtml(item.fullName || "Learner")}</h3>
-          <p>${escapeHtml(joinedLabel)}</p>
+          <p>${iconMarkup("mail")}<span>${escapeHtml(item.email || "-")}</span></p>
+          <small>${iconMarkup("calendar-days")}<span>${escapeHtml(joinedLabel)}</span></small>
         </div>
-        <button class="user-pipeline-menu" data-view-record="users:${escapeHtml(item._id)}" type="button" aria-label="View ${escapeHtml(recordTitle(item))}">
-          ${iconMarkup("more-vertical")}
-        </button>
       </div>
-      <div class="user-pipeline-contact">
-        <span>${iconMarkup("mail")}${escapeHtml(item.email || "-")}</span>
-        <span>${iconMarkup("shield-check")}${escapeHtml(verifiedLabel)} · ${escapeHtml(premiumLabel)}</span>
+      <div class="user-pipeline-line" aria-label="${escapeHtml(recordTitle(item))} pipeline stage ${escapeHtml(stage)}">
+        ${userPipelineStages.map((pipelineStage, index) => `
+          <span class="pipeline-step stage-${pipelineStage.tone} ${index < stageIndex ? "is-complete" : ""} ${index === stageIndex ? "is-active" : ""}">
+            <i aria-hidden="true"></i>
+            <b>${escapeHtml(pipelineStage.label)}</b>
+          </span>
+        `).join("")}
       </div>
-      <div class="user-pipeline-progress">
-        <div><span>${escapeHtml(item.role || "user")}</span><b>${escapeHtml(progress)}%</b></div>
-        ${progressBar(progress)}
+      <div class="user-pipeline-meta">
+        ${statusPill(activeLabel)}
+        <span>${escapeHtml(verifiedLabel)}</span>
+        <span>${escapeHtml(premiumLabel)}</span>
+        <div class="user-pipeline-progress">
+          <div><span>${escapeHtml(item.role || "user")}</span><b>${escapeHtml(progress)}%</b></div>
+          ${progressBar(progress)}
+        </div>
       </div>
       <div class="entity-actions user-pipeline-actions">${renderActions("users", item)}</div>
     </article>
@@ -533,33 +544,32 @@ const renderUserPipelineCard = (item) => {
 };
 
 const renderUsersTable = (items, isEmpty) => {
-  const grouped = userPipelineStages.map((stage) => ({
+  const counts = userPipelineStages.map((stage) => ({
     ...stage,
-    items: items.filter((item) => userPipelineStageKey(item) === stage.key),
+    count: items.filter((item) => userPipelineStageKey(item) === stage.key).length,
   }));
 
   return `
   <section class="users-pipeline-section reveal">
-    <div class="users-pipeline-board">
-      ${grouped.map((stage) => `
-        <section class="users-pipeline-column stage-${stage.tone}">
-          <header class="users-pipeline-column-head">
-            <span class="stage-dot" aria-hidden="true"></span>
-            <h3>${escapeHtml(stage.label)}</h3>
-            <b>${escapeHtml(stage.items.length)} USERS</b>
-            <button class="pipeline-icon-btn" data-open-form="users" type="button" aria-label="Add user">${iconMarkup("plus")}</button>
-            <button class="pipeline-icon-btn" type="button" aria-label="${escapeHtml(stage.label)} options">${iconMarkup("more-vertical")}</button>
-          </header>
-          <div class="users-pipeline-list">
-            ${stage.items.map(renderUserPipelineCard).join("") || `
-              <div class="users-pipeline-empty">
-                ${iconMarkup("user-plus")}
-                <span>No users in ${escapeHtml(stage.label.toLowerCase())}</span>
-              </div>
-            `}
-          </div>
-        </section>
-      `).join("")}
+    <div class="users-pipeline-toolbar">
+      <div class="users-pipeline-summary">
+        ${counts.map((stage) => `
+          <span class="pipeline-summary-pill stage-${stage.tone}">
+            <i aria-hidden="true"></i>
+            ${escapeHtml(stage.label)}
+            <b>${escapeHtml(stage.count)} USERS</b>
+          </span>
+        `).join("")}
+      </div>
+      <button class="btn secondary" data-open-form="users" type="button">${iconMarkup("plus", "Add user")}</button>
+    </div>
+    <div class="users-pipeline-rows">
+      ${items.map(renderUserPipelineRow).join("") || `
+        <div class="users-pipeline-empty">
+          ${iconMarkup("user-plus")}
+          <span>No users in this pipeline</span>
+        </div>
+      `}
     </div>
     ${isEmpty ? `
       <div class="empty-state">
