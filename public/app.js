@@ -646,6 +646,146 @@ const aiToolSummaryCard = (label, value, type) => {
   return `<div class="stat-chip ai-tool-summary-chip ai-tool-summary-${type}">${content}</div>`;
 };
 
+const aiToolAnimationTypes = [
+  { type: "code", keys: ["ai-code-generator", "code", "coding", "developer"] },
+  { type: "image", keys: ["ai-image-generator", "image", "art", "design"] },
+  { type: "email", keys: ["ai-email-writer", "email", "writer", "writing"] },
+  { type: "chat", keys: ["ai-chat", "chat", "conversation", "assistant"] },
+  { type: "pdf", keys: ["ai-pdf-summarizer", "pdf", "summarizer", "summary"] },
+  { type: "translator", keys: ["ai-translator", "translator", "translate", "language"] },
+  { type: "voice", keys: ["ai-voice-generator", "voice", "audio", "speech"] },
+];
+
+const getAiToolAnimationType = (item) => {
+  const haystack = [item.flowType, item.slug, item.name]
+    .map(normalizeAssetKey)
+    .filter(Boolean)
+    .join(" ");
+  const match = aiToolAnimationTypes.find((entry) => entry.keys.some((key) => haystack.includes(key)));
+  return match?.type || "neural";
+};
+
+const aiToolAnimationSvg = (type) => {
+  if (type === "code") {
+    return `
+      <svg viewBox="0 0 100 100" focusable="false">
+        <rect class="anim-panel" x="15" y="18" width="70" height="58" rx="12"></rect>
+        <path class="anim-bar" d="M15 34h70"></path>
+        <circle class="anim-dot red" cx="27" cy="26" r="3"></circle>
+        <circle class="anim-dot green" cx="38" cy="26" r="3"></circle>
+        <path class="code-bracket left" d="M34 47l-8 8 8 8"></path>
+        <path class="code-bracket right" d="M66 47l8 8-8 8"></path>
+        <path class="code-line line-one" d="M43 45h17"></path>
+        <path class="code-line line-two" d="M40 55h24"></path>
+        <path class="code-line line-three" d="M44 65h12"></path>
+        <path class="code-cursor" d="M60 63v8"></path>
+      </svg>
+    `;
+  }
+
+  if (type === "image") {
+    return `
+      <svg viewBox="0 0 100 100" focusable="false">
+        <rect class="anim-panel image-frame" x="16" y="18" width="68" height="58" rx="12"></rect>
+        <path class="image-mountain" d="M25 64l17-18 13 13 9-10 12 15"></path>
+        <circle class="image-sun" cx="65" cy="38" r="7"></circle>
+        <path class="image-scan" d="M24 30h52"></path>
+        <path class="image-spark spark-a" d="M24 16v8M20 20h8"></path>
+        <path class="image-spark spark-b" d="M82 72v8M78 76h8"></path>
+      </svg>
+    `;
+  }
+
+  if (type === "email") {
+    return `
+      <svg viewBox="0 0 100 100" focusable="false">
+        <rect class="email-paper" x="31" y="22" width="38" height="42" rx="6"></rect>
+        <path class="email-writing line-one" d="M39 36h22"></path>
+        <path class="email-writing line-two" d="M39 46h17"></path>
+        <rect class="anim-panel email-envelope" x="18" y="40" width="64" height="38" rx="9"></rect>
+        <path class="email-flap" d="M20 43l30 22 30-22"></path>
+        <circle class="typing-dot dot-one" cx="42" cy="68" r="3"></circle>
+        <circle class="typing-dot dot-two" cx="50" cy="68" r="3"></circle>
+        <circle class="typing-dot dot-three" cx="58" cy="68" r="3"></circle>
+      </svg>
+    `;
+  }
+
+  if (type === "chat") {
+    return `
+      <svg viewBox="0 0 100 100" focusable="false">
+        <path class="chat-bubble bubble-one" d="M18 25h42a10 10 0 0 1 10 10v10a10 10 0 0 1-10 10H37l-12 10v-10h-7a10 10 0 0 1-10-10V35a10 10 0 0 1 10-10Z"></path>
+        <path class="chat-bubble bubble-two" d="M39 49h35a9 9 0 0 1 9 9v9a9 9 0 0 1-9 9H58l-10 8v-8h-9a9 9 0 0 1-9-9v-9a9 9 0 0 1 9-9Z"></path>
+        <circle class="typing-dot dot-one" cx="30" cy="42" r="3"></circle>
+        <circle class="typing-dot dot-two" cx="40" cy="42" r="3"></circle>
+        <circle class="typing-dot dot-three" cx="50" cy="42" r="3"></circle>
+        <path class="chat-line" d="M48 62h18M48 69h12"></path>
+      </svg>
+    `;
+  }
+
+  if (type === "pdf") {
+    return `
+      <svg viewBox="0 0 100 100" focusable="false">
+        <rect class="pdf-page page-back" x="25" y="18" width="40" height="54" rx="7"></rect>
+        <rect class="pdf-page page-front" x="34" y="25" width="42" height="56" rx="7"></rect>
+        <text class="pdf-label" x="43" y="43">PDF</text>
+        <path class="pdf-long line-one" d="M42 54h25"></path>
+        <path class="pdf-long line-two" d="M42 62h25"></path>
+        <path class="pdf-short short-one" d="M42 70h14"></path>
+        <path class="pdf-short short-two" d="M59 70h8"></path>
+      </svg>
+    `;
+  }
+
+  if (type === "translator") {
+    return `
+      <svg viewBox="0 0 100 100" focusable="false">
+        <circle class="translate-globe" cx="50" cy="50" r="28"></circle>
+        <path class="translate-lat" d="M25 50h50M50 22c9 8 13 17 13 28s-4 20-13 28M50 22c-9 8-13 17-13 28s4 20 13 28"></path>
+        <path class="translate-arrow arrow-one" d="M25 25h24l-6-6M49 25l-6 6"></path>
+        <path class="translate-arrow arrow-two" d="M75 75H51l6 6M51 75l6-6"></path>
+        <text class="translate-char char-a" x="29" y="59">A</text>
+        <text class="translate-char char-ka" x="60" y="48">あ</text>
+      </svg>
+    `;
+  }
+
+  if (type === "voice") {
+    return `
+      <svg viewBox="0 0 100 100" focusable="false">
+        <rect class="voice-mic" x="39" y="17" width="22" height="44" rx="11"></rect>
+        <path class="voice-stand" d="M28 46c0 14 9 23 22 23s22-9 22-23M50 69v12M39 81h22"></path>
+        <path class="voice-wave wave-one" d="M72 36c5 6 5 18 0 24"></path>
+        <path class="voice-wave wave-two" d="M80 29c10 12 10 27 0 39"></path>
+        <path class="voice-bars" d="M22 52v-9M29 56V39M36 58V36"></path>
+      </svg>
+    `;
+  }
+
+  return `
+    <svg viewBox="0 0 100 100" focusable="false">
+      <circle class="neural-node node-one" cx="30" cy="34" r="7"></circle>
+      <circle class="neural-node node-two" cx="62" cy="26" r="7"></circle>
+      <circle class="neural-node node-three" cx="72" cy="61" r="7"></circle>
+      <circle class="neural-node node-four" cx="34" cy="70" r="7"></circle>
+      <path class="neural-link link-one" d="M36 34l20-6M65 33l6 21M66 63l-25 7M36 64l23-32M39 39l27 19"></path>
+      <path class="neural-pulse" d="M36 34l20-6"></path>
+    </svg>
+  `;
+};
+
+const renderAiToolAnimation = (item) => {
+  const type = getAiToolAnimationType(item);
+  const label = item.name || "AI tool";
+  return `
+    <span class="ai-tool-card-animation animation-${type}" aria-hidden="true">
+      ${aiToolAnimationSvg(type)}
+      <span class="ai-tool-card-initials" hidden>${escapeHtml(initials(label))}</span>
+    </span>
+  `;
+};
+
 const renderEntitySummary = (key, count, endpoint) => {
   if (key === "aiTools") {
     return `
@@ -1441,10 +1581,6 @@ const renderQuizzesGrid = (items, isEmpty) => {
   `;
 };
 
-const aiToolLogoFallback = "/assets/ai-tools/default-ai-tool.svg";
-
-const getAiToolLogoSource = (item) => item.logo || item.image || item.thumbnail || aiToolLogoFallback;
-
 const aiToolStatusDetails = (status) => {
   const normalized = String(status || "active").toLowerCase();
   if (normalized === "active") return { label: "Active", className: "active" };
@@ -1461,24 +1597,6 @@ const formatAiToolWebsite = (item) => {
   const url = String(item.websiteUrl || "").trim();
   if (!url) return "Unavailable";
   return /^https?:\/\//i.test(url) ? "Ready" : url;
-};
-
-const aiToolLogoMarkup = (item) => {
-  const name = item.name || "AI Tool";
-  const src = getAiToolLogoSource(item);
-  const fallback = aiToolLogoFallback;
-  return `
-    <span class="ai-tool-card-logo">
-      <img
-        src="${escapeHtml(src)}"
-        data-fallback-src="${escapeHtml(fallback)}"
-        alt="${escapeHtml(`${name} logo`)}"
-        loading="lazy"
-        onerror="if(this.dataset.fallbackSrc && !this.dataset.fallbackApplied){this.dataset.fallbackApplied='true';this.src=this.dataset.fallbackSrc;}else{this.hidden=true;this.nextElementSibling.hidden=false;}"
-      />
-      <span class="ai-tool-card-initials" hidden aria-hidden="true">${escapeHtml(initials(name))}</span>
-    </span>
-  `;
 };
 
 const aiToolBadge = (label, className) => `
@@ -1532,7 +1650,7 @@ const renderToolCard = (item) => {
 
   return `<article class="ai-tool-management-card">
     <div class="ai-tool-card-head">
-      ${aiToolLogoMarkup(item)}
+      ${renderAiToolAnimation(item)}
       <div class="ai-tool-card-copy">
         <h3 title="${escapeHtml(name)}">${escapeHtml(name)}</h3>
         <p title="${escapeHtml(description)}">${escapeHtml(description)}</p>
@@ -1559,7 +1677,7 @@ const renderAiToolsSkeleton = () => `
       ${Array.from({ length: 6 }).map(() => `
         <article class="ai-tool-management-card ai-tool-card-skeleton" aria-hidden="true">
           <div class="ai-tool-card-head">
-            <span class="ai-tool-card-logo"></span>
+            <span class="ai-tool-card-animation"></span>
             <div class="ai-tool-card-copy"><span></span><span></span><span></span></div>
           </div>
           <dl class="ai-tool-meta-grid"><span></span><span></span><span></span><span></span><span></span><span></span></dl>

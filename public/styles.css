@@ -6977,7 +6977,7 @@ body.ai-tools-admin-page .ai-tool-card-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-auto-rows: 1fr;
   align-items: stretch;
-  gap: 24px;
+  gap: 16px;
   box-sizing: border-box;
 }
 
@@ -6985,8 +6985,8 @@ body.ai-tools-admin-page .ai-tools-grid-card {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  padding: 26px;
-  border-radius: 28px;
+  padding: 18px;
+  border-radius: 24px;
   box-sizing: border-box;
 }
 
@@ -6996,13 +6996,13 @@ body.ai-tools-admin-page .ai-tool-management-card {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 520px;
+  min-height: 390px;
   height: 100%;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
+  gap: 14px;
+  padding: 16px;
   border: 1px solid rgba(22, 163, 74, 0.18);
-  border-radius: 24px;
+  border-radius: 20px;
   background: var(--ai-tool-white);
   box-sizing: border-box;
   box-shadow: 0 18px 45px rgba(11, 15, 12, 0.06);
@@ -7020,18 +7020,20 @@ body.ai-tools-admin-page .ai-tool-card-head {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  grid-template-columns: 62px minmax(0, 1fr) auto;
-  gap: 16px;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  gap: 12px;
   align-items: flex-start;
   box-sizing: border-box;
 }
 
+body.ai-tools-admin-page .ai-tool-card-animation,
 body.ai-tools-admin-page .ai-tool-card-logo {
   position: relative;
   display: grid;
-  width: 62px;
-  height: 62px;
-  min-width: 62px;
+  width: 72px;
+  max-width: 100%;
+  height: 72px;
+  min-width: 72px;
   place-items: center;
   overflow: hidden;
   border: 1px solid var(--ai-tool-border);
@@ -7039,6 +7041,203 @@ body.ai-tools-admin-page .ai-tool-card-logo {
   background: var(--ai-tool-black);
   color: var(--ai-tool-white);
   box-shadow: 0 14px 24px rgba(11, 15, 12, 0.12);
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation svg {
+  width: 88%;
+  max-width: 100%;
+  height: 88%;
+  max-height: 100%;
+  overflow: visible;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .anim-panel,
+body.ai-tools-admin-page .ai-tool-card-animation .chat-bubble,
+body.ai-tools-admin-page .ai-tool-card-animation .email-paper,
+body.ai-tools-admin-page .ai-tool-card-animation .email-envelope,
+body.ai-tools-admin-page .ai-tool-card-animation .pdf-page,
+body.ai-tools-admin-page .ai-tool-card-animation .voice-mic {
+  fill: rgba(255, 255, 255, 0.08);
+  stroke: var(--ai-tool-white);
+  stroke-width: 3;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .anim-bar,
+body.ai-tools-admin-page .ai-tool-card-animation .code-bracket,
+body.ai-tools-admin-page .ai-tool-card-animation .code-line,
+body.ai-tools-admin-page .ai-tool-card-animation .code-cursor,
+body.ai-tools-admin-page .ai-tool-card-animation .image-mountain,
+body.ai-tools-admin-page .ai-tool-card-animation .image-scan,
+body.ai-tools-admin-page .ai-tool-card-animation .image-spark,
+body.ai-tools-admin-page .ai-tool-card-animation .email-flap,
+body.ai-tools-admin-page .ai-tool-card-animation .email-writing,
+body.ai-tools-admin-page .ai-tool-card-animation .chat-line,
+body.ai-tools-admin-page .ai-tool-card-animation .pdf-long,
+body.ai-tools-admin-page .ai-tool-card-animation .pdf-short,
+body.ai-tools-admin-page .ai-tool-card-animation .translate-lat,
+body.ai-tools-admin-page .ai-tool-card-animation .translate-arrow,
+body.ai-tools-admin-page .ai-tool-card-animation .voice-stand,
+body.ai-tools-admin-page .ai-tool-card-animation .voice-wave,
+body.ai-tools-admin-page .ai-tool-card-animation .voice-bars,
+body.ai-tools-admin-page .ai-tool-card-animation .neural-link,
+body.ai-tools-admin-page .ai-tool-card-animation .neural-pulse {
+  fill: none;
+  stroke: var(--ai-tool-green);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .anim-dot,
+body.ai-tools-admin-page .ai-tool-card-animation .typing-dot,
+body.ai-tools-admin-page .ai-tool-card-animation .image-sun,
+body.ai-tools-admin-page .ai-tool-card-animation .neural-node {
+  fill: var(--ai-tool-green);
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .anim-dot.red {
+  fill: var(--ai-tool-red);
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .pdf-label,
+body.ai-tools-admin-page .ai-tool-card-animation .translate-char {
+  fill: var(--ai-tool-white);
+  font: 950 12px Inter, sans-serif;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .translate-globe {
+  fill: rgba(255, 255, 255, 0.06);
+  stroke: var(--ai-tool-white);
+  stroke-width: 3;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .code-line,
+body.ai-tools-admin-page .ai-tool-card-animation .email-writing,
+body.ai-tools-admin-page .ai-tool-card-animation .chat-line,
+body.ai-tools-admin-page .ai-tool-card-animation .pdf-long,
+body.ai-tools-admin-page .ai-tool-card-animation .pdf-short {
+  stroke-dasharray: 32;
+  stroke-dashoffset: 32;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .line-one {
+  animation: aiToolLineDraw 2.4s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .line-two {
+  animation: aiToolLineDraw 2.4s ease-in-out 0.22s infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .line-three {
+  animation: aiToolLineDraw 2.4s ease-in-out 0.44s infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .code-bracket {
+  transform-origin: center;
+  animation: aiToolBracketPulse 2.2s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .code-cursor {
+  animation: aiToolCursorBlink 1s steps(2, end) infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .image-scan {
+  animation: aiToolImageScan 2.6s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .image-mountain {
+  stroke-dasharray: 90;
+  stroke-dashoffset: 90;
+  animation: aiToolLongDraw 2.8s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .image-spark {
+  animation: aiToolSpark 2s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .email-paper {
+  animation: aiToolEmailSlide 2.8s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .email-flap {
+  animation: aiToolEnvelopeOpen 2.8s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .typing-dot {
+  animation: aiToolTyping 1.5s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .dot-two {
+  animation-delay: 0.18s;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .dot-three {
+  animation-delay: 0.36s;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .chat-bubble {
+  transform-origin: center;
+  animation: aiToolBubble 2.6s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .bubble-two {
+  animation-delay: 0.4s;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .page-front {
+  transform-origin: center;
+  animation: aiToolPageStack 2.8s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .pdf-long {
+  animation: aiToolLineShrink 2.8s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .pdf-short {
+  animation: aiToolLineDraw 2.8s ease-in-out 0.35s infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .translate-arrow {
+  animation: aiToolArrowSwap 2.4s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .char-a,
+body.ai-tools-admin-page .ai-tool-card-animation .char-ka {
+  animation: aiToolCharacterSwap 2.4s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .voice-wave,
+body.ai-tools-admin-page .ai-tool-card-animation .voice-bars {
+  animation: aiToolWave 1.8s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .wave-two {
+  animation-delay: 0.18s;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .neural-pulse {
+  stroke: var(--ai-tool-white);
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  animation: aiToolNeuralPulse 2.2s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-card-animation .neural-node {
+  animation: aiToolNodePulse 2.6s ease-in-out infinite;
+}
+
+body.ai-tools-admin-page .ai-tool-management-card:hover .ai-tool-card-animation {
+  border-color: rgba(22, 163, 74, 0.85);
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12), 0 18px 34px rgba(11, 15, 12, 0.18);
+}
+
+body.ai-tools-admin-page .ai-tool-management-card:hover .ai-tool-card-animation .code-cursor,
+body.ai-tools-admin-page .ai-tool-management-card:hover .ai-tool-card-animation .voice-wave,
+body.ai-tools-admin-page .ai-tool-management-card:hover .ai-tool-card-animation .typing-dot,
+body.ai-tools-admin-page .ai-tool-management-card:hover .ai-tool-card-animation .neural-pulse {
+  animation-duration: 1.2s;
 }
 
 body.ai-tools-admin-page .ai-tool-card-logo img {
@@ -7074,7 +7273,7 @@ body.ai-tools-admin-page .ai-tool-card-copy h3 {
   margin: 0;
   overflow: hidden;
   color: var(--ai-tool-black);
-  font-size: clamp(1.08rem, 1.35vw, 1.28rem);
+  font-size: clamp(0.98rem, 1.1vw, 1.12rem);
   font-weight: 950;
   line-height: 1.18;
   white-space: normal;
@@ -7086,31 +7285,31 @@ body.ai-tools-admin-page .ai-tool-card-copy h3 {
 
 body.ai-tools-admin-page .ai-tool-card-copy p {
   display: -webkit-box;
-  min-height: 4.35em;
-  margin: 14px 0 0;
+  min-height: 2.72em;
+  margin: 8px 0 0;
   overflow: hidden;
   color: var(--ai-tool-muted);
-  font-size: 0.92rem;
+  font-size: 0.82rem;
   font-weight: 760;
-  line-height: 1.45;
+  line-height: 1.36;
   white-space: normal;
   word-break: normal;
   overflow-wrap: break-word;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 body.ai-tools-admin-page .ai-tool-badge {
   display: inline-flex;
   max-width: 100%;
-  min-height: 34px;
+  min-height: 30px;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 0 12px;
+  padding: 0 10px;
   border: 1px solid transparent;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 950;
   white-space: nowrap;
 }
@@ -7152,7 +7351,7 @@ body.ai-tools-admin-page .ai-tool-meta-grid {
   max-width: 100%;
   min-width: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 9px;
   margin: 0;
   box-sizing: border-box;
 }
@@ -7161,18 +7360,18 @@ body.ai-tools-admin-page .ai-tool-meta-box {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 76px;
-  padding: 13px 14px;
+  min-height: 58px;
+  padding: 10px 11px;
   border: 1px solid var(--ai-tool-border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--ai-tool-white);
   box-sizing: border-box;
 }
 
 body.ai-tools-admin-page .ai-tool-meta-box dt {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   color: var(--ai-tool-muted);
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 950;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -7182,10 +7381,10 @@ body.ai-tools-admin-page .ai-tool-meta-box dd {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   margin: 0;
   color: var(--ai-tool-black);
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   font-weight: 900;
   line-height: 1.2;
   white-space: normal;
@@ -7220,10 +7419,10 @@ body.ai-tools-admin-page .ai-tool-card-actions {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 128px), 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 104px), 1fr));
+  gap: 8px;
   margin-top: auto;
-  padding-top: 18px;
+  padding-top: 12px;
   border-top: 1px solid var(--ai-tool-border);
   box-sizing: border-box;
 }
@@ -7233,17 +7432,17 @@ body.ai-tools-admin-page .ai-tool-action {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 46px;
+  min-height: 38px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 0 clamp(10px, 1vw, 14px);
+  gap: 6px;
+  padding: 0 clamp(8px, 0.8vw, 12px);
   border: 1px solid var(--ai-tool-black);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--ai-tool-white);
   color: var(--ai-tool-black);
   box-sizing: border-box;
-  font-size: clamp(0.78rem, 0.95vw, 0.88rem);
+  font-size: clamp(0.7rem, 0.82vw, 0.78rem);
   font-weight: 950;
   text-align: center;
   white-space: nowrap;
@@ -7254,9 +7453,9 @@ body.ai-tools-admin-page .ai-tool-action {
 
 body.ai-tools-admin-page .ai-tool-action .ui-icon,
 body.ai-tools-admin-page .ai-tool-action .ui-icon i {
-  width: 17px;
-  min-width: 17px;
-  height: 17px;
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
   flex-shrink: 0;
 }
 
@@ -7441,15 +7640,228 @@ body.ai-tools-admin-page .ai-tool-visual-source .packet-two {
   }
 }
 
+@keyframes aiToolLineDraw {
+  0%,
+  18% {
+    stroke-dashoffset: 32;
+    opacity: 0;
+  }
+  42%,
+  82% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.55;
+  }
+}
+
+@keyframes aiToolLongDraw {
+  0%,
+  20% {
+    stroke-dashoffset: 90;
+    opacity: 0.35;
+  }
+  58%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes aiToolBracketPulse {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes aiToolCursorBlink {
+  0%,
+  46% {
+    opacity: 1;
+  }
+  47%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes aiToolImageScan {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(32px);
+    opacity: 1;
+  }
+}
+
+@keyframes aiToolSpark {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes aiToolEmailSlide {
+  0%,
+  100% {
+    transform: translateY(8px);
+  }
+  42%,
+  70% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes aiToolEnvelopeOpen {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: translateY(0);
+  }
+  45%,
+  70% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes aiToolTyping {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes aiToolBubble {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes aiToolPageStack {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-3px, -3px);
+  }
+}
+
+@keyframes aiToolLineShrink {
+  0%,
+  20% {
+    stroke-dashoffset: 32;
+    opacity: 0.4;
+  }
+  55% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 12;
+    opacity: 0.8;
+  }
+}
+
+@keyframes aiToolArrowSwap {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+}
+
+@keyframes aiToolCharacterSwap {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes aiToolWave {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scaleY(0.82);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1.12);
+  }
+}
+
+@keyframes aiToolNeuralPulse {
+  0% {
+    stroke-dashoffset: 28;
+    opacity: 0;
+  }
+  45%,
+  70% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -28;
+    opacity: 0;
+  }
+}
+
+@keyframes aiToolNodePulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 @container (max-width: 420px) {
   body.ai-tools-admin-page .ai-tool-card-head {
-    grid-template-columns: 58px minmax(0, 1fr);
+    grid-template-columns: 64px minmax(0, 1fr);
   }
 
+  body.ai-tools-admin-page .ai-tool-card-animation,
   body.ai-tools-admin-page .ai-tool-card-logo {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    border-radius: 16px;
   }
 
   body.ai-tools-admin-page .ai-tool-badge {
@@ -7484,8 +7896,8 @@ body.ai-tools-admin-page .ai-tool-visual-source .packet-two {
   body.ai-tools-admin-page .toolbar.ai-tool-toolbar,
   body.ai-tools-admin-page .ai-tools-grid-card,
   body.ai-tools-admin-page .ai-tool-management-card {
-    padding: 18px;
-    border-radius: 22px;
+    padding: 14px;
+    border-radius: 18px;
   }
 
   body.ai-tools-admin-page .ai-tool-summary-chip {
@@ -7497,6 +7909,14 @@ body.ai-tools-admin-page .ai-tool-visual-source .packet-two {
   body.ai-tools-admin-page .ai-tool-card-head,
   body.ai-tools-admin-page .ai-tool-meta-grid {
     grid-template-columns: 1fr;
+  }
+
+  body.ai-tools-admin-page .ai-tool-card-animation,
+  body.ai-tools-admin-page .ai-tool-card-logo {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    border-radius: 16px;
   }
 
   body.ai-tools-admin-page .ai-tool-badge {
@@ -7519,7 +7939,9 @@ body.ai-tools-admin-page .ai-tool-visual-source .packet-two {
   body.ai-tools-admin-page .ai-tool-visual-create .tool-orbit,
   body.ai-tools-admin-page .ai-tool-visual-source .tool-link,
   body.ai-tools-admin-page .ai-tool-visual-source .packet-one,
-  body.ai-tools-admin-page .ai-tool-visual-source .packet-two {
+  body.ai-tools-admin-page .ai-tool-visual-source .packet-two,
+  body.ai-tools-admin-page .ai-tool-card-animation *,
+  body.ai-tools-admin-page .ai-tool-management-card:hover .ai-tool-card-animation * {
     animation: none;
   }
 }
