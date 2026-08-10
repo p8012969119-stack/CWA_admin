@@ -4696,3 +4696,491 @@ textarea:focus-visible {
 .theme-brown .platform-metric-icon { background: #f5ece6; color: #5c4332; }
 .theme-brown .platform-metric-trend { background: #f5ece6; color: #5c4332; }
 
+/* Monthly registrations dashboard */
+.premium-analytics-grid .monthly-registration-card,
+.monthly-registration-card.registration-card {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  padding: clamp(22px, 3vw, 38px);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.94)),
+    #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.09);
+}
+
+.monthly-registration-card .analytics-card-header {
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 26px;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.monthly-registration-card .analytics-card-header h2 {
+  color: #07102c;
+  font-size: clamp(1.75rem, 3vw, 2.65rem);
+  font-weight: 950;
+  line-height: 1.02;
+}
+
+.monthly-registration-card .chart-subtitle {
+  margin-top: 8px;
+  color: #6f7892;
+  font-size: clamp(1rem, 1.6vw, 1.32rem);
+  font-weight: 750;
+}
+
+.monthly-registration-card .calendar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.monthly-registration-card .calendar-actions .icon-btn,
+.monthly-registration-card .calendar-actions .mini {
+  border: 1px solid #e5e9f2;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #121936;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.monthly-registration-card .calendar-actions .icon-btn {
+  width: 52px;
+  height: 52px;
+}
+
+.monthly-registration-card .calendar-actions .mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 28px;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.monthly-registration-card .calendar-actions .ui-icon,
+.registration-month-title .ui-icon {
+  width: auto;
+  height: auto;
+  background: transparent;
+  color: currentColor;
+  box-shadow: none;
+}
+
+.monthly-registration-card .calendar-actions svg {
+  width: 22px;
+  height: 22px;
+}
+
+.registration-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.registration-kpi {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+  min-height: 118px;
+  padding: 22px;
+  border: 1px solid #e4e8f1;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+}
+
+.registration-kpi-icon {
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  border-radius: 16px;
+}
+
+.registration-kpi-icon .ui-icon {
+  width: auto;
+  height: auto;
+  background: transparent;
+  box-shadow: none;
+}
+
+.registration-kpi-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.kpi-total .registration-kpi-icon {
+  background: linear-gradient(135deg, #7c82ff, #5048ec);
+  color: #ffffff;
+  box-shadow: 0 16px 28px rgba(80, 72, 236, 0.22);
+}
+
+.kpi-highest .registration-kpi-icon {
+  background: #d7f8f5;
+  color: #087f7a;
+}
+
+.kpi-average .registration-kpi-icon {
+  background: #eaf2ff;
+  color: #3678ff;
+}
+
+.registration-kpi > div > span {
+  display: block;
+  margin-bottom: 8px;
+  color: #69738e;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.registration-kpi strong {
+  display: block;
+  color: #07102c;
+  font-size: clamp(1.55rem, 2.4vw, 2rem);
+  font-weight: 950;
+  line-height: 1;
+}
+
+.registration-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.95fr) minmax(320px, 0.95fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.registration-month-panel,
+.monthly-registration-card .calendar-day-report {
+  border: 1px solid #e4e8f1;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+}
+
+.registration-month-panel {
+  min-width: 0;
+  padding: 24px;
+}
+
+.monthly-registration-card .calendar-title-row {
+  margin-bottom: 20px;
+}
+
+.registration-month-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  color: #4f46e5;
+}
+
+.registration-month-title svg {
+  width: 30px;
+  height: 30px;
+}
+
+.registration-month-title strong {
+  color: #07102c;
+  font-size: clamp(1.35rem, 2.3vw, 1.85rem);
+  font-weight: 950;
+}
+
+.monthly-registration-card .calendar-title-row > span {
+  color: #4f46e5;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.monthly-registration-card .registration-calendar {
+  grid-template-columns: repeat(7, minmax(78px, 1fr));
+  gap: 10px;
+}
+
+.monthly-registration-card .calendar-weekday {
+  padding-bottom: 4px;
+  color: #68718a;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+.monthly-registration-card .calendar-cell {
+  display: grid;
+  align-content: space-between;
+  min-height: 74px;
+  height: 74px;
+  padding: 14px 16px;
+  border: 1px solid #e7ebf3;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111936;
+  box-shadow: none;
+}
+
+.monthly-registration-card .calendar-cell:hover,
+.monthly-registration-card .calendar-cell:focus-visible {
+  border-color: #8b84ff;
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.14);
+  transform: translateY(-1px);
+}
+
+.monthly-registration-card .calendar-cell.selected {
+  border-color: #5b50f0;
+  box-shadow: 0 0 0 2px rgba(91, 80, 240, 0.9), 0 12px 28px rgba(79, 70, 229, 0.16);
+}
+
+.monthly-registration-card .calendar-cell span,
+.monthly-registration-card .calendar-cell b {
+  font-size: 1.06rem;
+  line-height: 1;
+}
+
+.monthly-registration-card .calendar-cell span {
+  font-weight: 950;
+}
+
+.monthly-registration-card .calendar-cell b {
+  color: #68718a;
+  font-weight: 850;
+}
+
+.monthly-registration-card .calendar-cell.heat-1,
+.monthly-registration-card .calendar-cell.heat-3 {
+  background: #d9f7f3;
+}
+
+.monthly-registration-card .calendar-cell.heat-2,
+.monthly-registration-card .calendar-cell.heat-4,
+.monthly-registration-card .calendar-cell.heat-5 {
+  background: linear-gradient(135deg, #19b8ad, #07978e);
+  color: #ffffff;
+}
+
+.monthly-registration-card .calendar-cell.heat-2 b,
+.monthly-registration-card .calendar-cell.heat-4 b,
+.monthly-registration-card .calendar-cell.heat-5 b {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.monthly-registration-card .calendar-empty {
+  border-color: #e7ebf3;
+  background: #ffffff;
+}
+
+.monthly-registration-card .calendar-day-report {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 0;
+  padding: 24px;
+}
+
+.registration-day-head,
+.registration-day-stat,
+.registration-activity {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e4e8f1;
+}
+
+.registration-day-head span {
+  display: block;
+  margin-bottom: 12px;
+  color: #4f46e5;
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+
+.registration-day-head strong {
+  color: #07102c;
+  font-size: clamp(1.35rem, 2.3vw, 1.65rem);
+  font-weight: 950;
+}
+
+.registration-day-stat strong {
+  display: inline;
+  margin-right: 8px;
+  color: #07102c;
+  font-size: 1.55rem;
+  font-weight: 950;
+}
+
+.registration-day-stat span,
+.registration-day-stat em {
+  color: #6f7892;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.registration-day-stat em {
+  display: block;
+  margin-top: 6px;
+}
+
+.registration-activity > span,
+.registration-density-legend > span {
+  display: block;
+  margin-bottom: 16px;
+  color: #6f7892;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.registration-activity-chart {
+  position: relative;
+  height: 156px;
+  padding: 0 0 28px 28px;
+}
+
+.registration-activity-chart svg {
+  display: block;
+  width: 100%;
+  height: 112px;
+  overflow: visible;
+}
+
+.registration-activity-chart line {
+  stroke: #dfe5ef;
+  stroke-dasharray: 3 4;
+  stroke-width: 1.5;
+}
+
+.registration-activity-chart polyline {
+  fill: none;
+  stroke: #5147ec;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.registration-activity-chart circle {
+  fill: #ffffff;
+  stroke: #5147ec;
+  stroke-width: 2.4;
+}
+
+.activity-y {
+  position: absolute;
+  left: 0;
+  color: #6f7892;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.activity-y.y-3 { top: 2px; }
+.activity-y.y-2 { top: 31px; }
+.activity-y.y-1 { top: 60px; }
+.activity-y.y-0 { top: 90px; }
+
+.activity-x {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 28px;
+  display: flex;
+  justify-content: space-between;
+  color: #6f7892;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.registration-density-legend {
+  display: grid;
+  gap: 14px;
+}
+
+.registration-density-legend div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.registration-density-legend i {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #e4e8f1;
+}
+
+.registration-density-legend b {
+  color: #6f7892;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.legend-empty {
+  background: #ffffff;
+}
+
+.legend-low {
+  background: #d9f7f3;
+}
+
+.legend-high {
+  background: #07978e;
+}
+
+@media (max-width: 1080px) {
+  .registration-dashboard,
+  .registration-kpi-row {
+    grid-template-columns: 1fr;
+  }
+
+  .monthly-registration-card .registration-calendar {
+    grid-template-columns: repeat(7, minmax(54px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .monthly-registration-card .analytics-card-header {
+    align-items: stretch;
+  }
+
+  .monthly-registration-card .calendar-actions {
+    width: 100%;
+  }
+
+  .monthly-registration-card .calendar-actions .mini {
+    flex: 1;
+    padding-inline: 14px;
+  }
+
+  .registration-month-panel,
+  .monthly-registration-card .calendar-day-report {
+    padding: 16px;
+  }
+
+  .monthly-registration-card .registration-calendar {
+    grid-template-columns: repeat(7, minmax(36px, 1fr));
+    gap: 6px;
+  }
+
+  .monthly-registration-card .calendar-weekday {
+    font-size: 0.68rem;
+  }
+
+  .monthly-registration-card .calendar-cell {
+    min-height: 54px;
+    height: 54px;
+    padding: 8px;
+  }
+
+  .monthly-registration-card .calendar-cell span,
+  .monthly-registration-card .calendar-cell b {
+    font-size: 0.82rem;
+  }
+
+  .monthly-registration-card .calendar-title-row {
+    align-items: flex-start;
+  }
+}

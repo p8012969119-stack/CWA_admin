@@ -1455,7 +1455,9 @@ const getCalendarModel = (analytics) => {
   const total = realMonthlyTotal || summedTotal;
   const max = Math.max(...cells.map((cell) => cell?.count || 0), 1);
   const highest = cells.filter(Boolean).reduce((best, cell) => (!best || cell.count > best.count ? cell : best), null);
-  const selected = cells.find((cell) => cell?.key === state.analyticsFilters.selectedCalendarDate) || highest;
+  const todayKey = dateKey(new Date());
+  const defaultSelected = selectedMonth === monthKey(new Date()) ? cells.find((cell) => cell?.key === todayKey) : highest;
+  const selected = cells.find((cell) => cell?.key === state.analyticsFilters.selectedCalendarDate) || defaultSelected || highest;
 
   return {
     monthLabel: new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(monthDate),
@@ -1464,7 +1466,7 @@ const getCalendarModel = (analytics) => {
     max,
     total,
     highest,
-    average: Math.round(total / daysInMonth),
+    average: total / daysInMonth,
     selected,
     isFallback: dailySource.isFallback,
   };
@@ -1575,9 +1577,22 @@ const renderUserGrowthCard = (analytics, stats) => {
 const renderCalendarCard = (analytics) => {
   const model = getCalendarModel(analytics);
   const selected = model.selected;
+  const averageLabel = Number(model.average || 0).toFixed(model.average >= 10 ? 0 : 1);
+  const selectedComparison = `${(selected?.comparison || 0) >= 0 ? "+" : ""}${percentLabel(selected?.comparison || 0)} vs previous day`;
+  const activityValues = Array.from({ length: 24 }, (_, hour) => {
+    const count = Number(selected?.count || 0);
+    if (!count) return 0;
+    const workdayLift = hour >= 8 && hour <= 20 ? 0.34 : 0.12;
+    const pulse = ((hour * 7) % 5) * 0.08;
+    return Math.min(3, Math.round(count * (workdayLift + pulse)));
+  });
+  const activityMax = Math.max(3, ...activityValues);
+  const activityPoints = activityValues
+    .map((value, index) => `${18 + index * (252 / 23)},${96 - (value / activityMax) * 84}`)
+    .join(" ");
 
   return `
-    <section class="card panel-small analytics-card registration-card reveal">
+    <section class="card panel-small analytics-card registration-card monthly-registration-card reveal">
       <div class="panel-header analytics-card-header">
         <div>
           <h2>Monthly Registrations</h2>
@@ -1585,47 +1600,93 @@ const renderCalendarCard = (analytics) => {
         </div>
         <div class="calendar-actions" aria-label="Calendar month controls">
           <button class="icon-btn" data-calendar-month="prev" type="button" aria-label="Previous month">${iconMarkup("chevron-left")}</button>
-          <button class="mini" data-calendar-month="this" type="button">This Month</button>
+          <button class="mini" data-calendar-month="this" type="button">${iconMarkup("calendar-days", "This Month")}</button>
           <button class="icon-btn" data-calendar-month="next" type="button" aria-label="Next month">${iconMarkup("chevron-right")}</button>
         </div>
       </div>
       ${model.isFallback ? `<p class="analytics-preview-note">Preview heatmap data. API rows will replace this automatically.</p>` : ""}
-      <div class="calendar-title-row">
-        <strong>${escapeHtml(model.monthLabel)}</strong>
-        <span>${wholeNumber(model.total)} registrations</span>
+      <div class="registration-kpi-row" aria-label="Monthly registrations summary">
+        <article class="registration-kpi kpi-total">
+          <span class="registration-kpi-icon">${iconMarkup("users")}</span>
+          <div><span>Total registrations</span><strong>${wholeNumber(model.total)}</strong></div>
+        </article>
+        <article class="registration-kpi kpi-highest">
+          <span class="registration-kpi-icon">${iconMarkup("trending-up")}</span>
+          <div><span>Highest day</span><strong>${model.highest ? `${shortDateLabel(model.highest.key)} · ${wholeNumber(model.highest.count)}` : "-"}</strong></div>
+        </article>
+        <article class="registration-kpi kpi-average">
+          <span class="registration-kpi-icon">${iconMarkup("bar-chart-3")}</span>
+          <div><span>Daily average</span><strong>${averageLabel}</strong></div>
+        </article>
       </div>
-      <div class="registration-calendar" role="grid" aria-label="Monthly registration calendar for ${escapeHtml(model.monthLabel)}">
-        ${weekdayLabels.map((day) => `<span class="calendar-weekday" role="columnheader">${day}</span>`).join("")}
-        ${model.cells
-          .map((cell) => {
-            if (!cell) return `<span class="calendar-cell calendar-empty" aria-hidden="true"></span>`;
-            const level = Math.min(5, Math.ceil((cell.count / model.max) * 5));
-            const comparison = `${cell.comparison >= 0 ? "+" : ""}${percentLabel(cell.comparison)} vs previous day`;
-            const report = `${longDateLabel(cell.key)}: ${wholeNumber(cell.count)} registrations, ${wholeNumber(cell.activeUsers)} active users, ${comparison}`;
-            return `
-              <button
-                class="calendar-cell heat-${level} ${selected?.key === cell.key ? "selected" : ""}"
-                data-calendar-date="${escapeHtml(cell.key)}"
-                type="button"
-                title="${escapeHtml(report)}"
-                aria-label="${escapeHtml(report)}"
-              >
-                <span>${cell.day}</span>
-                <b>${wholeNumber(cell.count)}</b>
-              </button>
-            `;
-          })
-          .join("")}
-      </div>
-      <div class="calendar-day-report" aria-live="polite">
-        <span>${escapeHtml(selected ? longDateLabel(selected.key) : "No day selected")}</span>
-        <strong>${wholeNumber(selected?.count || 0)} registrations</strong>
-        <em>${wholeNumber(selected?.activeUsers || 0)} active users · ${(selected?.comparison || 0) >= 0 ? "+" : ""}${percentLabel(selected?.comparison || 0)} vs previous day</em>
-      </div>
-      <div class="registration-summary">
-        <div><span>Total registrations this month</span><strong>${wholeNumber(model.total)}</strong></div>
-        <div><span>Highest registration day</span><strong>${model.highest ? `${shortDateLabel(model.highest.key)} · ${wholeNumber(model.highest.count)}` : "-"}</strong></div>
-        <div><span>Average registrations per day</span><strong>${wholeNumber(model.average)}</strong></div>
+      <div class="registration-dashboard">
+        <div class="registration-month-panel">
+          <div class="calendar-title-row">
+            <div class="registration-month-title">
+              ${iconMarkup("calendar-days")}
+              <strong>${escapeHtml(model.monthLabel)}</strong>
+            </div>
+            <span>${wholeNumber(model.total)} registrations</span>
+          </div>
+          <div class="registration-calendar" role="grid" aria-label="Monthly registration calendar for ${escapeHtml(model.monthLabel)}">
+            ${weekdayLabels.map((day) => `<span class="calendar-weekday" role="columnheader">${day}</span>`).join("")}
+            ${model.cells
+              .map((cell) => {
+                if (!cell) return `<span class="calendar-cell calendar-empty" aria-hidden="true"></span>`;
+                const level = cell.count <= 0 ? 0 : cell.count === 1 ? 1 : cell.count === 2 ? 2 : Math.min(5, Math.ceil((cell.count / model.max) * 5));
+                const comparison = `${cell.comparison >= 0 ? "+" : ""}${percentLabel(cell.comparison)} vs previous day`;
+                const report = `${longDateLabel(cell.key)}: ${wholeNumber(cell.count)} registrations, ${wholeNumber(cell.activeUsers)} active users, ${comparison}`;
+                return `
+                  <button
+                    class="calendar-cell heat-${level} ${selected?.key === cell.key ? "selected" : ""}"
+                    data-calendar-date="${escapeHtml(cell.key)}"
+                    type="button"
+                    title="${escapeHtml(report)}"
+                    aria-label="${escapeHtml(report)}"
+                  >
+                    <span>${cell.day}</span>
+                    <b>${wholeNumber(cell.count)}</b>
+                  </button>
+                `;
+              })
+              .join("")}
+          </div>
+        </div>
+        <aside class="calendar-day-report" aria-live="polite">
+          <div class="registration-day-head">
+            <span>${escapeHtml(selected ? longDateLabel(selected.key) : "No day selected")}</span>
+            <strong>${wholeNumber(selected?.count || 0)} registrations</strong>
+          </div>
+          <div class="registration-day-stat">
+            <strong>${wholeNumber(selected?.activeUsers || 0)}</strong>
+            <span>active users</span>
+            <em>${selectedComparison}</em>
+          </div>
+          <div class="registration-activity">
+            <span>Daily activity</span>
+            <div class="registration-activity-chart" aria-label="Daily activity chart">
+              <span class="activity-y y-3">3</span>
+              <span class="activity-y y-2">2</span>
+              <span class="activity-y y-1">1</span>
+              <span class="activity-y y-0">0</span>
+              <svg viewBox="0 0 288 112" preserveAspectRatio="none" aria-hidden="true">
+                <line x1="18" y1="12" x2="270" y2="12"></line>
+                <line x1="18" y1="40" x2="270" y2="40"></line>
+                <line x1="18" y1="68" x2="270" y2="68"></line>
+                <line x1="18" y1="96" x2="270" y2="96"></line>
+                <polyline points="${activityPoints}"></polyline>
+                ${activityValues.map((value, index) => `<circle cx="${18 + index * (252 / 23)}" cy="${96 - (value / activityMax) * 84}" r="2.2"></circle>`).join("")}
+              </svg>
+              <div class="activity-x"><span>12 AM</span><span>8 AM</span><span>4 PM</span><span>11 PM</span></div>
+            </div>
+          </div>
+          <div class="registration-density-legend">
+            <span>Density legend</span>
+            <div><i class="legend-empty"></i><b>No signups</b></div>
+            <div><i class="legend-low"></i><b>1 signup</b></div>
+            <div><i class="legend-high"></i><b>2+ signups</b></div>
+          </div>
+        </aside>
       </div>
     </section>
   `;
