@@ -10254,6 +10254,419 @@ body.lessons-admin-page textarea:focus-visible {
   }
 }
 
+/* Certificate management summary animations */
+body.certificates-admin-page .entity-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 18px;
+}
+
+body.certificates-admin-page .certificate-summary-chip {
+  min-height: 128px;
+  width: 100%;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid #dde5dd;
+  border-radius: 22px;
+  background: #ffffff;
+  color: #0b0f0c;
+  box-shadow: 0 14px 34px rgba(11, 15, 12, 0.07);
+  text-align: left;
+  animation: certificateSummaryEnter 0.42s var(--ease) both;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+body.certificates-admin-page .certificate-summary-chip:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+body.certificates-admin-page .certificate-summary-chip:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+body.certificates-admin-page .certificate-summary-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(11, 15, 12, 0.11);
+}
+
+body.certificates-admin-page .certificate-summary-records:hover {
+  border-color: #0b0f0c;
+}
+
+body.certificates-admin-page .certificate-summary-create:hover {
+  border-color: #16a34a;
+}
+
+body.certificates-admin-page .certificate-summary-source:hover {
+  border-color: #e3262e;
+}
+
+body.certificates-admin-page button.certificate-summary-chip {
+  cursor: pointer;
+}
+
+body.certificates-admin-page .certificate-summary-chip span:not(.ui-icon, .certificate-summary-visual) {
+  color: #4b5563;
+}
+
+body.certificates-admin-page .certificate-summary-chip b {
+  color: #0b0f0c;
+  font-size: 1.05rem;
+}
+
+.certificate-summary-visual {
+  display: inline-flex;
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 18px;
+  box-sizing: border-box;
+}
+
+.certificate-summary-visual svg {
+  width: 72px;
+  height: 72px;
+}
+
+.certificate-visual-records {
+  background: #f3f4f3;
+  color: #0b0f0c;
+}
+
+.certificate-visual-create {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.certificate-visual-source {
+  background: #fee2e2;
+  color: #e3262e;
+}
+
+.certificate-summary-visual rect,
+.certificate-summary-visual path,
+.certificate-summary-visual circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.certificate-summary-visual .certificate-sheet,
+.certificate-summary-visual .certificate-create-doc,
+.certificate-summary-visual .certificate-api-doc {
+  fill: #ffffff;
+}
+
+.certificate-summary-visual .sheet-back {
+  opacity: 0.42;
+  animation: certificateStackBack 2.6s ease-in-out infinite;
+}
+
+.certificate-summary-visual .sheet-mid {
+  opacity: 0.7;
+  animation: certificateStackMid 2.6s ease-in-out infinite;
+}
+
+.certificate-summary-visual .sheet-front {
+  animation: certificateStackFront 2.6s ease-in-out infinite;
+}
+
+.certificate-summary-visual .certificate-line {
+  stroke-width: 3;
+  opacity: 0.8;
+}
+
+.certificate-summary-visual .certificate-seal,
+.certificate-summary-visual .certificate-create-seal {
+  color: #15803d;
+  fill: #dcfce7;
+  animation: certificateSealPulse 2.3s ease-in-out infinite;
+}
+
+.certificate-summary-visual .certificate-ribbon {
+  color: #15803d;
+  animation: certificateRibbonDraw 2.4s ease-in-out infinite;
+}
+
+.certificate-summary-visual .certificate-check-disc,
+.certificate-summary-visual .certificate-api-check-disc {
+  color: #16a34a;
+  fill: #dcfce7;
+  animation: certificateCheckPop 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.certificate-summary-visual .certificate-check,
+.certificate-summary-visual .certificate-api-check {
+  color: #15803d;
+  stroke-dasharray: 22;
+  animation: certificateCheckDraw 2.4s ease-in-out infinite;
+}
+
+.certificate-summary-visual .certificate-create-doc {
+  animation: certificateDocSlide 2.6s ease-in-out infinite;
+}
+
+.certificate-summary-visual .certificate-create-fold {
+  color: #0b0f0c;
+}
+
+.certificate-summary-visual .certificate-signature {
+  color: #065f46;
+  stroke-dasharray: 44;
+  animation: certificateSignatureDraw 2.6s ease-in-out infinite;
+}
+
+.certificate-summary-visual .certificate-plus-disc {
+  color: #16a34a;
+  fill: #16a34a;
+  animation: certificatePlusPulse 2s ease-in-out infinite;
+}
+
+.certificate-summary-visual .certificate-plus {
+  color: #ffffff;
+  animation: certificatePlusPulse 2s ease-in-out infinite;
+  transform-origin: 64px 65px;
+}
+
+.certificate-summary-visual .certificate-server {
+  color: #991b1b;
+  fill: #fee2e2;
+}
+
+.certificate-summary-visual .certificate-server-slot {
+  color: #991b1b;
+  stroke-width: 3;
+}
+
+.certificate-summary-visual .certificate-route {
+  color: #991b1b;
+  stroke-dasharray: 16 7;
+  animation: certificateRoutePulse 2.6s ease-in-out infinite;
+}
+
+.certificate-summary-visual .certificate-packet {
+  color: #e3262e;
+  fill: #ffffff;
+  animation: certificatePacketTravel 2.6s ease-in-out infinite;
+}
+
+.certificate-summary-visual .packet-two {
+  animation-delay: 0.32s;
+}
+
+.certificate-summary-visual .is-paused,
+.certificate-summary-visual.is-paused *,
+.certificate-summary-visual.is-paused {
+  animation-play-state: paused !important;
+}
+
+@keyframes certificateSummaryEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes certificateStackBack {
+  0%,
+  100% {
+    transform: translate(-1px, 0);
+  }
+
+  50% {
+    transform: translate(-4px, -2px);
+  }
+}
+
+@keyframes certificateStackMid {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-2px, 1px);
+  }
+}
+
+@keyframes certificateStackFront {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(2px, 2px);
+  }
+}
+
+@keyframes certificateSealPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes certificateRibbonDraw {
+  0%,
+  100% {
+    stroke-dasharray: 26 0;
+  }
+
+  50% {
+    stroke-dasharray: 12 14;
+  }
+}
+
+@keyframes certificateCheckPop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  46% {
+    transform: scale(0.92);
+  }
+
+  58% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes certificateCheckDraw {
+  0% {
+    stroke-dashoffset: 22;
+  }
+
+  35%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes certificateDocSlide {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  45% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes certificateSignatureDraw {
+  0% {
+    stroke-dashoffset: 44;
+  }
+
+  45%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes certificatePlusPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes certificateRoutePulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    opacity: 1;
+    stroke-dashoffset: -14;
+  }
+}
+
+@keyframes certificatePacketTravel {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+@media (max-width: 1020px) {
+  body.certificates-admin-page .entity-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .certificate-summary-visual {
+    width: 76px;
+    height: 76px;
+    flex-basis: 76px;
+  }
+
+  .certificate-summary-visual svg {
+    width: 62px;
+    height: 62px;
+  }
+}
+
+@media (max-width: 640px) {
+  body.certificates-admin-page .entity-summary {
+    grid-template-columns: 1fr;
+  }
+
+  body.certificates-admin-page .certificate-summary-chip {
+    min-height: 104px;
+    padding: 18px;
+  }
+
+  .certificate-summary-visual {
+    width: 68px;
+    height: 68px;
+    flex-basis: 68px;
+  }
+
+  .certificate-summary-visual svg {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.certificates-admin-page .certificate-summary-chip,
+  .certificate-summary-visual *,
+  .certificate-summary-visual {
+    animation: none !important;
+  }
+
+  body.certificates-admin-page .certificate-summary-chip:hover {
+    transform: none;
+  }
+}
+
 /* Module management card grid */
 body.modules-admin-page {
   background: #f7f8f7;

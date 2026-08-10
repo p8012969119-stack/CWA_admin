@@ -23,6 +23,8 @@ const state = {
   error: "",
 };
 
+const animatedCountKeys = new Set();
+
 const getRuntimeApiBaseUrl = () => {
   const configured = window.__CWA_ADMIN_CONFIG__?.apiBaseUrl;
 
@@ -647,6 +649,74 @@ const aiToolSummaryCard = (label, value, type) => {
   return `<div class="stat-chip ai-tool-summary-chip ai-tool-summary-${type}">${content}</div>`;
 };
 
+const certificateSummaryIllustration = (type) => {
+  if (type === "records") {
+    return `
+      <span class="certificate-summary-visual certificate-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="certificate-sheet sheet-back" x="20" y="18" width="42" height="52" rx="7"></rect>
+          <rect class="certificate-sheet sheet-mid" x="26" y="22" width="42" height="52" rx="7"></rect>
+          <rect class="certificate-sheet sheet-front" x="32" y="26" width="42" height="52" rx="7"></rect>
+          <path class="certificate-line line-one" d="M41 42h23"></path>
+          <path class="certificate-line line-two" d="M41 52h18"></path>
+          <circle class="certificate-seal" cx="62" cy="63" r="8"></circle>
+          <path class="certificate-ribbon" d="M58 70l-3 9 7-4 7 4-3-9"></path>
+          <circle class="certificate-check-disc" cx="28" cy="28" r="10"></circle>
+          <path class="certificate-check" d="M23 28l4 4 8-9"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "create") {
+    return `
+      <span class="certificate-summary-visual certificate-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="certificate-create-doc" x="25" y="18" width="42" height="54" rx="8"></rect>
+          <path class="certificate-create-fold" d="M56 18v13h11"></path>
+          <path class="certificate-signature" d="M34 56c6-8 12 5 18-2 4-5 7-4 10-1"></path>
+          <circle class="certificate-create-seal" cx="41" cy="39" r="8"></circle>
+          <circle class="certificate-plus-disc" cx="64" cy="65" r="13"></circle>
+          <path class="certificate-plus" d="M64 57v16M56 65h16"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  return `
+    <span class="certificate-summary-visual certificate-visual-source" aria-hidden="true">
+      <svg viewBox="0 0 88 88" focusable="false">
+        <rect class="certificate-server" x="16" y="20" width="34" height="48" rx="8"></rect>
+        <path class="certificate-server-slot" d="M25 34h16M25 46h16M25 58h11"></path>
+        <rect class="certificate-api-doc" x="59" y="28" width="18" height="24" rx="4"></rect>
+        <path class="certificate-api-line" d="M64 39h8M64 46h6"></path>
+        <path class="certificate-route route-one" d="M51 34h9"></path>
+        <path class="certificate-route route-two" d="M51 56h18c5 0 5-8 10-8"></path>
+        <circle class="certificate-packet packet-one" cx="55" cy="34" r="3"></circle>
+        <circle class="certificate-packet packet-two" cx="66" cy="56" r="3"></circle>
+        <circle class="certificate-api-check-disc" cx="72" cy="25" r="7"></circle>
+        <path class="certificate-api-check" d="M68 25l3 3 6-7"></path>
+      </svg>
+    </span>
+  `;
+};
+
+const certificateSummaryCard = (label, value, type) => {
+  const content = `
+    ${certificateSummaryIllustration(type)}
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <b ${Number.isFinite(Number(value)) ? `data-count="${escapeHtml(value)}" data-count-once="certificate-${type}"` : ""}>${escapeHtml(value)}</b>
+    </div>
+  `;
+
+  if (type === "create") {
+    return `<button class="stat-chip certificate-summary-chip certificate-summary-${type}" data-open-form="certificates" type="button" aria-label="Create certificate">${content}</button>`;
+  }
+
+  return `<div class="stat-chip certificate-summary-chip certificate-summary-${type}">${content}</div>`;
+};
+
 const aiToolAnimationTypes = [
   { type: "code", keys: ["ai-code-generator", "code", "coding", "developer"] },
   { type: "image", keys: ["ai-image-generator", "image", "art", "design"] },
@@ -814,6 +884,16 @@ const renderEntitySummary = (key, count, endpoint) => {
         ${lessonSummaryCard("Loaded records", count, "records")}
         ${lessonSummaryCard("Primary action", "Create", "create")}
         ${lessonSummaryCard("Data source", endpoint, "source")}
+      </section>
+    `;
+  }
+
+  if (key === "certificates") {
+    return `
+      <section class="entity-summary certificate-summary-grid">
+        ${certificateSummaryCard("Loaded records", count, "records")}
+        ${certificateSummaryCard("Primary action", "Create", "create")}
+        ${certificateSummaryCard("Data source", endpoint, "source")}
       </section>
     `;
   }
@@ -3632,6 +3712,7 @@ const renderApp = () => {
   document.body.classList.toggle("quizzes-admin-page", state.view === "quizzes");
   document.body.classList.toggle("ai-tools-admin-page", state.view === "aiTools");
   document.body.classList.toggle("analytics-admin-page", state.view === "analytics");
+  document.body.classList.toggle("certificates-admin-page", state.view === "certificates");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
@@ -3689,6 +3770,7 @@ const renderApp = () => {
   bindEvents();
   initCharts();
   initCountUps();
+  initCertificateSummaryAnimations();
 };
 
 const initCharts = () => {
@@ -4008,8 +4090,10 @@ const initCountUps = () => {
   document.querySelectorAll("[data-count]").forEach((node) => {
     const rawValue = String(node.dataset.count || "");
     const numeric = Number(rawValue.replace(/[^0-9.]/g, ""));
+    const onceKey = node.dataset.countOnce;
 
     if (!Number.isFinite(numeric) || numeric <= 0 || rawValue.includes("%")) return;
+    if (onceKey && animatedCountKeys.has(onceKey)) return;
 
     const start = performance.now();
     const duration = 650;
@@ -4019,10 +4103,24 @@ const initCountUps = () => {
       const current = Math.round(numeric * progress);
       node.textContent = rawValue.replace(/[0-9.]+/, current.toString());
       if (progress < 1) requestAnimationFrame(tick);
+      else if (onceKey) animatedCountKeys.add(onceKey);
     };
 
     requestAnimationFrame(tick);
   });
+};
+
+const initCertificateSummaryAnimations = () => {
+  const visuals = document.querySelectorAll(".certificate-summary-visual");
+  if (!visuals.length || !("IntersectionObserver" in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      entry.target.classList.toggle("is-paused", !entry.isIntersecting);
+    });
+  }, { threshold: 0.1 });
+
+  visuals.forEach((visual) => observer.observe(visual));
 };
 
 const findItem = (key, id) => (state.data[key] || []).find((item) => String(item._id) === String(id));
