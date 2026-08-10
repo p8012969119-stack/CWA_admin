@@ -5670,3 +5670,97 @@ textarea:focus-visible {
     display: none;
   }
 }
+
+/* Compact equal dashboard cards and course images */
+.premium-analytics-grid .analytics-card,
+.premium-analytics-grid .analytics-growth-card,
+.premium-analytics-grid .monthly-registration-card,
+.premium-analytics-grid .courses-usage-card {
+  width: min(100%, 860px);
+  max-width: 860px;
+}
+
+.premium-analytics-grid .analytics-growth-card,
+.premium-analytics-grid .monthly-registration-card,
+.premium-analytics-grid .courses-usage-card {
+  min-height: 0;
+  padding: clamp(18px, 2.4vw, 28px);
+  border-radius: 24px;
+}
+
+.premium-analytics-grid .analytics-growth-card .growth-summary {
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.premium-analytics-grid .analytics-growth-card .premium-chart-frame {
+  height: 320px;
+  min-height: 320px;
+  padding: 14px;
+}
+
+.premium-analytics-grid .analytics-growth-card .growth-canvas {
+  height: 290px;
+}
+
+.premium-analytics-grid .monthly-registration-card {
+  width: min(100%, 860px);
+  max-width: 860px;
+}
+
+.courses-usage-card .course-usage-list {
+  gap: 12px;
+}
+
+.courses-usage-card .course-usage-row {
+  grid-template-columns: 58px minmax(0, 1fr) 92px;
+  min-height: 88px;
+  padding: 12px 14px;
+  border-radius: 18px;
+}
+
+.courses-usage-card .course-thumb {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 14px;
+}
+
+.courses-usage-card .course-thumb img {
+  width: 100%;
+  height: 100%;
+}
+
+.courses-usage-card .course-usage-topline h3 {
+  font-size: 0.96rem;
+}
+
+.courses-usage-card .course-usage-topline p,
+.courses-usage-card .course-usage-metrics {
+  font-size: 0.74rem;
+}
+
+.courses-usage-card .trend-badge {
+  min-height: 30px;
+  padding: 0 12px;
+  font-size: 0.74rem;
+}
+
+.courses-usage-card .course-sparkline {
+  width: 92px;
+  height: 36px;
+}
+
+@media (max-width: 720px) {
+  .courses-usage-card .course-usage-row {
+    grid-template-columns: 54px minmax(0, 1fr);
+  }
+
+  .courses-usage-card .course-thumb {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
