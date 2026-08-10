@@ -516,7 +516,87 @@ const lessonSummaryCard = (label, value, type) => `
   </div>
 `;
 
+const quizSummaryIllustration = (type) => {
+  if (type === "records") {
+    return `
+      <span class="quiz-summary-visual quiz-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 112 82" focusable="false">
+          <path class="quiz-page page-back" d="M25 26l46-10 9 43-46 10z"></path>
+          <path class="quiz-page page-mid" d="M17 30l48-7 7 45-48 7z"></path>
+          <rect class="quiz-page page-front" x="28" y="17" width="47" height="57" rx="8" transform="rotate(6 51.5 45.5)"></rect>
+          <circle class="quiz-check" cx="41" cy="34" r="5"></circle>
+          <circle class="quiz-check" cx="42" cy="48" r="5"></circle>
+          <circle class="quiz-check" cx="44" cy="62" r="5"></circle>
+          <path class="quiz-check-mark" d="M38 34l2 2 4-5M39 48l2 2 4-5M41 62l2 2 4-5"></path>
+          <path class="quiz-line" d="M52 34h14M53 48h12M55 62h10"></path>
+          <circle class="quiz-bubble" cx="82" cy="24" r="10"></circle>
+          <path class="quiz-question" d="M80 21c0-3 6-3 6 1 0 4-4 3-4 7M82 33v1"></path>
+          <path class="quiz-spark spark-one" d="M15 21v8M11 25h8"></path>
+          <path class="quiz-spark spark-two" d="M88 56v8M84 60h8"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "create") {
+    return `
+      <span class="quiz-summary-visual quiz-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 112 82" focusable="false">
+          <path class="quiz-orbit" d="M18 49c15-22 54-28 76-9"></path>
+          <rect class="quiz-doc" x="37" y="15" width="35" height="50" rx="7"></rect>
+          <path class="quiz-doc-fold" d="M62 15v13h10"></path>
+          <path class="quiz-doc-line" d="M46 33h16M46 43h20M46 53h13"></path>
+          <circle class="quiz-plus-disc" cx="74" cy="55" r="14"></circle>
+          <path class="quiz-plus" d="M74 47v16M66 55h16"></path>
+          <circle class="quiz-dot dot-one" cx="23" cy="48" r="3"></circle>
+          <circle class="quiz-dot dot-two" cx="90" cy="38" r="3"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  return `
+    <span class="quiz-summary-visual quiz-visual-source" aria-hidden="true">
+      <svg viewBox="0 0 112 82" focusable="false">
+        <rect class="quiz-server" x="23" y="15" width="36" height="52" rx="7"></rect>
+        <path class="quiz-server-slot" d="M31 29h20M31 43h20M31 56h20"></path>
+        <path class="quiz-api-path path-one" d="M60 28h25c7 0 7 10 14 10"></path>
+        <path class="quiz-api-path path-two" d="M60 48h18c8 0 8 12 20 12"></path>
+        <rect class="quiz-packet packet-one" x="92" y="33" width="8" height="8" rx="2"></rect>
+        <rect class="quiz-packet packet-two" x="93" y="55" width="8" height="8" rx="2"></rect>
+        <text x="31" y="25">API</text>
+      </svg>
+    </span>
+  `;
+};
+
+const quizSummaryCard = (label, value, type) => {
+  const content = `
+    ${quizSummaryIllustration(type)}
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <b ${Number.isFinite(Number(value)) ? `data-count="${escapeHtml(value)}"` : ""}>${escapeHtml(value)}</b>
+    </div>
+  `;
+
+  if (type === "create") {
+    return `<button class="stat-chip quiz-summary-chip quiz-summary-${type}" data-open-form="quizzes" type="button" aria-label="Create quiz">${content}</button>`;
+  }
+
+  return `<div class="stat-chip quiz-summary-chip quiz-summary-${type}">${content}</div>`;
+};
+
 const renderEntitySummary = (key, count, endpoint) => {
+  if (key === "quizzes") {
+    return `
+      <section class="entity-summary quiz-summary-grid">
+        ${quizSummaryCard("Loaded records", count, "records")}
+        ${quizSummaryCard("Primary action", "Create", "create")}
+        ${quizSummaryCard("Data source", endpoint, "source")}
+      </section>
+    `;
+  }
+
   if (key === "lessons") {
     return `
       <section class="entity-summary lesson-summary-grid">
@@ -1133,24 +1213,163 @@ const renderLessonsGrid = (items, isEmpty) => {
   `;
 };
 
-const renderQuizCard = (item) =>
-  cardShell("quizzes", item, `
-    <div class="entity-head">
-      ${avatarMarkup("QZ", "", "avatar-quiz")}
-      <div>
-        <p class="eyebrow">${escapeHtml(plainValue(item, "course.title", "Course quiz"))}</p>
-        <h3>${escapeHtml(item.title || "Untitled quiz")}</h3>
-        <p>${escapeHtml(compactText(item.description, "Questions, options, and answers are stored from the quiz API."))}</p>
+const hasValue = (value) => value !== undefined && value !== null && value !== "";
+
+const quizQuestionCount = (item) => {
+  if (Array.isArray(item.questions)) return item.questions.length;
+  if (hasValue(item.questionCount)) return item.questionCount;
+  if (hasValue(item.questionsCount)) return item.questionsCount;
+  if (hasValue(item.totalQuestions)) return item.totalQuestions;
+  return "—";
+};
+
+const quizTotalMarks = (item) => {
+  if (hasValue(item.totalMarks)) return item.totalMarks;
+  if (Array.isArray(item.questions)) {
+    const total = item.questions.reduce((sum, question) => sum + Number(question?.marks || 0), 0);
+    return total;
+  }
+  return "—";
+};
+
+const quizDuration = (item) => {
+  const value = item.timeLimit ?? item.duration ?? item.durationMinutes;
+  return hasValue(value) ? `${value} min` : "—";
+};
+
+const quizStatusDetails = (status) => {
+  const normalized = String(status || "draft").toLowerCase();
+  if (normalized === "published") return { label: "Published", className: "published", icon: "check-circle-2" };
+  if (normalized === "archived") return { label: "Archived", className: "archived", icon: "archive" };
+  if (normalized === "unpublished") return { label: "Unpublished", className: "archived", icon: "circle-off" };
+  return { label: "Draft", className: "draft", icon: "circle" };
+};
+
+const quizStatBox = (label, value, icon) => `
+  <div class="quiz-stat-box">
+    <span class="quiz-stat-icon" aria-hidden="true">${iconMarkup(icon)}</span>
+    <span>${escapeHtml(label)}</span>
+    <b>${escapeHtml(value)}</b>
+  </div>
+`;
+
+const renderQuizStatusPill = (status) => {
+  const details = quizStatusDetails(status);
+  return `
+    <span class="quiz-status-pill ${details.className}">
+      ${iconMarkup(details.icon)}
+      <span>${escapeHtml(details.label)}</span>
+    </span>
+  `;
+};
+
+const renderQuizCardActions = (item) => {
+  const status = String(item.status || "draft").toLowerCase();
+  const isPublished = status === "published";
+  const isArchived = status === "archived";
+  const busy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
+  const id = escapeHtml(item._id);
+  const publishLabel = isPublished ? "Unpublish" : "Publish";
+  const publishStatus = isPublished ? "draft" : "published";
+  const archiveLabel = isArchived ? "Restore" : "Archive";
+  const archiveStatus = isArchived ? "draft" : "archived";
+  const actionButton = (label, attributes, className, icon) => `
+    <button class="quiz-action ${className}" ${attributes} ${busy} type="button" aria-label="${escapeHtml(`${label} ${item.title || "quiz"}`)}">
+      ${iconMarkup(icon, label)}
+    </button>
+  `;
+
+  return `
+    <div class="quiz-card-actions">
+      ${actionButton("View", `data-view-record="quizzes:${id}"`, "view-action", "eye")}
+      ${actionButton("Edit", `data-edit-record="quizzes:${id}"`, "edit-action", "pencil")}
+      ${actionButton(publishLabel, `data-status-record="quizzes:${id}:${publishStatus}"`, isPublished ? "unpublish-action" : "publish-action", isPublished ? "circle-off" : "upload")}
+      ${actionButton(archiveLabel, `data-status-record="quizzes:${id}:${archiveStatus}"`, isArchived ? "restore-action" : "archive-action", isArchived ? "rotate-ccw" : "archive")}
+      ${actionButton("Delete", `data-delete-record="quizzes:${id}"`, "delete-action", "trash-2")}
+    </div>
+  `;
+};
+
+const renderQuizCard = (item) => {
+  const courseName = plainValue(item, "course.title", item.courseName || "Course quiz");
+  const title = item.title || "Untitled quiz";
+  const description = compactText(item.description, "Questions, options, and answers are stored from the quiz API.");
+
+  return `<article class="quiz-management-card">
+    <div class="quiz-card-head">
+      <span class="quiz-card-icon" aria-hidden="true">Q</span>
+      <div class="quiz-card-copy">
+        <p class="quiz-card-course" title="${escapeHtml(courseName)}">${escapeHtml(courseName)}</p>
+        <h3 title="${escapeHtml(title)}">${escapeHtml(title)}</h3>
+        <p class="quiz-card-description" title="${escapeHtml(description)}">${escapeHtml(description)}</p>
       </div>
-      ${statusPill(item.status)}
+      ${renderQuizStatusPill(item.status)}
     </div>
-    <div class="entity-meta">
-      ${metaItem("Questions", Array.isArray(item.questions) ? item.questions.length : 0)}
-      ${metaItem("Marks", item.totalMarks || "-")}
-      ${metaItem("Pass", item.passingMarks || "-")}
-      ${metaItem("Time", item.timeLimit ? `${item.timeLimit} min` : "-")}
+    <div class="quiz-stat-grid">
+      ${quizStatBox("Questions", quizQuestionCount(item), "circle-help")}
+      ${quizStatBox("Marks", quizTotalMarks(item), "star")}
+      ${quizStatBox("Pass", hasValue(item.passingMarks) ? item.passingMarks : "—", "target")}
+      ${quizStatBox("Time", quizDuration(item), "clock")}
     </div>
-  `);
+    ${renderQuizCardActions(item)}
+  </article>`;
+};
+
+const renderQuizzesSkeleton = () => `
+  <section class="quizzes-grid-card card reveal" aria-label="Loading quizzes">
+    <div class="quiz-card-grid">
+      ${Array.from({ length: 4 }).map(() => `
+        <article class="quiz-management-card quiz-card-skeleton" aria-hidden="true">
+          <div class="quiz-card-head">
+            <span class="quiz-card-icon"></span>
+            <div class="quiz-card-copy">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div class="quiz-stat-grid">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="quiz-card-actions">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  </section>
+`;
+
+const renderQuizzesGrid = (items, isEmpty) => {
+  if (state.loading && isEmpty) return renderQuizzesSkeleton();
+  if (state.error && isEmpty) {
+    return `
+      <section class="quizzes-grid-card card reveal">
+        <div class="quiz-state-card" role="alert">
+          ${iconMarkup("circle-alert")}
+          <h3>Unable to load quizzes</h3>
+          <p>${escapeHtml(state.error)}</p>
+          <button class="btn secondary" data-refresh="quizzes" type="button">${iconMarkup("refresh-cw", "Retry")}</button>
+        </div>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="quizzes-grid-card card reveal">
+      <div class="quiz-card-grid">
+        ${items.map((item) => renderQuizCard(item)).join("")}
+      </div>
+      ${isEmpty ? `
+        <div class="quiz-state-card empty-state">
+          ${iconMarkup("inbox")}
+          <h3>No quizzes found</h3>
+          <p>Use Create or adjust the filters to add and manage records.</p>
+        </div>
+      ` : ""}
+    </section>
+  `;
+};
 
 const renderToolCard = (item) =>
   cardShell("aiTools", item, `
@@ -2328,6 +2547,8 @@ const renderEntity = (key) => {
   const config = entityConfigs[key];
   const items = state.data[key] || [];
   const isEmpty = !items.length;
+  const isQuizzes = key === "quizzes";
+  const toolbarBusy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
   const pageCopy = {
     users: "Registered learner accounts, premium access, verification, and lifecycle controls.",
     admins: "Operator profiles, permissions, login status, and secure management actions.",
@@ -2342,10 +2563,10 @@ const renderEntity = (key) => {
   };
 
   return `
-    <section class="toolbar card reveal">
+    <section class="toolbar card reveal ${isQuizzes ? "quiz-toolbar" : ""}">
       <div>
         <p class="eyebrow">${escapeHtml(config.title)} management</p>
-        <h2>${escapeHtml(config.title)}</h2>
+        <h2>${isQuizzes ? `<span class="quiz-title-wrap">${escapeHtml(config.title)}<i aria-hidden="true"></i></span>` : escapeHtml(config.title)}</h2>
         <p>${escapeHtml(pageCopy[key] || "Create, review, and manage records with the existing admin API.")}</p>
       </div>
       <div class="toolbar-controls">
@@ -2357,13 +2578,13 @@ const renderEntity = (key) => {
             </select>
           `)
           .join("")}
-        <button class="btn secondary" data-refresh="${key}" type="button">Refresh</button>
-        <button class="btn" data-open-form="${key}" type="button">Create</button>
+        <button class="btn secondary ${isQuizzes ? "quiz-refresh-button" : ""}" data-refresh="${key}" ${isQuizzes ? toolbarBusy : ""} type="button">${isQuizzes ? iconMarkup(state.loading ? "loader-2" : "refresh-cw", "Refresh") : "Refresh"}</button>
+        <button class="btn ${isQuizzes ? "quiz-create-button" : ""}" data-open-form="${key}" ${isQuizzes ? toolbarBusy : ""} type="button">${isQuizzes ? iconMarkup("plus-circle", "Create") : "Create"}</button>
       </div>
     </section>
     ${config.bulk ? renderBulkActions() : ""}
     ${renderEntitySummary(key, items.length, config.endpoint)}
-    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsGrid(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
+    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsGrid(items, isEmpty) : key === "quizzes" ? renderQuizzesGrid(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
         ${isEmpty ? `
@@ -2738,6 +2959,7 @@ const renderApp = () => {
   document.body.classList.toggle("courses-admin-page", state.view === "courses");
   document.body.classList.toggle("modules-admin-page", state.view === "modules");
   document.body.classList.toggle("lessons-admin-page", state.view === "lessons");
+  document.body.classList.toggle("quizzes-admin-page", state.view === "quizzes");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
