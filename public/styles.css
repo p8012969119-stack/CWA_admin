@@ -6865,11 +6865,12 @@ body.lessons-admin-page textarea:focus-visible {
   position: relative;
   display: flex;
   height: 100%;
-  min-height: 720px;
+  min-height: 0;
   min-width: 0;
+  box-sizing: border-box;
   overflow: visible;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   padding: 22px 22px 24px;
   border: 1px solid #dde5dd;
   border-radius: 22px;
@@ -7071,7 +7072,7 @@ body.lessons-admin-page textarea:focus-visible {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin-top: auto;
+  margin-top: 20px;
   padding-top: 18px;
   border-top: 1px solid #dde5dd;
 }
@@ -7117,6 +7118,10 @@ body.lessons-admin-page textarea:focus-visible {
   border: 1px solid #e3262e;
   background: #e3262e;
   color: #ffffff;
+}
+
+.lesson-card-actions .delete-action {
+  grid-column: 1 / -1;
 }
 
 .lesson-card-actions .edit-action:hover,
@@ -7189,7 +7194,7 @@ body.lessons-admin-page textarea:focus-visible {
 }
 
 .lesson-card-skeleton {
-  min-height: 720px;
+  min-height: 0;
   overflow: visible;
   pointer-events: none;
 }
@@ -7251,7 +7256,7 @@ body.lessons-admin-page textarea:focus-visible {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-top: auto;
+  margin-top: 20px;
 }
 
 .lesson-skeleton-actions span {
@@ -7327,7 +7332,7 @@ body.lessons-admin-page textarea:focus-visible {
   }
 
   .lesson-management-card {
-    min-height: 720px;
+    min-height: 0;
     padding: 18px;
     border-radius: 18px;
   }
