@@ -6740,6 +6740,231 @@ textarea:focus-visible {
   }
 }
 
+/* Courses pipeline table design */
+.courses-table-card {
+  padding: 20px !important;
+  overflow: hidden;
+  border: 1px solid #e8ded4;
+  border-radius: 28px;
+  background: #fffdfb;
+  box-shadow: 0 22px 54px rgba(65, 42, 25, 0.08);
+}
+
+.courses-table-wrap {
+  overflow-x: auto;
+  padding: 0 2px 4px;
+}
+
+.courses-table {
+  min-width: 1180px;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.courses-table th {
+  padding: 0 13px 12px;
+  color: #8b7668;
+  font-size: 0.7rem;
+  font-weight: 950;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.courses-table th:nth-child(1) {
+  width: 36%;
+}
+
+.courses-table th:nth-child(2) {
+  width: 10%;
+}
+
+.courses-table th:nth-child(3) {
+  width: 10%;
+}
+
+.courses-table th:nth-child(4),
+.courses-table th:nth-child(5),
+.courses-table th:nth-child(6),
+.courses-table th:nth-child(7) {
+  width: 8%;
+}
+
+.courses-table th:nth-child(8) {
+  width: 12%;
+}
+
+.courses-table tbody tr {
+  background: #fffaf6;
+  box-shadow: 0 8px 18px rgba(64, 43, 27, 0.04);
+}
+
+.courses-table tbody td {
+  height: 76px;
+  padding: 12px 13px;
+  border-top: 1px solid #eadfd3;
+  border-bottom: 1px solid #eadfd3;
+  color: #7e6b5e;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.courses-table tbody td:first-child {
+  border-left: 1px solid #eadfd3;
+  border-radius: 14px 0 0 14px;
+}
+
+.courses-table tbody td:last-child {
+  border-right: 1px solid #eadfd3;
+  border-radius: 0 14px 14px 0;
+}
+
+.courses-table-course {
+  gap: 12px;
+  min-width: 390px;
+  max-width: 520px;
+}
+
+.course-table-thumb {
+  width: 50px;
+  height: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #a95718 0%, #7b390f 100%);
+  box-shadow: 0 14px 32px rgba(93, 42, 12, 0.14);
+}
+
+.course-table-thumb img {
+  filter: saturate(1.04) contrast(1.02);
+}
+
+.courses-table-course b {
+  color: #100c08;
+  font-size: 1rem;
+  line-height: 1.08;
+}
+
+.courses-table-course small {
+  max-width: 350px;
+  margin-top: 4px;
+  color: #8b786b;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.courses-table .pill {
+  min-height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: #f4f5f7;
+  color: #111111;
+  font-size: 0.75rem;
+  font-weight: 950;
+}
+
+.courses-table-actions {
+  min-width: 300px;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.courses-table-actions .mini {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid #d9dde4;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #111111;
+  font-size: 0.76rem;
+  font-weight: 950;
+  box-shadow: none;
+}
+
+.courses-table-actions .mini:hover {
+  border-color: #aeb5c0;
+  background: #ffffff;
+}
+
+@media (max-width: 860px) {
+  .courses-table-card {
+    padding: 14px !important;
+    border-radius: 22px;
+  }
+
+  .courses-table {
+    min-width: 980px;
+    border-spacing: 0 7px;
+  }
+
+  .courses-table tbody td {
+    height: 68px;
+    padding: 10px;
+  }
+
+  .courses-table-course {
+    min-width: 320px;
+  }
+
+  .course-table-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+
+  .courses-table-actions {
+    min-width: 270px;
+  }
+}
+
+/* Dashboard analytics column structure */
+.dashboard-panels.premium-analytics-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-items: start !important;
+  justify-items: center !important;
+  gap: 22px !important;
+  width: 100% !important;
+  max-width: 760px !important;
+  margin-inline: auto !important;
+}
+
+.dashboard-panels.premium-analytics-grid > .analytics-growth-card,
+.dashboard-panels.premium-analytics-grid > .monthly-registration-card,
+.dashboard-panels.premium-analytics-grid > .courses-usage-card {
+  width: 100% !important;
+  max-width: 760px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 18px !important;
+  overflow: visible !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-growth-card .premium-chart-frame {
+  height: 300px !important;
+  min-height: 300px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-growth-card .growth-canvas {
+  height: 274px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell {
+  min-height: 42px !important;
+  height: 42px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .courses-usage-card .course-usage-row {
+  grid-template-columns: 48px minmax(0, 1fr) 78px !important;
+  min-height: 74px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .courses-usage-card .course-thumb {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+}
+
 /* Dashboard analytics row structure */
 .dashboard-panels.premium-analytics-grid {
   display: grid !important;
