@@ -1211,21 +1211,21 @@ const renderDashboardMetricsTable = (rows) => {
     <div class="platform-metrics-grid">
       ${rows.map((row, index) => {
         const themeClass = themes[index % themes.length];
-        return \`
-          <div class="platform-metric-card \${themeClass}">
+        return `
+          <div class="platform-metric-card ${themeClass}">
             <div class="platform-metric-icon">
-              <i data-lucide="\${escapeHtml(row.icon)}"></i>
+              <i data-lucide="${escapeHtml(row.icon)}"></i>
             </div>
             <div class="platform-metric-content">
               <div class="platform-metric-top">
-                <span class="platform-metric-label">\${escapeHtml(row.label)}</span>
-                \${row.trend ? \`<span class="platform-metric-trend">\${escapeHtml(row.trend)}</span>\` : ''}
+                <span class="platform-metric-label">${escapeHtml(row.label)}</span>
+                ${row.trend ? `<span class="platform-metric-trend">${escapeHtml(row.trend)}</span>` : ''}
               </div>
-              <div class="platform-metric-value" data-count="\${escapeHtml(row.value)}">\${escapeHtml(row.value)}</div>
-              <div class="platform-metric-note">\${escapeHtml(row.note || "-")}</div>
+              <div class="platform-metric-value" data-count="${escapeHtml(row.value)}">${escapeHtml(row.value)}</div>
+              <div class="platform-metric-note">${escapeHtml(row.note || "-")}</div>
             </div>
           </div>
-        \`;
+        `;
       }).join("")}
     </div>
   </section>
