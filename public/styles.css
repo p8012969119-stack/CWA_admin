@@ -6740,29 +6740,30 @@ textarea:focus-visible {
   }
 }
 
-/* Courses pipeline table design */
+/* Courses boxed table design */
 .courses-table-card {
-  padding: 20px !important;
+  padding: 18px !important;
   overflow: hidden;
-  border: 1px solid #e8ded4;
-  border-radius: 28px;
+  border: 1px solid #e6ded6;
+  border-radius: 26px;
   background: #fffdfb;
-  box-shadow: 0 22px 54px rgba(65, 42, 25, 0.08);
+  box-shadow: 0 18px 42px rgba(65, 42, 25, 0.07);
 }
 
 .courses-table-wrap {
   overflow-x: auto;
-  padding: 0 2px 4px;
+  padding: 0 1px 4px;
 }
 
 .courses-table {
-  min-width: 1180px;
+  min-width: 1100px;
   border-collapse: separate;
-  border-spacing: 0 8px;
+  border-spacing: 0 10px;
+  table-layout: fixed;
 }
 
 .courses-table th {
-  padding: 0 13px 12px;
+  padding: 0 13px 10px;
   color: #8b7668;
   font-size: 0.7rem;
   font-weight: 950;
@@ -6771,57 +6772,70 @@ textarea:focus-visible {
 }
 
 .courses-table th:nth-child(1) {
-  width: 36%;
+  width: 38%;
 }
 
 .courses-table th:nth-child(2) {
-  width: 10%;
+  width: 9%;
 }
 
 .courses-table th:nth-child(3) {
   width: 10%;
 }
 
-.courses-table th:nth-child(4),
+.courses-table th:nth-child(4) {
+  width: 9%;
+}
+
 .courses-table th:nth-child(5),
-.courses-table th:nth-child(6),
-.courses-table th:nth-child(7) {
+.courses-table th:nth-child(6) {
   width: 8%;
 }
 
+.courses-table th:nth-child(7) {
+  width: 9%;
+}
+
 .courses-table th:nth-child(8) {
-  width: 12%;
+  width: 13%;
 }
 
 .courses-table tbody tr {
-  background: #fffaf6;
-  box-shadow: 0 8px 18px rgba(64, 43, 27, 0.04);
+  background: transparent;
 }
 
 .courses-table tbody td {
-  height: 76px;
-  padding: 12px 13px;
+  height: 78px;
+  padding: 13px;
   border-top: 1px solid #eadfd3;
   border-bottom: 1px solid #eadfd3;
+  background: #fffaf7;
   color: #7e6b5e;
   font-size: 0.84rem;
   font-weight: 900;
+  box-shadow: 0 10px 20px rgba(64, 43, 27, 0.035);
 }
 
 .courses-table tbody td:first-child {
   border-left: 1px solid #eadfd3;
-  border-radius: 14px 0 0 14px;
+  border-radius: 16px 0 0 16px;
 }
 
 .courses-table tbody td:last-child {
   border-right: 1px solid #eadfd3;
-  border-radius: 0 14px 14px 0;
+  border-radius: 0 16px 16px 0;
+}
+
+.courses-table tbody tr:hover td {
+  border-color: #decfbe;
+  background: #fffdfb;
+  box-shadow: 0 12px 24px rgba(64, 43, 27, 0.06);
 }
 
 .courses-table-course {
-  gap: 12px;
-  min-width: 390px;
-  max-width: 520px;
+  gap: 13px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .course-table-thumb {
@@ -6841,10 +6855,13 @@ textarea:focus-visible {
   color: #100c08;
   font-size: 1rem;
   line-height: 1.08;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .courses-table-course small {
-  max-width: 350px;
+  max-width: 100%;
   margin-top: 4px;
   color: #8b786b;
   font-size: 0.78rem;
@@ -6863,19 +6880,19 @@ textarea:focus-visible {
 }
 
 .courses-table-actions {
-  min-width: 300px;
-  gap: 8px;
+  min-width: 0;
+  gap: 7px;
   justify-content: flex-start;
 }
 
 .courses-table-actions .mini {
-  min-height: 36px;
-  padding: 0 16px;
+  min-height: 34px;
+  padding: 0 13px;
   border: 1px solid #d9dde4;
   border-radius: 999px;
   background: #f8fafc;
   color: #111111;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 950;
   box-shadow: none;
 }
@@ -6892,7 +6909,7 @@ textarea:focus-visible {
   }
 
   .courses-table {
-    min-width: 980px;
+    min-width: 1040px;
     border-spacing: 0 7px;
   }
 
@@ -6901,18 +6918,10 @@ textarea:focus-visible {
     padding: 10px;
   }
 
-  .courses-table-course {
-    min-width: 320px;
-  }
-
   .course-table-thumb {
     width: 44px;
     height: 44px;
     border-radius: 14px;
-  }
-
-  .courses-table-actions {
-    min-width: 270px;
   }
 }
 
