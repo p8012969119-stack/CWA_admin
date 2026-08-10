@@ -5764,3 +5764,978 @@ textarea:focus-visible {
     min-height: 44px;
   }
 }
+
+/* Smaller version of the three admin dashboard analytics cards */
+.premium-analytics-grid {
+  gap: 22px;
+}
+
+.premium-analytics-grid .analytics-card,
+.premium-analytics-grid .analytics-growth-card,
+.premium-analytics-grid .monthly-registration-card,
+.premium-analytics-grid .courses-usage-card {
+  width: min(100%, 760px);
+  max-width: 760px;
+}
+
+.premium-analytics-grid .analytics-growth-card,
+.premium-analytics-grid .monthly-registration-card,
+.premium-analytics-grid .courses-usage-card {
+  padding: clamp(16px, 2vw, 22px);
+  border-radius: 20px;
+}
+
+.premium-analytics-grid .analytics-card-header h2,
+.premium-analytics-grid .monthly-registration-card .analytics-card-header h2 {
+  font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+}
+
+.premium-analytics-grid .chart-subtitle,
+.premium-analytics-grid .monthly-registration-card .chart-subtitle {
+  font-size: clamp(0.86rem, 1.3vw, 1rem);
+}
+
+.premium-analytics-grid .analytics-growth-card .growth-summary {
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.premium-analytics-grid .analytics-growth-card .growth-summary div {
+  min-height: 86px;
+  padding: 14px 16px;
+  border-radius: 18px;
+}
+
+.premium-analytics-grid .analytics-growth-card .premium-chart-frame {
+  height: 250px;
+  min-height: 250px;
+  padding: 12px;
+}
+
+.premium-analytics-grid .analytics-growth-card .growth-canvas {
+  height: 224px;
+}
+
+.premium-analytics-grid .monthly-registration-card {
+  width: min(100%, 760px);
+  max-width: 760px;
+}
+
+.monthly-registration-card .calendar-actions .icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+}
+
+.monthly-registration-card .calendar-actions .mini {
+  min-width: 148px;
+  min-height: 48px;
+  padding: 0 18px;
+  font-size: 0.94rem;
+  border-radius: 18px;
+}
+
+.monthly-registration-card .registration-month-title strong {
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+}
+
+.monthly-registration-card .registration-calendar {
+  grid-template-columns: repeat(7, minmax(48px, 1fr));
+  column-gap: clamp(6px, 1.6vw, 18px);
+  row-gap: 5px;
+}
+
+.monthly-registration-card .calendar-cell {
+  min-height: 46px;
+  height: 46px;
+  padding: 6px 9px;
+  border-radius: 13px;
+}
+
+.monthly-registration-card .calendar-cell span,
+.monthly-registration-card .calendar-cell b {
+  font-size: clamp(0.84rem, 1.3vw, 1rem);
+}
+
+.monthly-registration-card .calendar-day-report {
+  padding: 13px 16px;
+  border-radius: 18px;
+}
+
+.monthly-registration-card .registration-summary {
+  gap: 10px;
+}
+
+.monthly-registration-card .registration-summary div {
+  min-height: 96px;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.monthly-registration-card .registration-summary span {
+  font-size: clamp(0.7rem, 1vw, 0.82rem);
+}
+
+.monthly-registration-card .registration-summary strong {
+  font-size: clamp(0.98rem, 1.45vw, 1.18rem);
+}
+
+.courses-usage-card .course-usage-list {
+  gap: 10px;
+}
+
+.courses-usage-card .course-usage-row {
+  grid-template-columns: 48px minmax(0, 1fr) 78px;
+  min-height: 74px;
+  padding: 10px 12px;
+  border-radius: 16px;
+}
+
+.courses-usage-card .course-thumb {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 12px;
+}
+
+.courses-usage-card .course-usage-topline h3 {
+  font-size: 0.84rem;
+}
+
+.courses-usage-card .course-usage-topline p,
+.courses-usage-card .course-usage-metrics {
+  font-size: 0.66rem;
+}
+
+.courses-usage-card .trend-badge {
+  min-height: 26px;
+  padding: 0 9px;
+  font-size: 0.66rem;
+}
+
+.courses-usage-card .course-progress-line {
+  height: 5px;
+  margin-top: 6px;
+}
+
+.courses-usage-card .course-sparkline {
+  width: 78px;
+  height: 30px;
+}
+
+@media (max-width: 720px) {
+  .courses-usage-card .course-usage-row {
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .courses-usage-card .course-thumb {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+}
+
+/* Force compact dashboard analytics card size */
+.dashboard-panels.premium-analytics-grid {
+  width: 100% !important;
+  max-width: 720px !important;
+  margin-inline: auto !important;
+  gap: 18px !important;
+}
+
+.dashboard-panels.premium-analytics-grid > .analytics-card,
+.dashboard-panels.premium-analytics-grid > .analytics-growth-card,
+.dashboard-panels.premium-analytics-grid > .monthly-registration-card,
+.dashboard-panels.premium-analytics-grid > .courses-usage-card {
+  width: 100% !important;
+  max-width: 720px !important;
+  min-height: 0 !important;
+  padding: 16px !important;
+  border-radius: 18px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header {
+  margin-bottom: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header h2 {
+  font-size: 1.45rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .chart-subtitle {
+  font-size: 0.88rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary {
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary div {
+  min-height: 72px !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary span {
+  font-size: 0.66rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary strong {
+  font-size: 1.2rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .premium-chart-frame {
+  height: 220px !important;
+  min-height: 220px !important;
+  padding: 10px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-canvas {
+  height: 198px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions .icon-btn {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 15px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions .mini {
+  min-width: 130px !important;
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  font-size: 0.84rem !important;
+  border-radius: 15px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-calendar {
+  grid-template-columns: repeat(7, minmax(42px, 1fr)) !important;
+  column-gap: 8px !important;
+  row-gap: 4px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell {
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 5px 7px !important;
+  border-radius: 11px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell span,
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell b {
+  font-size: 0.82rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report {
+  padding: 11px 13px !important;
+  border-radius: 15px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary div {
+  min-height: 82px !important;
+  padding: 11px !important;
+  border-radius: 15px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-row {
+  grid-template-columns: 42px minmax(0, 1fr) 70px !important;
+  min-height: 64px !important;
+  padding: 8px 10px !important;
+  border-radius: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-thumb {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  border-radius: 10px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline h3 {
+  font-size: 0.76rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline p,
+.dashboard-panels.premium-analytics-grid .course-usage-metrics {
+  font-size: 0.6rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-sparkline {
+  width: 70px !important;
+  height: 26px !important;
+}
+
+/* Extra compact dashboard cards */
+.dashboard-panels.premium-analytics-grid {
+  max-width: 580px !important;
+  gap: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid > .analytics-card,
+.dashboard-panels.premium-analytics-grid > .analytics-growth-card,
+.dashboard-panels.premium-analytics-grid > .monthly-registration-card,
+.dashboard-panels.premium-analytics-grid > .courses-usage-card {
+  max-width: 580px !important;
+  padding: 12px !important;
+  border-radius: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header {
+  gap: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header h2 {
+  font-size: 1.16rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .chart-subtitle {
+  margin-top: 4px !important;
+  font-size: 0.72rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary {
+  gap: 6px !important;
+  margin-bottom: 8px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary div {
+  min-height: 54px !important;
+  padding: 8px 9px !important;
+  border-radius: 11px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary span {
+  margin-bottom: 3px !important;
+  font-size: 0.52rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary strong {
+  font-size: 0.96rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .premium-chart-frame {
+  height: 160px !important;
+  min-height: 160px !important;
+  padding: 8px !important;
+  border-radius: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-canvas {
+  height: 140px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions {
+  gap: 7px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions .icon-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions .mini {
+  min-width: 104px !important;
+  min-height: 34px !important;
+  padding: 0 10px !important;
+  font-size: 0.68rem !important;
+  border-radius: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-month-title strong {
+  font-size: 1rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-title-row {
+  margin-bottom: 8px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-title-row > span {
+  font-size: 0.7rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-calendar {
+  grid-template-columns: repeat(7, minmax(30px, 1fr)) !important;
+  column-gap: 5px !important;
+  row-gap: 3px !important;
+  margin-bottom: 8px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-weekday {
+  min-height: 16px !important;
+  font-size: 0.5rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell {
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 3px 5px !important;
+  border-radius: 8px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell span,
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell b {
+  font-size: 0.62rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report {
+  gap: 3px !important;
+  margin-top: 8px !important;
+  padding: 8px 10px !important;
+  border-radius: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report span,
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report em {
+  font-size: 0.62rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report strong {
+  font-size: 0.92rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary {
+  gap: 6px !important;
+  margin-top: 8px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary div {
+  min-height: 58px !important;
+  padding: 8px !important;
+  border-radius: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary span {
+  margin-bottom: 4px !important;
+  font-size: 0.5rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary strong {
+  font-size: 0.76rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .courses-usage-card .course-usage-list {
+  gap: 7px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-row {
+  grid-template-columns: 34px minmax(0, 1fr) 56px !important;
+  min-height: 48px !important;
+  padding: 6px 8px !important;
+  border-radius: 10px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-thumb {
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  border-radius: 7px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline h3 {
+  margin-bottom: 1px !important;
+  font-size: 0.62rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline p,
+.dashboard-panels.premium-analytics-grid .course-usage-metrics {
+  font-size: 0.5rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-metrics {
+  gap: 3px 6px !important;
+  margin-top: 3px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .trend-badge {
+  min-height: 20px !important;
+  padding: 0 7px !important;
+  font-size: 0.5rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-progress-line {
+  height: 4px !important;
+  margin-top: 4px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-sparkline {
+  width: 56px !important;
+  height: 22px !important;
+}
+
+/* Show all three analytics cards together on desktop */
+.dashboard-panels.premium-analytics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: start !important;
+  width: 100% !important;
+  max-width: none !important;
+  gap: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid > .analytics-card,
+.dashboard-panels.premium-analytics-grid > .analytics-growth-card,
+.dashboard-panels.premium-analytics-grid > .monthly-registration-card,
+.dashboard-panels.premium-analytics-grid > .courses-usage-card {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  padding: 10px !important;
+  border-radius: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header {
+  align-items: flex-start !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header h2 {
+  font-size: 1rem !important;
+  line-height: 1.05 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .chart-subtitle {
+  font-size: 0.58rem !important;
+  line-height: 1.15 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary div {
+  min-height: 46px !important;
+  padding: 6px !important;
+  border-radius: 10px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary span {
+  font-size: 0.44rem !important;
+  line-height: 1.1 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary strong {
+  font-size: 0.78rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .premium-chart-frame {
+  height: 150px !important;
+  min-height: 150px !important;
+  padding: 6px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-canvas {
+  height: 136px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .analytics-card-header {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions {
+  justify-content: flex-start !important;
+  gap: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions .icon-btn {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions .mini {
+  min-width: 78px !important;
+  min-height: 26px !important;
+  padding: 0 7px !important;
+  border-radius: 9px !important;
+  font-size: 0.54rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-month-title strong {
+  font-size: 0.82rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-title-row {
+  gap: 6px !important;
+  margin-bottom: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-title-row > span {
+  font-size: 0.52rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-calendar {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  column-gap: 3px !important;
+  row-gap: 2px !important;
+  margin-bottom: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-weekday {
+  min-height: 12px !important;
+  font-size: 0.38rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell {
+  min-height: 24px !important;
+  height: 24px !important;
+  padding: 2px 3px !important;
+  border-width: 1px !important;
+  border-radius: 6px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell span,
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell b {
+  font-size: 0.46rem !important;
+  line-height: 0.95 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report {
+  gap: 2px !important;
+  margin-top: 5px !important;
+  padding: 6px 7px !important;
+  border-radius: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report span,
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report em {
+  font-size: 0.48rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report strong {
+  font-size: 0.68rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+  margin-top: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary div {
+  min-height: 45px !important;
+  padding: 5px !important;
+  border-radius: 8px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary span {
+  margin-bottom: 2px !important;
+  font-size: 0.36rem !important;
+  line-height: 1.1 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary strong {
+  font-size: 0.52rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .courses-usage-card .course-usage-list {
+  gap: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-row {
+  grid-template-columns: 28px minmax(0, 1fr) 44px !important;
+  min-height: 42px !important;
+  padding: 5px 6px !important;
+  border-radius: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-thumb {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  border-radius: 6px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline {
+  gap: 4px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline h3 {
+  font-size: 0.52rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline p,
+.dashboard-panels.premium-analytics-grid .course-usage-metrics {
+  font-size: 0.42rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .trend-badge {
+  min-height: 16px !important;
+  padding: 0 5px !important;
+  font-size: 0.4rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-progress-line {
+  height: 3px !important;
+  margin-top: 3px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-sparkline {
+  width: 44px !important;
+  height: 18px !important;
+}
+
+@media (max-width: 720px) {
+  .dashboard-panels.premium-analytics-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 580px !important;
+  }
+}
+
+/* Final balanced row layout for the three dashboard analytics cards */
+.dashboard-panels.premium-analytics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 16px !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+}
+
+.dashboard-panels.premium-analytics-grid > .analytics-growth-card,
+.dashboard-panels.premium-analytics-grid > .monthly-registration-card,
+.dashboard-panels.premium-analytics-grid > .courses-usage-card {
+  width: 100% !important;
+  max-width: none !important;
+  height: 520px !important;
+  min-height: 520px !important;
+  padding: 18px !important;
+  border-radius: 22px !important;
+  overflow: visible !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header {
+  align-items: flex-start !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-card-header h2 {
+  font-size: clamp(1.08rem, 1.25vw, 1.35rem) !important;
+  line-height: 1.08 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .chart-subtitle {
+  margin-top: 5px !important;
+  font-size: clamp(0.72rem, 0.85vw, 0.86rem) !important;
+  line-height: 1.25 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .analytics-preview-note {
+  padding: 7px 9px !important;
+  font-size: 0.62rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin-bottom: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary div {
+  min-height: 64px !important;
+  padding: 10px !important;
+  border-radius: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary span {
+  margin-bottom: 4px !important;
+  font-size: clamp(0.54rem, 0.65vw, 0.66rem) !important;
+  line-height: 1.15 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-summary strong {
+  font-size: clamp(1rem, 1.35vw, 1.25rem) !important;
+}
+
+.dashboard-panels.premium-analytics-grid .premium-chart-frame {
+  height: 300px !important;
+  min-height: 300px !important;
+  padding: 12px !important;
+  border-radius: 16px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .growth-canvas {
+  height: 274px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .analytics-card-header {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions {
+  gap: 6px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions .icon-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-actions .mini {
+  min-width: 96px !important;
+  min-height: 34px !important;
+  padding: 0 10px !important;
+  border-radius: 12px !important;
+  font-size: 0.7rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-month-title strong {
+  font-size: clamp(1rem, 1.15vw, 1.2rem) !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-title-row {
+  gap: 8px !important;
+  margin-bottom: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-title-row > span {
+  font-size: 0.68rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-calendar {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  column-gap: 5px !important;
+  row-gap: 4px !important;
+  margin-bottom: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-weekday {
+  min-height: 16px !important;
+  font-size: 0.52rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 4px 5px !important;
+  border-width: 1px !important;
+  border-radius: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell span,
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-cell b {
+  font-size: 0.66rem !important;
+  line-height: 1 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report {
+  gap: 3px !important;
+  margin-top: 9px !important;
+  padding: 9px 10px !important;
+  border-radius: 13px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report span,
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report em {
+  font-size: 0.62rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .calendar-day-report strong {
+  font-size: 0.92rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  margin-top: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary div {
+  min-height: 64px !important;
+  padding: 8px !important;
+  border-radius: 12px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary span {
+  margin-bottom: 4px !important;
+  font-size: 0.48rem !important;
+  line-height: 1.15 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .monthly-registration-card .registration-summary strong {
+  font-size: 0.7rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .courses-usage-card .course-usage-list {
+  gap: 9px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-row {
+  grid-template-columns: 42px minmax(0, 1fr) 62px !important;
+  min-height: 66px !important;
+  padding: 8px !important;
+  border-radius: 14px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-thumb {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  border-radius: 10px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline {
+  gap: 6px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline h3 {
+  margin-bottom: 2px !important;
+  font-size: 0.72rem !important;
+  line-height: 1.12 !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-topline p,
+.dashboard-panels.premium-analytics-grid .course-usage-metrics {
+  font-size: 0.56rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-usage-metrics {
+  gap: 4px 7px !important;
+  margin-top: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .trend-badge {
+  min-height: 22px !important;
+  padding: 0 7px !important;
+  font-size: 0.54rem !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-progress-line {
+  height: 4px !important;
+  margin-top: 5px !important;
+}
+
+.dashboard-panels.premium-analytics-grid .course-sparkline {
+  width: 62px !important;
+  height: 24px !important;
+}
+
+@media (max-width: 1240px) {
+  .dashboard-panels.premium-analytics-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 720px !important;
+    margin-inline: auto !important;
+  }
+
+  .dashboard-panels.premium-analytics-grid > .analytics-growth-card,
+  .dashboard-panels.premium-analytics-grid > .monthly-registration-card,
+  .dashboard-panels.premium-analytics-grid > .courses-usage-card {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
