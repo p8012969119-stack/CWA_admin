@@ -1504,6 +1504,69 @@ const sparklineSvg = (values, label) => {
   `;
 };
 
+const aiToolVisualThemes = [
+  { bg: "#111111", accent: "#dc2626", glow: "#fee2e2", label: "AI" },
+  { bg: "#18181b", accent: "#737373", glow: "#e5e5e5", label: "ML" },
+  { bg: "#0a0a0a", accent: "#ef4444", glow: "#fee2e2", label: "GPT" },
+  { bg: "#262626", accent: "#a3a3a3", glow: "#f5f5f5", label: "BOT" },
+];
+
+const svgDataUri = (svg) => `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+
+const aiToolVisualLabel = (course, index = 0) => {
+  const title = String(course.title || course.name || "").toLowerCase();
+  if (title.includes("gemini")) return "G";
+  if (title.includes("claude")) return "C";
+  if (title.includes("chatgpt") || title.includes("openai")) return "GPT";
+  if (title.includes("design")) return "IMG";
+  if (title.includes("content")) return "AI";
+  if (title.includes("data")) return "DB";
+  return aiToolVisualThemes[index % aiToolVisualThemes.length].label;
+};
+
+const getAiToolVisualUrl = (course, index = 0) => {
+  const theme = aiToolVisualThemes[index % aiToolVisualThemes.length];
+  const label = aiToolVisualLabel(course, index);
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="${theme.bg}" />
+          <stop offset="1" stop-color="${theme.accent}" />
+        </linearGradient>
+        <radialGradient id="glow" cx="28%" cy="24%" r="70%">
+          <stop offset="0" stop-color="${theme.glow}" stop-opacity="0.42" />
+          <stop offset="1" stop-color="${theme.glow}" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="96" height="96" rx="28" fill="url(#bg)" />
+      <rect width="96" height="96" rx="28" fill="url(#glow)" />
+      <path d="M24 58c8-24 16-24 24 0 8-24 16-24 24 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.9" />
+      <circle cx="28" cy="28" r="5" fill="#fff" opacity="0.95" />
+      <circle cx="68" cy="28" r="5" fill="#fff" opacity="0.72" />
+      <text x="48" y="78" fill="#fff" font-family="Arial, sans-serif" font-size="${label.length > 2 ? 17 : 24}" font-weight="900" text-anchor="middle">${label}</text>
+    </svg>
+  `;
+
+  return svgDataUri(svg);
+};
+
+const getProvidedAiToolImageUrl = (course) => course.logo || course.thumbnail || course.image || course.imageUrl || course.iconUrl || "";
+
+const courseThumbMarkup = (course, index = 0) => {
+  const providedUrl = getProvidedAiToolImageUrl(course);
+  const fallbackUrl = getAiToolVisualUrl(course, index);
+  const logoUrl = providedUrl || fallbackUrl;
+  const label = course.title || "AI";
+
+  return `
+    <div class="course-thumb has-logo" aria-hidden="true">
+      <img src="${escapeHtml(logoUrl)}" data-fallback-src="${escapeHtml(fallbackUrl)}" alt="" loading="lazy" onerror="this.onerror=null; this.src=this.dataset.fallbackSrc;" />
+      <span>${escapeHtml(initials(label))}</span>
+    </div>
+  `;
+};
+
 const getPopularCoursesModel = (analytics) => {
   const apiRows = analytics?.popularCourses || [];
   const rows = (apiRows.length ? apiRows : fallbackCourses).slice(0, 5);
@@ -1528,6 +1591,7 @@ const getPopularCoursesModel = (analytics) => {
         completion,
         trend,
         weekly,
+        logo: getProvidedAiToolImageUrl(course),
         icon: ["book-open", "workflow", "palette", "megaphone", "bar-chart-3"][index] || "book-open",
       };
     }),
@@ -1577,19 +1641,7 @@ const renderUserGrowthCard = (analytics, stats) => {
 const renderCalendarCard = (analytics) => {
   const model = getCalendarModel(analytics);
   const selected = model.selected;
-  const averageLabel = Number(model.average || 0).toFixed(model.average >= 10 ? 0 : 1);
   const selectedComparison = `${(selected?.comparison || 0) >= 0 ? "+" : ""}${percentLabel(selected?.comparison || 0)} vs previous day`;
-  const activityValues = Array.from({ length: 24 }, (_, hour) => {
-    const count = Number(selected?.count || 0);
-    if (!count) return 0;
-    const workdayLift = hour >= 8 && hour <= 20 ? 0.34 : 0.12;
-    const pulse = ((hour * 7) % 5) * 0.08;
-    return Math.min(3, Math.round(count * (workdayLift + pulse)));
-  });
-  const activityMax = Math.max(3, ...activityValues);
-  const activityPoints = activityValues
-    .map((value, index) => `${18 + index * (252 / 23)},${96 - (value / activityMax) * 84}`)
-    .join(" ");
 
   return `
     <section class="card panel-small analytics-card registration-card monthly-registration-card reveal">
@@ -1600,30 +1652,15 @@ const renderCalendarCard = (analytics) => {
         </div>
         <div class="calendar-actions" aria-label="Calendar month controls">
           <button class="icon-btn" data-calendar-month="prev" type="button" aria-label="Previous month">${iconMarkup("chevron-left")}</button>
-          <button class="mini" data-calendar-month="this" type="button">${iconMarkup("calendar-days", "This Month")}</button>
+          <button class="mini" data-calendar-month="this" type="button">This Month</button>
           <button class="icon-btn" data-calendar-month="next" type="button" aria-label="Next month">${iconMarkup("chevron-right")}</button>
         </div>
       </div>
       ${model.isFallback ? `<p class="analytics-preview-note">Preview heatmap data. API rows will replace this automatically.</p>` : ""}
-      <div class="registration-kpi-row" aria-label="Monthly registrations summary">
-        <article class="registration-kpi kpi-total">
-          <span class="registration-kpi-icon">${iconMarkup("users")}</span>
-          <div><span>Total registrations</span><strong>${wholeNumber(model.total)}</strong></div>
-        </article>
-        <article class="registration-kpi kpi-highest">
-          <span class="registration-kpi-icon">${iconMarkup("trending-up")}</span>
-          <div><span>Highest day</span><strong>${model.highest ? `${shortDateLabel(model.highest.key)} · ${wholeNumber(model.highest.count)}` : "-"}</strong></div>
-        </article>
-        <article class="registration-kpi kpi-average">
-          <span class="registration-kpi-icon">${iconMarkup("bar-chart-3")}</span>
-          <div><span>Daily average</span><strong>${averageLabel}</strong></div>
-        </article>
-      </div>
       <div class="registration-dashboard">
         <div class="registration-month-panel">
           <div class="calendar-title-row">
             <div class="registration-month-title">
-              ${iconMarkup("calendar-days")}
               <strong>${escapeHtml(model.monthLabel)}</strong>
             </div>
             <span>${wholeNumber(model.total)} registrations</span>
@@ -1641,7 +1678,6 @@ const renderCalendarCard = (analytics) => {
                     class="calendar-cell heat-${level} ${selected?.key === cell.key ? "selected" : ""}"
                     data-calendar-date="${escapeHtml(cell.key)}"
                     type="button"
-                    title="${escapeHtml(report)}"
                     aria-label="${escapeHtml(report)}"
                   >
                     <span>${cell.day}</span>
@@ -1652,41 +1688,16 @@ const renderCalendarCard = (analytics) => {
               .join("")}
           </div>
         </div>
-        <aside class="calendar-day-report" aria-live="polite">
-          <div class="registration-day-head">
-            <span>${escapeHtml(selected ? longDateLabel(selected.key) : "No day selected")}</span>
-            <strong>${wholeNumber(selected?.count || 0)} registrations</strong>
-          </div>
-          <div class="registration-day-stat">
-            <strong>${wholeNumber(selected?.activeUsers || 0)}</strong>
-            <span>active users</span>
-            <em>${selectedComparison}</em>
-          </div>
-          <div class="registration-activity">
-            <span>Daily activity</span>
-            <div class="registration-activity-chart" aria-label="Daily activity chart">
-              <span class="activity-y y-3">3</span>
-              <span class="activity-y y-2">2</span>
-              <span class="activity-y y-1">1</span>
-              <span class="activity-y y-0">0</span>
-              <svg viewBox="0 0 288 112" preserveAspectRatio="none" aria-hidden="true">
-                <line x1="18" y1="12" x2="270" y2="12"></line>
-                <line x1="18" y1="40" x2="270" y2="40"></line>
-                <line x1="18" y1="68" x2="270" y2="68"></line>
-                <line x1="18" y1="96" x2="270" y2="96"></line>
-                <polyline points="${activityPoints}"></polyline>
-                ${activityValues.map((value, index) => `<circle cx="${18 + index * (252 / 23)}" cy="${96 - (value / activityMax) * 84}" r="2.2"></circle>`).join("")}
-              </svg>
-              <div class="activity-x"><span>12 AM</span><span>8 AM</span><span>4 PM</span><span>11 PM</span></div>
-            </div>
-          </div>
-          <div class="registration-density-legend">
-            <span>Density legend</span>
-            <div><i class="legend-empty"></i><b>No signups</b></div>
-            <div><i class="legend-low"></i><b>1 signup</b></div>
-            <div><i class="legend-high"></i><b>2+ signups</b></div>
-          </div>
-        </aside>
+      </div>
+      <div class="calendar-day-report" aria-live="polite">
+        <span>${escapeHtml(selected ? longDateLabel(selected.key) : "No day selected")}</span>
+        <strong>${wholeNumber(selected?.count || 0)} registrations</strong>
+        <em>${wholeNumber(selected?.activeUsers || 0)} active users · ${selectedComparison}</em>
+      </div>
+      <div class="registration-summary">
+        <div><span>Total registrations this month</span><strong>${wholeNumber(model.total)}</strong></div>
+        <div><span>Highest registration day</span><strong>${model.highest ? `${shortDateLabel(model.highest.key)} · ${wholeNumber(model.highest.count)}` : "-"}</strong></div>
+        <div><span>Average registrations per day</span><strong>${wholeNumber(model.average)}</strong></div>
       </div>
     </section>
   `;
@@ -1709,9 +1720,9 @@ const renderPopularCoursesCard = (analytics) => {
       ${model.isFallback ? `<p class="analytics-preview-note">Preview courses only. Live course usage will appear when available.</p>` : ""}
       <div class="course-usage-list">
         ${model.courses
-          .map((course) => `
+          .map((course, index) => `
             <article class="course-usage-row">
-              <div class="course-thumb" aria-hidden="true">${iconMarkup(course.icon)}</div>
+              ${courseThumbMarkup(course, index)}
               <div class="course-usage-main">
                 <div class="course-usage-topline">
                   <div>
