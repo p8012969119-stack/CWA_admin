@@ -767,72 +767,136 @@ const renderCoursesGrid = (items, isEmpty) => {
   `;
 };
 
-const renderModuleCard = (item) =>
-  cardShell("modules", item, `
-    <div class="entity-head">
-      ${avatarMarkup(`M${item.order || ""}`, "", "avatar-module")}
-      <div>
-        <p class="eyebrow">Module ${escapeHtml(item.order || "-")}</p>
-        <h3>${escapeHtml(item.title || "Untitled module")}</h3>
-        <p>${escapeHtml(plainValue(item, "course.title", "No course linked"))}</p>
+const moduleIconLabel = (item) => {
+  const order = Number(item.order || 0);
+  if (order > 0 && order < 100) return `M${String(order).padStart(2, "0")}`;
+  return "M";
+};
+
+const renderModuleCard = (item) => {
+  const title = item.title || "Untitled module";
+  const description = compactText(item.description, "Structured module content");
+  const courseTitle = plainValue(item, "course.title", "No course linked");
+
+  return `<article class="module-management-card">
+    <div class="module-card-top">
+      <span class="module-card-icon" aria-hidden="true">${escapeHtml(moduleIconLabel(item))}</span>
+      <div class="module-card-heading">
+        <p class="module-card-kicker">Module ${escapeHtml(item.order || "-")}</p>
+        <h3 title="${escapeHtml(title)}">${escapeHtml(title)}</h3>
       </div>
+    </div>
+
+    <p class="module-card-description" title="${escapeHtml(description)}">${escapeHtml(description)}</p>
+
+    <div class="module-card-status">
       ${statusPill(item.status)}
     </div>
-    <p class="entity-description">${escapeHtml(compactText(item.description))}</p>
-    <div class="entity-meta">
-      ${metaItem("Lessons", item.lessonCount || item.lessons?.length || "-")}
-      ${metaItem("Duration", `${Number(item.duration || 0)} min`)}
-      ${metaItem("Order", item.order || "-")}
-    </div>
-  `);
 
-const renderModulesTable = (items, isEmpty) => `
-  <section class="card modules-table-card reveal">
-    <div class="modules-table-wrap">
-      <table class="modules-table">
-        <thead>
-          <tr>
-            <th scope="col">Module</th>
-            <th scope="col">Course</th>
-            <th scope="col">Status</th>
-            <th scope="col">Lessons</th>
-            <th scope="col">Duration</th>
-            <th scope="col">Order</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((item) => `
-            <tr>
-              <td>
-                <span class="modules-table-module">
-                  ${avatarMarkup(`M${item.order || ""}`, "", "avatar-module")}
-                  <span>
-                    <b>${escapeHtml(item.title || "Untitled module")}</b>
-                    <small>${escapeHtml(compactText(item.description, "Structured module content"))}</small>
-                  </span>
-                </span>
-              </td>
-              <td>${escapeHtml(plainValue(item, "course.title", "No course linked"))}</td>
-              <td>${statusPill(item.status)}</td>
-              <td>${escapeHtml(item.lessonCount || item.lessons?.length || "-")}</td>
-              <td>${escapeHtml(`${Number(item.duration || 0)} min`)}</td>
-              <td>${escapeHtml(item.order || "-")}</td>
-              <td><div class="entity-actions modules-table-actions">${renderActions("modules", item)}</div></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>
-    ${isEmpty ? `
-      <div class="empty-state">
-        ${iconMarkup("inbox")}
-        <h3>No modules found</h3>
-        <p>Use Create or adjust the filters to add and manage records.</p>
+    <dl class="module-card-meta">
+      <div>
+        <dt>Course</dt>
+        <dd title="${escapeHtml(courseTitle)}">${escapeHtml(courseTitle)}</dd>
       </div>
-    ` : ""}
+      <div>
+        <dt>Lessons</dt>
+        <dd>${escapeHtml(item.lessonCount || item.lessons?.length || "-")}</dd>
+      </div>
+      <div>
+        <dt>Duration</dt>
+        <dd>${escapeHtml(`${Number(item.duration || 0)} min`)}</dd>
+      </div>
+      <div>
+        <dt>Order</dt>
+        <dd>${escapeHtml(item.order || "-")}</dd>
+      </div>
+    </dl>
+
+    <div class="module-card-actions">
+      ${renderModuleCardActions(item)}
+    </div>
+  </article>`;
+};
+
+const renderModuleCardActions = (item) => {
+  const id = escapeHtml(item._id);
+  const status = String(item.status || "").toLowerCase();
+  const isPublished = status === "published";
+  const isArchived = status === "archived";
+  const busy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
+  const loader = state.loading ? `<span class="module-button-loader" aria-hidden="true"></span>` : "";
+  const button = (label, attributes, className = "mini", icon = "circle", disabled = false) =>
+    `<button class="${className}" ${attributes} ${busy} ${disabled ? "disabled aria-disabled=\"true\"" : ""} type="button">${loader || iconMarkup(icon)}<span>${escapeHtml(label)}</span></button>`;
+
+  const publishButton = isPublished
+    ? button("Unpublish", `data-status-record="modules:${id}:draft" aria-label="Unpublish ${escapeHtml(item.title || "module")}"`, "mini module-action unpublish-action", "eye-off")
+    : button("Publish", `data-status-record="modules:${id}:published" aria-label="Publish ${escapeHtml(item.title || "module")}" title="${isArchived ? "Archived modules can be restored from Edit before publishing." : ""}"`, "mini module-action publish-action", "send", isArchived);
+
+  return `
+    ${button("Edit", `data-edit-record="modules:${id}" aria-label="Edit ${escapeHtml(item.title || "module")}"`, "mini module-action edit-action", "pencil")}
+    ${publishButton}
+    ${button("Archive", `data-status-record="modules:${id}:archived" aria-label="Archive ${escapeHtml(item.title || "module")}"`, "mini module-action archive-action", "archive", isArchived)}
+    ${button("Delete", `data-delete-record="modules:${id}" aria-label="Delete ${escapeHtml(item.title || "module")}"`, "mini module-action delete-action", "trash-2")}
+  `;
+};
+
+const renderModulesSkeleton = () => `
+  <section class="modules-grid-card card reveal" aria-label="Loading modules">
+    <div class="module-card-grid">
+      ${Array.from({ length: 6 }).map(() => `
+        <article class="module-management-card module-card-skeleton" aria-hidden="true">
+          <div class="module-card-top">
+            <span class="module-skeleton-icon"></span>
+            <div class="module-skeleton-stack">
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <span class="module-skeleton-line wide"></span>
+          <span class="module-skeleton-line"></span>
+          <div class="module-skeleton-meta">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="module-skeleton-actions">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </article>
+      `).join("")}
+    </div>
   </section>
 `;
+
+const renderModulesGrid = (items, isEmpty) => {
+  if (state.loading && isEmpty) return renderModulesSkeleton();
+
+  if (state.error) {
+    return `
+      <section class="modules-grid-card card reveal">
+        <div class="module-state-card" role="alert">
+          ${iconMarkup("alert-circle")}
+          <h3>Unable to load modules</h3>
+          <p>${escapeHtml(state.error)}</p>
+          <button class="btn" data-refresh="modules" type="button">Retry</button>
+        </div>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="modules-grid-card card reveal">
+      <div class="module-card-grid">
+        ${items.map((item) => renderModuleCard(item)).join("")}
+      </div>
+      ${isEmpty ? `
+        <div class="module-state-card empty-state">
+          ${iconMarkup("inbox")}
+          <h3>No modules found</h3>
+          <p>Use Create or adjust the filters to add and manage records.</p>
+        </div>
+      ` : ""}
+    </section>
+  `;
+};
 
 const renderLessonCard = (item) =>
   cardShell("lessons", item, `
@@ -2139,7 +2203,7 @@ const renderEntity = (key) => {
       ${statChip("Primary action", "Create", "plus-circle")}
       ${statChip("Data source", config.endpoint, "route")}
     </section>
-    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesTable(items, isEmpty) : key === "lessons" ? renderLessonsTable(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
+    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsTable(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
         ${isEmpty ? `
@@ -2481,6 +2545,7 @@ const renderApp = () => {
   else if (entityConfigs[state.view]) content = renderEntity(state.view);
 
   document.body.classList.toggle("courses-admin-page", state.view === "courses");
+  document.body.classList.toggle("modules-admin-page", state.view === "modules");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
