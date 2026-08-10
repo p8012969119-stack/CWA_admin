@@ -386,6 +386,43 @@ const compactText = (value, fallback = "No description added yet.", limit = 140)
   return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
 };
 
+const normalizeAssetKey = (value = "") =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const courseFallbackImages = [
+  { keys: ["google-gemini-ai", "gemini"], src: "/assets/ai-courses/google-gemini-ai.svg" },
+  { keys: ["claude-ai-professional", "claude"], src: "/assets/ai-courses/claude-ai-professional.svg" },
+  { keys: ["midjourney-ai-image-creation", "midjourney"], src: "/assets/ai-courses/midjourney-ai-image-creation.svg" },
+  { keys: ["nano-banana-ai", "nano-banana"], src: "/assets/ai-courses/nano-banana-ai.svg" },
+  { keys: ["cursor-ai-coding-assistant", "cursor"], src: "/assets/ai-courses/cursor-ai-coding-assistant.svg" },
+  { keys: ["github-copilot", "copilot"], src: "/assets/ai-courses/github-copilot.svg" },
+  { keys: ["chatgpt-mastery", "chatgpt", "openai"], src: "/assets/ai-courses/chatgpt-mastery.svg" },
+  { keys: ["perplexity-ai-research", "perplexity"], src: "/assets/ai-courses/perplexity-ai-research.svg" },
+];
+
+const getCourseFallbackImage = (course) => {
+  const haystack = [course.slug, course.title, course.name]
+    .map(normalizeAssetKey)
+    .filter(Boolean)
+    .join(" ");
+  const match = courseFallbackImages.find((entry) => entry.keys.some((key) => haystack.includes(key)));
+  return match?.src || "/assets/ai-courses/default-ai-course.svg";
+};
+
+const getCourseImageSource = (course) => {
+  const fallback = getCourseFallbackImage(course);
+  const primary = course.thumbnail || course.image || course.logo || "";
+  return {
+    src: primary || fallback,
+    fallback,
+    fitClass: course.thumbnail ? "course-image-cover" : "course-image-contain",
+  };
+};
+
 const initials = (value = "Admin") =>
   String(value || "Admin")
     .trim()
@@ -603,11 +640,20 @@ const renderAdminCard = (item) =>
     </div>
   `);
 
-const renderCourseCard = (item) =>
-  `<article class="course-management-card">
+const renderCourseCard = (item) => {
+  const image = getCourseImageSource(item);
+
+  return `<article class="course-management-card">
     <div class="course-card-top">
-      <span class="course-card-thumb">
-        ${item.thumbnail ? `<img src="${escapeHtml(item.thumbnail)}" alt="${escapeHtml(item.title || "Course")} thumbnail" loading="lazy" />` : `<i data-lucide="graduation-cap"></i>`}
+      <span class="course-card-thumb ${image.fitClass === "course-image-cover" ? "is-cover" : ""}">
+        <img
+          class="${escapeHtml(image.fitClass)}"
+          src="${escapeHtml(image.src)}"
+          data-fallback-src="${escapeHtml(image.fallback)}"
+          alt="${escapeHtml(item.title || "Course")} logo"
+          loading="lazy"
+          onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.remove('course-image-cover');this.classList.add('course-image-contain');this.parentElement.classList.remove('is-cover');"
+        />
       </span>
       <div class="course-card-heading">
         <h3>${escapeHtml(item.title || "Untitled course")}</h3>
@@ -643,6 +689,7 @@ const renderCourseCard = (item) =>
       ${renderCourseCardActions(item)}
     </div>
   </article>`;
+};
 
 const renderCourseCardActions = (item) => {
   const id = escapeHtml(item._id);
@@ -691,7 +738,7 @@ const renderCoursesSkeleton = () => `
 const renderCoursesGrid = (items, isEmpty) => {
   if (state.loading && isEmpty) return renderCoursesSkeleton();
 
-  if (state.error && isEmpty) {
+  if (state.error) {
     return `
       <section class="courses-grid-card card reveal">
         <div class="course-state-card" role="alert">

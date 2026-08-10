@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub Copilot logo fallback</title>
+  <desc id="desc">Copilot-style assistant face in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M30 54c0-18 12-30 30-30s30 12 30 30v20c0 14-10 22-30 22s-30-8-30-22V54Z" fill="#0B0F0C"/>
+  <rect x="42" y="56" width="13" height="13" rx="4" fill="#16A34A"/>
+  <rect x="65" y="56" width="13" height="13" rx="4" fill="#16A34A"/>
+  <path d="M44 82h32" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+</svg>

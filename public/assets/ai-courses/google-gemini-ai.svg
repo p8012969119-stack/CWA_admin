@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Google Gemini AI logo fallback</title>
+  <desc id="desc">Monochrome green Gemini-style star mark.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M60 18c5 23 19 37 42 42-23 5-37 19-42 42-5-23-19-37-42-42 23-5 37-19 42-42Z" fill="#16A34A"/>
+  <path d="M60 35c3 14 11 22 25 25-14 3-22 11-25 25-3-14-11-22-25-25 14-3 22-11 25-25Z" fill="#0B0F0C"/>
+</svg>

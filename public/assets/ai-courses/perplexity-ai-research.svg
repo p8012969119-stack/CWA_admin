@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Perplexity AI logo fallback</title>
+  <desc id="desc">Research answer mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M30 26h60v18H72v50H48V44H30V26Z" fill="#0B0F0C"/>
+  <path d="M47 55h26l15 17-15 17H47L32 72l15-17Z" fill="#16A34A"/>
+  <path d="M48 72h24" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+</svg>

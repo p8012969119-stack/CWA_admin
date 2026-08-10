@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Midjourney AI logo fallback</title>
+  <desc id="desc">Sailboat image-generation mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M31 84h58c-8 10-17 15-29 15S39 94 31 84Z" fill="#16A34A"/>
+  <path d="M61 21v59H28c6-23 17-42 33-59Z" fill="#0B0F0C"/>
+  <path d="M67 34v46h28c-5-18-15-33-28-46Z" fill="#064E3B"/>
+</svg>

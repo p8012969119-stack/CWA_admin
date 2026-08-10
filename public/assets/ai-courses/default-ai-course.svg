@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">AI course logo fallback</title>
+  <desc id="desc">Generic AI course mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <rect x="28" y="32" width="64" height="56" rx="14" fill="#0B0F0C"/>
+  <circle cx="48" cy="58" r="6" fill="#16A34A"/>
+  <circle cx="72" cy="58" r="6" fill="#16A34A"/>
+  <path d="M46 75h28" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+  <path d="M60 18v14M60 88v14M18 60h14M88 60h14" stroke="#064E3B" stroke-width="7" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Claude AI logo fallback</title>
+  <desc id="desc">Abstract Claude-style radial mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <circle cx="60" cy="60" r="34" fill="#FFFFFF" stroke="#16A34A" stroke-width="8"/>
+  <path d="M60 24v72M24 60h72M35 35l50 50M85 35 35 85" stroke="#0B0F0C" stroke-width="7" stroke-linecap="round"/>
+</svg>

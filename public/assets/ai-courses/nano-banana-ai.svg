@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Nano Banana AI logo fallback</title>
+  <desc id="desc">Curved nano banana style mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M88 36c-8 34-27 50-58 48 6 13 24 19 39 12 19-9 31-30 29-55l-10-5Z" fill="#16A34A"/>
+  <path d="M89 26c9 4 13 10 13 19l-13-4c-1-5-4-8-9-10l9-5ZM28 78c-6 1-10 0-14-5 2 11 10 18 22 20l-8-15Z" fill="#0B0F0C"/>
+</svg>

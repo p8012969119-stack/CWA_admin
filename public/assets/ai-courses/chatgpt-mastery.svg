@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">ChatGPT logo fallback</title>
+  <desc id="desc">Interlocking ChatGPT-style knot in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="9">
+    <path d="M60 20c14 0 23 10 23 22" stroke="#0B0F0C"/>
+    <path d="M83 42c12 7 15 20 8 32" stroke="#16A34A"/>
+    <path d="M91 74c-7 12-20 15-32 8" stroke="#0B0F0C"/>
+    <path d="M59 82c-12 7-25 4-32-8" stroke="#16A34A"/>
+    <path d="M27 74c-7-12-4-25 8-32" stroke="#0B0F0C"/>
+    <path d="M35 42c0-12 11-22 25-22" stroke="#16A34A"/>
+  </g>
+  <circle cx="60" cy="60" r="12" fill="#064E3B"/>
+</svg>
