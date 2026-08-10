@@ -586,7 +586,77 @@ const quizSummaryCard = (label, value, type) => {
   return `<div class="stat-chip quiz-summary-chip quiz-summary-${type}">${content}</div>`;
 };
 
+const aiToolSummaryIllustration = (type) => {
+  if (type === "records") {
+    return `
+      <span class="ai-tool-summary-visual ai-tool-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="tool-chip chip-back" x="18" y="21" width="40" height="40" rx="12"></rect>
+          <rect class="tool-chip chip-front" x="30" y="27" width="40" height="40" rx="12"></rect>
+          <path class="tool-pin pin-one" d="M20 34H9M20 48H9M70 40h9M70 54h9M42 27V16M56 67v9"></path>
+          <path class="tool-spark spark-one" d="M18 67v8M14 71h8"></path>
+          <path class="tool-spark spark-two" d="M67 16v8M63 20h8"></path>
+          <text x="42" y="52">AI</text>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "create") {
+    return `
+      <span class="ai-tool-summary-visual ai-tool-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="tool-doc" x="25" y="17" width="34" height="48" rx="8"></rect>
+          <path class="tool-doc-line" d="M34 34h16M34 44h12"></path>
+          <circle class="tool-plus-disc" cx="61" cy="60" r="13"></circle>
+          <path class="tool-plus" d="M61 52v16M53 60h16"></path>
+          <path class="tool-orbit" d="M14 51c12-20 46-28 65-10"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  return `
+    <span class="ai-tool-summary-visual ai-tool-visual-source" aria-hidden="true">
+      <svg viewBox="0 0 88 88" focusable="false">
+        <rect class="tool-server" x="18" y="21" width="34" height="46" rx="9"></rect>
+        <path class="tool-server-line" d="M27 35h16M27 47h16M27 58h12"></path>
+        <path class="tool-link link-one" d="M53 35h14c6 0 6 10 12 10"></path>
+        <path class="tool-link link-two" d="M53 55h11c7 0 7 11 15 11"></path>
+        <circle class="tool-packet packet-one" cx="76" cy="45" r="4"></circle>
+        <circle class="tool-packet packet-two" cx="76" cy="66" r="4"></circle>
+      </svg>
+    </span>
+  `;
+};
+
+const aiToolSummaryCard = (label, value, type) => {
+  const content = `
+    ${aiToolSummaryIllustration(type)}
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <b ${Number.isFinite(Number(value)) ? `data-count="${escapeHtml(value)}"` : ""}>${escapeHtml(value)}</b>
+    </div>
+  `;
+
+  if (type === "create") {
+    return `<button class="stat-chip ai-tool-summary-chip ai-tool-summary-${type}" data-open-form="aiTools" type="button" aria-label="Create AI tool">${content}</button>`;
+  }
+
+  return `<div class="stat-chip ai-tool-summary-chip ai-tool-summary-${type}">${content}</div>`;
+};
+
 const renderEntitySummary = (key, count, endpoint) => {
+  if (key === "aiTools") {
+    return `
+      <section class="entity-summary ai-tool-summary-grid">
+        ${aiToolSummaryCard("Loaded records", count, "records")}
+        ${aiToolSummaryCard("Primary action", "Create", "create")}
+        ${aiToolSummaryCard("Data source", endpoint, "source")}
+      </section>
+    `;
+  }
+
   if (key === "quizzes") {
     return `
       <section class="entity-summary quiz-summary-grid">
@@ -1371,79 +1441,165 @@ const renderQuizzesGrid = (items, isEmpty) => {
   `;
 };
 
-const renderToolCard = (item) =>
-  cardShell("aiTools", item, `
-    <div class="entity-head">
-      ${avatarMarkup(item.name, item.logo, "avatar-tool")}
-      <div>
-        <p class="eyebrow">${escapeHtml(item.flowType || "AI tool")}</p>
-        <h3>${escapeHtml(item.name || "AI tool")}</h3>
-        <p>${escapeHtml(compactText(item.description))}</p>
-      </div>
-      ${statusPill(item.status || "active")}
-    </div>
-    <div class="tool-integration">
-      <span>${iconMarkup(item.apiEndpoint ? "plug-zap" : "plug", item.apiEndpoint ? "API connected" : "Manual launch")}</span>
-      <b>${escapeHtml(item.pricingType || "free")}</b>
-    </div>
-    <div class="entity-meta">
-      ${metaItem("Category", plainValue(item, "category.name", item.category || "-"))}
-      ${metaItem("Featured", item.isFeatured ? "Yes" : "No")}
-      ${metaItem("Website", item.websiteUrl ? "Ready" : "-")}
-    </div>
-  `);
+const aiToolLogoFallback = "/assets/ai-tools/default-ai-tool.svg";
 
-const renderAiToolsTable = (items, isEmpty) => `
-  <section class="card ai-tools-table-card reveal">
-    <div class="ai-tools-table-wrap">
-      <table class="ai-tools-table">
-        <thead>
-          <tr>
-            <th scope="col">AI Tool</th>
-            <th scope="col">Flow</th>
-            <th scope="col">Status</th>
-            <th scope="col">API</th>
-            <th scope="col">Pricing</th>
-            <th scope="col">Category</th>
-            <th scope="col">Featured</th>
-            <th scope="col">Website</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((item) => `
-            <tr>
-              <td>
-                <span class="ai-tools-table-tool">
-                  ${avatarMarkup(item.name, item.logo, "avatar-tool")}
-                  <span>
-                    <b>${escapeHtml(item.name || "AI tool")}</b>
-                    <small>${escapeHtml(compactText(item.description, item.slug || "Managed AI tool"))}</small>
-                  </span>
-                </span>
-              </td>
-              <td>${escapeHtml(item.flowType || "-")}</td>
-              <td>${statusPill(item.status || "active")}</td>
-              <td>${escapeHtml(item.apiEndpoint ? "Connected" : "Manual")}</td>
-              <td>${escapeHtml(item.pricingType || "free")}</td>
-              <td>${escapeHtml(plainValue(item, "category.name", item.category || "-"))}</td>
-              <td>${escapeHtml(item.isFeatured ? "Yes" : "No")}</td>
-              <td>${escapeHtml(item.websiteUrl ? "Ready" : "-")}</td>
-              <td><div class="entity-actions ai-tools-table-actions">${renderActions("aiTools", item)}</div></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
+const getAiToolLogoSource = (item) => item.logo || item.image || item.thumbnail || aiToolLogoFallback;
+
+const aiToolStatusDetails = (status) => {
+  const normalized = String(status || "active").toLowerCase();
+  if (normalized === "active") return { label: "Active", className: "active" };
+  if (normalized === "draft") return { label: "Draft", className: "draft" };
+  return { label: normalized === "inactive" ? "Inactive" : "Inactive", className: "inactive" };
+};
+
+const aiToolApiDetails = (item) => {
+  if (hasValue(item.apiEndpoint)) return { label: "Connected", className: "connected" };
+  return { label: "Disconnected", className: "disconnected" };
+};
+
+const formatAiToolWebsite = (item) => {
+  const url = String(item.websiteUrl || "").trim();
+  if (!url) return "Unavailable";
+  return /^https?:\/\//i.test(url) ? "Ready" : url;
+};
+
+const aiToolLogoMarkup = (item) => {
+  const name = item.name || "AI Tool";
+  const src = getAiToolLogoSource(item);
+  const fallback = aiToolLogoFallback;
+  return `
+    <span class="ai-tool-card-logo">
+      <img
+        src="${escapeHtml(src)}"
+        data-fallback-src="${escapeHtml(fallback)}"
+        alt="${escapeHtml(`${name} logo`)}"
+        loading="lazy"
+        onerror="if(this.dataset.fallbackSrc && !this.dataset.fallbackApplied){this.dataset.fallbackApplied='true';this.src=this.dataset.fallbackSrc;}else{this.hidden=true;this.nextElementSibling.hidden=false;}"
+      />
+      <span class="ai-tool-card-initials" hidden aria-hidden="true">${escapeHtml(initials(name))}</span>
+    </span>
+  `;
+};
+
+const aiToolBadge = (label, className) => `
+  <span class="ai-tool-badge ${className}">
+    <i aria-hidden="true"></i>
+    <span>${escapeHtml(label)}</span>
+  </span>
+`;
+
+const aiToolMetaBox = (label, value, className = "") => `
+  <div class="ai-tool-meta-box ${className}">
+    <dt>${escapeHtml(label)}</dt>
+    <dd title="${escapeHtml(value)}">${escapeHtml(value)}</dd>
+  </div>
+`;
+
+const renderAiToolCardActions = (item) => {
+  const actions = entityConfigs.aiTools.actions || [];
+  const status = String(item.status || "active").toLowerCase();
+  const isActive = status === "active";
+  const isFeatured = Boolean(item.isFeatured);
+  const busy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
+  const id = escapeHtml(item._id);
+  const title = item.name || "AI tool";
+  const actionButton = (label, attributes, className, icon) => `
+    <button class="ai-tool-action ${className}" ${attributes} ${busy} type="button" aria-label="${escapeHtml(`${label} ${title}`)}">
+      ${iconMarkup(icon, label)}
+    </button>
+  `;
+
+  return `
+    <div class="ai-tool-card-actions">
+      ${actions.includes("edit") ? actionButton("Edit", `data-edit-record="aiTools:${id}"`, "edit-action", "pencil") : ""}
+      ${actions.includes("feature") ? actionButton(isFeatured ? "Unfeature" : "Feature", `data-tool-feature="${id}:${isFeatured ? "false" : "true"}"`, isFeatured ? "unfeature-action" : "feature-action", "star") : ""}
+      ${actions.includes("hide") ? actionButton(isActive ? "Deactivate" : "Activate", `data-tool-hide="${id}:${isActive ? "inactive" : "active"}"`, isActive ? "deactivate-action" : "activate-action", isActive ? "eye-off" : "eye") : ""}
+      ${actions.includes("delete") ? actionButton("Delete", `data-delete-record="aiTools:${id}"`, "delete-action", "trash-2") : ""}
     </div>
-    ${isEmpty ? `
-      <div class="empty-state">
-        ${iconMarkup("inbox")}
-        <h3>No AI tools found</h3>
-        <p>Use Create or adjust the filters to add and manage records.</p>
+  `;
+};
+
+const renderToolCard = (item) => {
+  const status = aiToolStatusDetails(item.status);
+  const api = aiToolApiDetails(item);
+  const name = item.name || "AI tool";
+  const description = item.description || item.slug || "Managed AI tool";
+  const flow = item.flowType || "—";
+  const pricing = item.pricingType || "—";
+  const category = plainValue(item, "category.name", item.category || "—");
+  const featured = item.isFeatured ? "Yes" : "No";
+  const website = formatAiToolWebsite(item);
+
+  return `<article class="ai-tool-management-card">
+    <div class="ai-tool-card-head">
+      ${aiToolLogoMarkup(item)}
+      <div class="ai-tool-card-copy">
+        <h3 title="${escapeHtml(name)}">${escapeHtml(name)}</h3>
+        <p title="${escapeHtml(description)}">${escapeHtml(description)}</p>
       </div>
-    ` : ""}
+      ${aiToolBadge(status.label, status.className)}
+    </div>
+
+    <dl class="ai-tool-meta-grid">
+      ${aiToolMetaBox("Flow", flow, "flow-value")}
+      ${aiToolMetaBox("API", api.label, api.className)}
+      ${aiToolMetaBox("Pricing", pricing)}
+      ${aiToolMetaBox("Category", category)}
+      ${aiToolMetaBox("Featured", featured, item.isFeatured ? "featured-yes" : "featured-no")}
+      ${aiToolMetaBox("Website", website, website === "Ready" ? "website-ready" : "website-unavailable")}
+    </dl>
+
+    ${renderAiToolCardActions(item)}
+  </article>`;
+};
+
+const renderAiToolsSkeleton = () => `
+  <section class="ai-tools-grid-card card reveal" aria-label="Loading AI tools">
+    <div class="ai-tool-card-grid">
+      ${Array.from({ length: 6 }).map(() => `
+        <article class="ai-tool-management-card ai-tool-card-skeleton" aria-hidden="true">
+          <div class="ai-tool-card-head">
+            <span class="ai-tool-card-logo"></span>
+            <div class="ai-tool-card-copy"><span></span><span></span><span></span></div>
+          </div>
+          <dl class="ai-tool-meta-grid"><span></span><span></span><span></span><span></span><span></span><span></span></dl>
+          <div class="ai-tool-card-actions"><span></span><span></span><span></span><span></span></div>
+        </article>
+      `).join("")}
+    </div>
   </section>
 `;
+
+const renderAiToolsGrid = (items, isEmpty) => {
+  if (state.loading && isEmpty) return renderAiToolsSkeleton();
+  if (state.error && isEmpty) {
+    return `
+      <section class="ai-tools-grid-card card reveal">
+        <div class="ai-tool-state-card" role="alert">
+          ${iconMarkup("circle-alert")}
+          <h3>Unable to load AI tools</h3>
+          <p>${escapeHtml(state.error)}</p>
+          <button class="btn secondary" data-refresh="aiTools" type="button">${iconMarkup("refresh-cw", "Retry")}</button>
+        </div>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="ai-tools-grid-card card reveal">
+      <div class="ai-tool-card-grid">
+        ${items.map((item) => renderToolCard(item)).join("")}
+      </div>
+      ${isEmpty ? `
+        <div class="ai-tool-state-card empty-state">
+          ${iconMarkup("inbox")}
+          <h3>No AI tools found</h3>
+          <p>Use Create or adjust the filters to add and manage records.</p>
+        </div>
+      ` : ""}
+    </section>
+  `;
+};
 
 const renderGenericCard = (key, item) => {
   const config = entityConfigs[key];
@@ -2548,6 +2704,8 @@ const renderEntity = (key) => {
   const items = state.data[key] || [];
   const isEmpty = !items.length;
   const isQuizzes = key === "quizzes";
+  const isAiTools = key === "aiTools";
+  const hasSpecialToolbar = isQuizzes || isAiTools;
   const toolbarBusy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
   const pageCopy = {
     users: "Registered learner accounts, premium access, verification, and lifecycle controls.",
@@ -2563,10 +2721,10 @@ const renderEntity = (key) => {
   };
 
   return `
-    <section class="toolbar card reveal ${isQuizzes ? "quiz-toolbar" : ""}">
+    <section class="toolbar card reveal ${isQuizzes ? "quiz-toolbar" : ""} ${isAiTools ? "ai-tool-toolbar" : ""}">
       <div>
         <p class="eyebrow">${escapeHtml(config.title)} management</p>
-        <h2>${isQuizzes ? `<span class="quiz-title-wrap">${escapeHtml(config.title)}<i aria-hidden="true"></i></span>` : escapeHtml(config.title)}</h2>
+        <h2>${hasSpecialToolbar ? `<span class="${isAiTools ? "ai-tool-title-wrap" : "quiz-title-wrap"}">${escapeHtml(config.title)}${isQuizzes ? `<i aria-hidden="true"></i>` : ""}</span>` : escapeHtml(config.title)}</h2>
         <p>${escapeHtml(pageCopy[key] || "Create, review, and manage records with the existing admin API.")}</p>
       </div>
       <div class="toolbar-controls">
@@ -2578,13 +2736,13 @@ const renderEntity = (key) => {
             </select>
           `)
           .join("")}
-        <button class="btn secondary ${isQuizzes ? "quiz-refresh-button" : ""}" data-refresh="${key}" ${isQuizzes ? toolbarBusy : ""} type="button">${isQuizzes ? iconMarkup(state.loading ? "loader-2" : "refresh-cw", "Refresh") : "Refresh"}</button>
-        <button class="btn ${isQuizzes ? "quiz-create-button" : ""}" data-open-form="${key}" ${isQuizzes ? toolbarBusy : ""} type="button">${isQuizzes ? iconMarkup("plus-circle", "Create") : "Create"}</button>
+        <button class="btn secondary ${isQuizzes ? "quiz-refresh-button" : ""} ${isAiTools ? "ai-tool-refresh-button" : ""}" data-refresh="${key}" ${hasSpecialToolbar ? toolbarBusy : ""} type="button">${hasSpecialToolbar ? iconMarkup(state.loading ? "loader-2" : "refresh-cw", "Refresh") : "Refresh"}</button>
+        <button class="btn ${isQuizzes ? "quiz-create-button" : ""} ${isAiTools ? "ai-tool-create-button" : ""}" data-open-form="${key}" ${hasSpecialToolbar ? toolbarBusy : ""} type="button">${hasSpecialToolbar ? iconMarkup("plus-circle", "Create") : "Create"}</button>
       </div>
     </section>
     ${config.bulk ? renderBulkActions() : ""}
     ${renderEntitySummary(key, items.length, config.endpoint)}
-    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsGrid(items, isEmpty) : key === "quizzes" ? renderQuizzesGrid(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
+    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsGrid(items, isEmpty) : key === "quizzes" ? renderQuizzesGrid(items, isEmpty) : key === "aiTools" ? renderAiToolsGrid(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
         ${isEmpty ? `
@@ -2960,6 +3118,7 @@ const renderApp = () => {
   document.body.classList.toggle("modules-admin-page", state.view === "modules");
   document.body.classList.toggle("lessons-admin-page", state.view === "lessons");
   document.body.classList.toggle("quizzes-admin-page", state.view === "quizzes");
+  document.body.classList.toggle("ai-tools-admin-page", state.view === "aiTools");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
