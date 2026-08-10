@@ -14,6 +14,7 @@ const state = {
   auditType: "",
   analyticsFilters: {
     userGrowthDays: 7,
+    analyticsRange: 30,
     calendarMonth: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`,
     selectedCalendarDate: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
   },
@@ -1933,6 +1934,29 @@ const loadDashboard = async () => {
   state.view = "dashboard";
 };
 
+const refreshAnalyticsOverview = async () => {
+  state.loading = true;
+  render();
+
+  try {
+    const [statsResponse, analyticsResponse] = await Promise.all([
+      request("/admins/stats"),
+      request("/admins/analytics"),
+    ]);
+
+    state.stats = statsResponse.data;
+    state.analytics = analyticsResponse.data;
+    state.view = "analytics";
+    state.error = "";
+    state.message = "Analytics refreshed.";
+  } catch (error) {
+    state.error = error.message;
+  } finally {
+    state.loading = false;
+    render();
+  }
+};
+
 const loadEntity = async (key) => {
   const config = entityConfigs[key];
   const search = document.querySelector(`#${key}-search`)?.value || "";
@@ -1985,6 +2009,7 @@ const switchView = async (view) => {
 
   try {
     if (view === "dashboard") await loadDashboard();
+    else if (view === "analytics" && !state.analytics) await refreshAnalyticsOverview();
     else if (view === "settings") await loadSettings();
     else if (view === "auditLogs") await loadAuditLogs();
     else if (entityConfigs[view]) await loadEntity(view);
@@ -2142,6 +2167,395 @@ const analyticsTableCard = (title, subtitle, items, labelKey = "_id", valueKey =
       </div>
     </section>
   `;
+};
+
+const numericValue = (value, fallback = 0) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+};
+
+const pickNumber = (item, keys, fallback = 0) => {
+  for (const key of keys) {
+    const value = getValue(item, key);
+    if (value !== undefined && value !== null && value !== "") return numericValue(value, fallback);
+  }
+  return fallback;
+};
+
+const analyticsDateFromKey = (key) => {
+  const raw = String(key || "").trim();
+  if (!raw) return null;
+  const normalized = raw.length === 7 ? `${raw}-01` : raw.slice(0, 10);
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const analyticsPeriodLabel = (key) => {
+  const raw = String(key || "").trim();
+  const parsed = analyticsDateFromKey(raw);
+
+  if (!parsed) return raw || "-";
+  if (/^\d{4}-\d{2}$/.test(raw)) return `${monthNames[parsed.getMonth()]} ${parsed.getFullYear()}`;
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(parsed);
+};
+
+const normalizeAnalyticsSeries = (items = [], valueKeys = ["count", "value", "users", "learners", "registrations"]) =>
+  (Array.isArray(items) ? items : [])
+    .map((item, index) => {
+      const key = item?._id ?? item?.date ?? item?.day ?? item?.month ?? item?.period ?? item?.label ?? item?.title ?? item?.name ?? index;
+      return {
+        key: String(key),
+        label: analyticsPeriodLabel(key),
+        value: pickNumber(item, valueKeys),
+        date: analyticsDateFromKey(key),
+        source: item,
+        index,
+      };
+    })
+    .sort((a, b) => {
+      if (a.date && b.date) return a.date - b.date;
+      if (a.date) return -1;
+      if (b.date) return 1;
+      return a.index - b.index;
+    });
+
+const getAnalyticsRangeDays = () => numericValue(state.analyticsFilters.analyticsRange, 30);
+
+const filterAnalyticsSeriesByRange = (series, rangeDays = getAnalyticsRangeDays()) => {
+  if (!series.length) return [];
+  const dated = series.filter((point) => point.date);
+
+  if (!dated.length) return series.slice(-rangeDays);
+
+  const newestTime = Math.max(...dated.map((point) => point.date.getTime()));
+  const startTime = newestTime - (Math.max(rangeDays, 1) - 1) * 24 * 60 * 60 * 1000;
+  return series.filter((point) => !point.date || point.date.getTime() >= startTime);
+};
+
+const getAnalyticsUserGrowthSeries = () =>
+  filterAnalyticsSeriesByRange(
+    normalizeAnalyticsSeries(state.analytics?.userGrowth || [], ["count", "newUsers", "users", "value"]),
+    getAnalyticsRangeDays(),
+  );
+
+const getAnalyticsMonthlyRegistrations = () => {
+  const rows = normalizeAnalyticsSeries(state.analytics?.monthlyRegistrations || [], ["count", "registrations", "newRegistrations", "value"]);
+  return rows.map((row) => {
+    const secondaryKeys = ["returningRegistrations", "returning", "repeatRegistrations", "returningCount"];
+    const secondaryKey = secondaryKeys.find((key) => row.source?.[key] !== undefined && row.source?.[key] !== null);
+    return {
+      ...row,
+      secondaryValue: secondaryKey ? numericValue(row.source[secondaryKey]) : null,
+      secondaryLabel: secondaryKey ? "Returning registrations" : "",
+    };
+  });
+};
+
+const analyticsTrend = (series, periodLength) => {
+  const count = Math.max(Number(periodLength || 1), 1);
+  if (!series.length || series.length < count + 1) return null;
+
+  const current = series.slice(-count).reduce((sum, point) => sum + point.value, 0);
+  const previous = series.slice(-(count * 2), -count).reduce((sum, point) => sum + point.value, 0);
+
+  if (!previous) return null;
+  return Math.round(((current - previous) / previous) * 100);
+};
+
+const renderSparkline = (series = []) => {
+  const values = series.length ? series.map((point) => point.value) : [0, 0, 0, 0, 0];
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = Math.max(max - min, 1);
+  const points = values
+    .map((value, index) => {
+      const x = values.length === 1 ? 98 : (index / (values.length - 1)) * 196 + 2;
+      const y = 58 - ((value - min) / range) * 48;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+
+  return `
+    <svg class="analytics-sparkline" viewBox="0 0 200 64" aria-hidden="true" focusable="false">
+      <polyline points="${points}" />
+      <circle cx="198" cy="${values.length ? (58 - ((values[values.length - 1] - min) / range) * 48).toFixed(1) : 58}" r="4" />
+    </svg>
+  `;
+};
+
+const renderAnalyticsTrend = (trend) => {
+  if (trend === null || trend === undefined || !Number.isFinite(Number(trend))) {
+    return `<span class="analytics-trend neutral">No prior data</span>`;
+  }
+
+  const value = Number(trend);
+  const tone = value > 0 ? "positive" : value < 0 ? "negative" : "neutral";
+  const icon = value > 0 ? "arrow-up" : value < 0 ? "arrow-down" : "minus";
+  return `
+    <span class="analytics-trend ${tone}">
+      <i data-lucide="${icon}"></i>
+      ${escapeHtml(Math.abs(value))}% <em>vs previous period</em>
+    </span>
+  `;
+};
+
+const renderAnalyticsKpiCard = ({ title, value, note, icon, trendWindow }) => {
+  const series = getAnalyticsUserGrowthSeries();
+  const trend = analyticsTrend(series, trendWindow);
+
+  return `
+    <section class="analytics-kpi-card reveal">
+      <div class="analytics-kpi-icon"><i data-lucide="${escapeHtml(icon)}"></i></div>
+      <div class="analytics-kpi-copy">
+        <p>${escapeHtml(title)}</p>
+        <strong data-count="${escapeHtml(value)}">${escapeHtml(wholeNumber(value))}</strong>
+        <span>${escapeHtml(note)}</span>
+      </div>
+      ${renderSparkline(series)}
+      ${renderAnalyticsTrend(trend)}
+    </section>
+  `;
+};
+
+const completionLabel = (key) => {
+  const raw = String(key ?? "").trim();
+  const value = Number(raw);
+
+  if (Number.isFinite(value)) {
+    if (value <= 0) return "Not started";
+    if (value >= 100) return "100% completed";
+    return `${value}% completed`;
+  }
+
+  return raw || "Unknown";
+};
+
+const completionTone = (key) => {
+  const value = Number(key);
+  if (Number.isFinite(value) && value <= 0) return "danger";
+  if (Number.isFinite(value) && value >= 100) return "success";
+  return "partial";
+};
+
+const getCompletionRows = () => {
+  const rows = (Array.isArray(state.analytics?.learningProgress) ? state.analytics.learningProgress : []).map((item, index) => {
+    const key = item?._id ?? item?.progress ?? item?.label ?? index;
+    return {
+      key,
+      label: completionLabel(key),
+      value: pickNumber(item, ["count", "learners", "value"]),
+      tone: completionTone(key),
+    };
+  });
+
+  return rows.filter((row) => row.value >= 0);
+};
+
+const getPopularCourseRows = () =>
+  (Array.isArray(state.analytics?.popularCourses) ? state.analytics.popularCourses : [])
+    .map((course, index) => ({
+      title: course?.title || course?.name || "Untitled course",
+      learners: pickNumber(course, ["learners", "enrollments", "students", "count"]),
+      index,
+    }))
+    .sort((a, b) => b.learners - a.learners || a.index - b.index);
+
+const renderAnalyticsEmpty = (message) => `
+  <div class="analytics-empty-state">
+    <span>No data</span>
+    <p>${escapeHtml(message)}</p>
+  </div>
+`;
+
+const renderAnalyticsSkeleton = () => `
+  <section class="analytics-overview-page">
+    <div class="analytics-overview-header card reveal">
+      <div>
+        <span class="analytics-skeleton-line short"></span>
+        <span class="analytics-skeleton-line"></span>
+      </div>
+      <span class="analytics-skeleton-button"></span>
+    </div>
+    <div class="analytics-kpi-grid">
+      ${Array.from({ length: 3 }).map(() => `<section class="analytics-kpi-card analytics-page-skeleton"></section>`).join("")}
+    </div>
+    <div class="analytics-chart-grid">
+      ${Array.from({ length: 4 }).map(() => `<section class="analytics-panel analytics-page-skeleton"></section>`).join("")}
+    </div>
+  </section>
+`;
+
+const renderCompletionLegend = (rows) => {
+  const total = rows.reduce((sum, row) => sum + row.value, 0);
+
+  return `
+    <div class="analytics-completion-legend">
+      ${rows.map((row) => {
+        const share = total ? (row.value / total) * 100 : 0;
+        return `
+          <div class="analytics-completion-row">
+            <span class="analytics-legend-dot ${escapeHtml(row.tone)}"></span>
+            <span>${escapeHtml(row.label)}</span>
+            <strong>${escapeHtml(wholeNumber(row.value))}</strong>
+            <em>${escapeHtml(percentLabel(share))}</em>
+          </div>
+        `;
+      }).join("") || renderAnalyticsEmpty("Completion data is not available yet.")}
+    </div>
+  `;
+};
+
+const renderPopularCoursesOverview = () => {
+  const courses = getPopularCourseRows();
+  const total = courses.reduce((sum, course) => sum + course.learners, 0);
+  const max = Math.max(...courses.map((course) => course.learners), 1);
+
+  return `
+    <section class="analytics-panel analytics-popular-panel reveal">
+      <div class="analytics-panel-head">
+        <div>
+          <h2>Popular Courses</h2>
+          <p>Learner demand</p>
+        </div>
+        <span class="analytics-count-pill">${escapeHtml(courses.length)} courses</span>
+      </div>
+      <div class="analytics-popular-list">
+        ${courses.map((course, index) => {
+          const share = total ? (course.learners / total) * 100 : 0;
+          const width = Math.max((course.learners / max) * 100, course.learners ? 6 : 0);
+          return `
+            <div class="analytics-popular-row">
+              <span class="analytics-rank">${index + 1}</span>
+              <strong>${escapeHtml(course.title)}</strong>
+              <span class="analytics-demand-bar"><i style="width:${width}%"></i></span>
+              <b>${escapeHtml(wholeNumber(course.learners))}</b>
+              <em>${escapeHtml(percentLabel(share))}</em>
+            </div>
+          `;
+        }).join("") || renderAnalyticsEmpty("No popular courses were returned by the analytics API.")}
+      </div>
+    </section>
+  `;
+};
+
+const renderAnalyticsOverview = () => {
+  const analytics = state.analytics || {};
+  const growthRows = getAnalyticsUserGrowthSeries();
+  const completionRows = getCompletionRows();
+  const completionTotal = completionRows.reduce((sum, row) => sum + row.value, 0);
+  const monthlyRows = getAnalyticsMonthlyRegistrations();
+  const range = getAnalyticsRangeDays();
+
+  return `
+    <section class="analytics-overview-page">
+      <div class="analytics-overview-header reveal">
+        <div>
+          <h2>Analytics Overview</h2>
+          <p>Learning activity and growth insights</p>
+        </div>
+        <div class="analytics-overview-actions">
+          <label class="analytics-range-control">
+            <i data-lucide="calendar-days"></i>
+            <select data-analytics-range aria-label="Analytics date range">
+              ${[[7, "Last 7 days"], [30, "Last 30 days"], [90, "Last 90 days"], [365, "Last 12 months"]].map(([value, label]) => `
+                <option value="${value}" ${range === value ? "selected" : ""}>${label}</option>
+              `).join("")}
+            </select>
+            <i data-lucide="chevron-down"></i>
+          </label>
+          <button class="analytics-action-btn" data-export-analytics type="button">
+            <i data-lucide="download"></i>
+            Export
+          </button>
+          <button class="analytics-action-btn icon-only ${state.loading ? "loading" : ""}" data-refresh-analytics type="button" aria-label="Refresh analytics" ${state.loading ? "disabled" : ""}>
+            <i data-lucide="refresh-cw"></i>
+          </button>
+        </div>
+      </div>
+
+      <section class="analytics-kpi-grid" aria-label="Active user metrics">
+        ${renderAnalyticsKpiCard({ title: "Daily Active", value: analytics.activeUsers?.daily ?? 0, note: "active today", icon: "user", trendWindow: 1 })}
+        ${renderAnalyticsKpiCard({ title: "Weekly Active", value: analytics.activeUsers?.weekly ?? 0, note: "active this week", icon: "users", trendWindow: 7 })}
+        ${renderAnalyticsKpiCard({ title: "Monthly Active", value: analytics.activeUsers?.monthly ?? 0, note: "active this month", icon: "calendar-days", trendWindow: 30 })}
+      </section>
+
+      <section class="analytics-chart-grid">
+        <section class="analytics-panel analytics-growth-panel reveal">
+          <div class="analytics-panel-head">
+            <div>
+              <h2>User Growth</h2>
+              <p>New users by period</p>
+            </div>
+            <span class="analytics-count-pill">${escapeHtml(wholeNumber(growthRows.reduce((sum, row) => sum + row.value, 0)))} total</span>
+          </div>
+          <div class="analytics-chart-shell large">
+            ${growthRows.length ? `<canvas id="analytics-user-growth-chart" class="chart-canvas"></canvas>` : renderAnalyticsEmpty("No user growth records are available for this range.")}
+          </div>
+        </section>
+
+        <section class="analytics-panel analytics-completion-panel reveal">
+          <div class="analytics-panel-head">
+            <div>
+              <h2>Course Completion</h2>
+              <p>Progress distribution</p>
+            </div>
+          </div>
+          <div class="analytics-completion-layout">
+            <div class="analytics-donut-shell">
+              ${completionRows.length ? `<canvas id="analytics-course-completion-chart" class="chart-canvas"></canvas>` : renderAnalyticsEmpty("No completion records are available yet.")}
+              ${completionRows.length ? `<div class="analytics-donut-center"><strong>${escapeHtml(wholeNumber(completionTotal))}</strong><span>total learners</span></div>` : ""}
+            </div>
+            ${renderCompletionLegend(completionRows)}
+          </div>
+        </section>
+
+        <section class="analytics-panel analytics-registrations-panel reveal">
+          <div class="analytics-panel-head">
+            <div>
+              <h2>Monthly Registrations</h2>
+              <p>Registration trend</p>
+            </div>
+          </div>
+          <div class="analytics-chart-shell">
+            ${monthlyRows.length ? `<canvas id="analytics-monthly-registrations-chart" class="chart-canvas"></canvas>` : renderAnalyticsEmpty("No monthly registrations were returned by the analytics API.")}
+          </div>
+        </section>
+
+        ${renderPopularCoursesOverview()}
+      </section>
+    </section>
+  `;
+};
+
+const exportAnalyticsCsv = () => {
+  const growthRows = getAnalyticsUserGrowthSeries();
+  const completionRows = getCompletionRows();
+  const monthlyRows = getAnalyticsMonthlyRegistrations();
+  const popularRows = getPopularCourseRows();
+  const activeUsers = state.analytics?.activeUsers || {};
+  const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
+  const rows = [
+    ["Section", "Label", "Value", "Secondary"],
+    ["Active users", "Daily Active", activeUsers.daily ?? 0, "active today"],
+    ["Active users", "Weekly Active", activeUsers.weekly ?? 0, "active this week"],
+    ["Active users", "Monthly Active", activeUsers.monthly ?? 0, "active this month"],
+    ...growthRows.map((row) => ["User Growth", row.key, row.value, ""]),
+    ...completionRows.map((row) => ["Course Completion", row.label, row.value, ""]),
+    ...monthlyRows.map((row) => ["Monthly Registrations", row.key, row.value, row.secondaryValue ?? ""]),
+    ...popularRows.map((row, index) => ["Popular Courses", `${index + 1}. ${row.title}`, row.learners, ""]),
+  ];
+  const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `analytics-overview-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  setMessage("Analytics export downloaded.");
 };
 
 const compactNumber = (value) => new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 }).format(Number(value || 0));
@@ -2982,28 +3396,8 @@ const renderLessonPreviewModal = (item) => {
 };
 
 const renderAnalytics = () => {
-  const analytics = state.analytics || {};
-  return `
-    <section class="page-hero card reveal">
-      <div>
-        <p class="eyebrow">Trust and analytics</p>
-        <h2>Performance signals for the full CrackWithAI platform.</h2>
-        <p>Charts and KPI blocks are loaded from the existing analytics API and styled for fast operational review.</p>
-      </div>
-    </section>
-    <section class="analytics-kpis">
-      ${metricCard("Daily active", analytics.activeUsers?.daily ?? 0, "active today", "sun")}
-      ${metricCard("Weekly active", analytics.activeUsers?.weekly ?? 0, "active this week", "calendar-days")}
-      ${metricCard("Monthly active", analytics.activeUsers?.monthly ?? 0, "active this month", "calendar-range")}
-    </section>
-    <div class="grid dashboard-panels analytics-layout">
-      ${analyticsTableCard("User Growth", "New users by period", analytics.userGrowth)}
-      ${analyticsTableCard("Course Completion", "Progress distribution", analytics.learningProgress, "_id", "count")}
-      ${analyticsBarChartCard("Monthly Registrations", "Registration trend", "chart-monthly-registrations")}
-      ${analyticsTableCard("Popular Courses", "Learner demand", analytics.popularCourses, "title", "learners")}
-      ${analyticsTableCard("Top AI Tools", "Featured and active usage signals", (analytics.topAiTools || []).map((tool) => ({ title: tool.name, count: tool.count || (tool.isFeatured ? 2 : 1) })), "title", "count")}
-    </div>
-  `;
+  if (state.loading && !state.analytics) return renderAnalyticsSkeleton();
+  return renderAnalyticsOverview();
 };
 
 const renderSettings = () => {
@@ -3237,6 +3631,7 @@ const renderApp = () => {
   document.body.classList.toggle("lessons-admin-page", state.view === "lessons");
   document.body.classList.toggle("quizzes-admin-page", state.view === "quizzes");
   document.body.classList.toggle("ai-tools-admin-page", state.view === "aiTools");
+  document.body.classList.toggle("analytics-admin-page", state.view === "analytics");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
@@ -3300,6 +3695,163 @@ const initCharts = () => {
   if (typeof Chart === 'undefined') return;
   try {
     const makeDataset = (arr, valueKey='count') => ({labels:(arr||[]).map(a=>a._id||a.title||a.name||''),data:(arr||[]).map(a=>Number(a[valueKey]||0))});
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    const analyticsAnimation = prefersReducedMotion ? false : { duration: 850, easing: 'easeOutQuart' };
+    const analyticsGridColor = 'rgba(11, 15, 12, 0.08)';
+    const analyticsGrowthRows = getAnalyticsUserGrowthSeries();
+    const analyticsGrowthCtx = document.getElementById('analytics-user-growth-chart');
+
+    if (analyticsGrowthCtx && analyticsGrowthRows.length) {
+      const chartContext = analyticsGrowthCtx.getContext('2d');
+      const gradient = chartContext.createLinearGradient(0, 0, 0, 280);
+      gradient.addColorStop(0, 'rgba(22, 163, 74, 0.24)');
+      gradient.addColorStop(1, 'rgba(22, 163, 74, 0)');
+
+      new Chart(chartContext, {
+        type: 'line',
+        data: {
+          labels: analyticsGrowthRows.map((row) => row.label),
+          datasets: [{
+            label: 'New users',
+            data: analyticsGrowthRows.map((row) => row.value),
+            borderColor: '#15803D',
+            backgroundColor: gradient,
+            borderWidth: 3,
+            pointBackgroundColor: '#15803D',
+            pointBorderColor: '#FFFFFF',
+            pointBorderWidth: 3,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.42,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: analyticsAnimation,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              displayColors: false,
+              callbacks: {
+                title: (items) => analyticsGrowthRows[items[0].dataIndex]?.key || "",
+                label: (item) => `New users: ${wholeNumber(item.raw)}`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#4b5563', maxRotation: 0, autoSkip: true },
+              border: { display: false },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: analyticsGridColor, borderDash: [4, 4] },
+              ticks: { color: '#4b5563', precision: 0 },
+              border: { display: false },
+            },
+          },
+        },
+      });
+    }
+
+    const completionRows = getCompletionRows();
+    const completionCtx = document.getElementById('analytics-course-completion-chart');
+    if (completionCtx && completionRows.length) {
+      new Chart(completionCtx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: completionRows.map((row) => row.label),
+          datasets: [{
+            data: completionRows.map((row) => row.value),
+            backgroundColor: completionRows.map((row) => (
+              row.tone === 'danger' ? '#E3262E' : row.tone === 'success' ? '#15803D' : '#86EFAC'
+            )),
+            borderColor: '#FFFFFF',
+            borderWidth: 4,
+            hoverOffset: 4,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          animation: analyticsAnimation,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (item) => `${item.label}: ${wholeNumber(item.raw)}`,
+              },
+            },
+          },
+        },
+      });
+    }
+
+    const monthlyRows = getAnalyticsMonthlyRegistrations();
+    const monthlyCtx = document.getElementById('analytics-monthly-registrations-chart');
+    if (monthlyCtx && monthlyRows.length) {
+      const hasSecondary = monthlyRows.some((row) => row.secondaryValue !== null && row.secondaryValue !== undefined);
+      const datasets = [{
+        label: 'Registrations',
+        data: monthlyRows.map((row) => row.value),
+        backgroundColor: '#15803D',
+        borderRadius: 8,
+        borderSkipped: false,
+        barPercentage: hasSecondary ? 0.72 : 0.52,
+        categoryPercentage: 0.72,
+      }];
+
+      if (hasSecondary) {
+        datasets.push({
+          label: monthlyRows.find((row) => row.secondaryLabel)?.secondaryLabel || 'Comparison',
+          data: monthlyRows.map((row) => row.secondaryValue || 0),
+          backgroundColor: '#E3262E',
+          borderRadius: 8,
+          borderSkipped: false,
+          barPercentage: 0.72,
+          categoryPercentage: 0.72,
+        });
+      }
+
+      new Chart(monthlyCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: monthlyRows.map((row) => row.label),
+          datasets,
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: analyticsAnimation,
+          plugins: {
+            legend: { display: hasSecondary, position: 'top', labels: { color: '#4b5563', boxWidth: 12, usePointStyle: true } },
+            tooltip: {
+              callbacks: {
+                title: (items) => monthlyRows[items[0].dataIndex]?.key || "",
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#4b5563', maxRotation: 0 },
+              border: { display: false },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: analyticsGridColor, borderDash: [4, 4] },
+              ticks: { color: '#4b5563', precision: 0 },
+              border: { display: false },
+            },
+          },
+        },
+      });
+    }
 
     const growthModel = getUserGrowthModel(state.analytics || {}, state.stats || {});
     const ctx1 = document.getElementById('chart-user-growth');
@@ -3494,6 +4046,12 @@ const bindEvents = () => {
     state.analyticsFilters.userGrowthDays = Number(event.target.value || 7);
     render();
   });
+  document.querySelector("[data-analytics-range]")?.addEventListener("change", (event) => {
+    state.analyticsFilters.analyticsRange = Number(event.target.value || 30);
+    render();
+  });
+  document.querySelector("[data-refresh-analytics]")?.addEventListener("click", refreshAnalyticsOverview);
+  document.querySelector("[data-export-analytics]")?.addEventListener("click", exportAnalyticsCsv);
   document.querySelectorAll("[data-calendar-month]").forEach((button) => {
     button.addEventListener("click", () => {
       const action = button.dataset.calendarMonth;
