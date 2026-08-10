@@ -2356,29 +2356,44 @@ const initCharts = () => {
     const ctx1 = document.getElementById('chart-user-growth');
     if (ctx1 && growthModel.points.length) {
       const chartContext = ctx1.getContext('2d');
-      const gradient = chartContext.createLinearGradient(0, 0, 0, 280);
-      gradient.addColorStop(0, 'rgba(117,63,24,0.26)');
-      gradient.addColorStop(0.72, 'rgba(184,123,56,0.1)');
-      gradient.addColorStop(1, 'rgba(117,63,24,0)');
+      const gradientOrange = chartContext.createLinearGradient(0, 0, 0, 280);
+      gradientOrange.addColorStop(0, 'rgba(242, 140, 115, 0.35)');
+      gradientOrange.addColorStop(1, 'rgba(242, 140, 115, 0)');
+
+      const gradientTeal = chartContext.createLinearGradient(0, 0, 0, 280);
+      gradientTeal.addColorStop(0, 'rgba(88, 195, 170, 0.35)');
+      gradientTeal.addColorStop(1, 'rgba(88, 195, 170, 0)');
 
       new Chart(chartContext, {
         type: 'line',
         data: {
           labels: growthModel.points.map((point) => point.label),
-          datasets: [{
-            label: 'Total users',
-            data: growthModel.points.map((point) => point.total),
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: 'rgba(91,45,16,1)',
-            pointBorderWidth: 3,
-            pointHoverRadius: 6,
-            pointRadius: 4,
-            backgroundColor: gradient,
-            borderColor: 'rgba(91,45,16,1)',
-            borderWidth: 4,
-            tension: 0.34,
-            fill: true,
-          }],
+          datasets: [
+            {
+              label: 'Total users',
+              data: growthModel.points.map((point) => point.total),
+              yAxisID: 'y',
+              backgroundColor: gradientOrange,
+              borderColor: 'rgba(242, 140, 115, 1)',
+              borderWidth: 2,
+              tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              fill: true,
+            },
+            {
+              label: 'New users',
+              data: growthModel.points.map((point) => point.newUsers),
+              yAxisID: 'y1',
+              backgroundColor: gradientTeal,
+              borderColor: 'rgba(88, 195, 170, 1)',
+              borderWidth: 2,
+              tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              fill: true,
+            }
+          ],
         },
         options: {
           responsive: true,
@@ -2405,13 +2420,19 @@ const initCharts = () => {
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: '#8a7668', font: { weight: 700 } },
+              ticks: { color: '#64748b', font: { weight: 500 } },
             },
             y: {
               beginAtZero: false,
-              grid: { color: 'rgba(117,63,24,0.12)', drawBorder: false },
-              ticks: { color: '#8a7668', callback: (value) => compactNumber(value) },
+              grid: { color: '#f1f5f9', drawBorder: false },
+              ticks: { display: false },
             },
+            y1: {
+              beginAtZero: true,
+              position: 'right',
+              grid: { display: false },
+              ticks: { display: false },
+            }
           },
         },
       });
