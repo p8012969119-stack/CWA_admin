@@ -3954,3 +3954,320 @@ body {
     padding: 14px;
   }
 }
+
+/* CrackWithAI admin monochrome theme */
+:root {
+  --bg: #f5f5f5;
+  --bg-strong: #ffffff;
+  --panel: #ffffff;
+  --panel-soft: #f7f7f7;
+  --border: #e5e5e5;
+  --border-strong: #cfcfcf;
+  --muted: #6b7280;
+  --text: #09090b;
+  --text-soft: #27272a;
+  --primary: #09090b;
+  --primary-strong: #000000;
+  --primary-soft: #f0f0f0;
+  --secondary: #525252;
+  --secondary-strong: #171717;
+  --secondary-soft: #f5f5f5;
+  --danger: #111111;
+  --danger-bg: #f4f4f5;
+  --warning: #404040;
+  --warning-bg: #f5f5f5;
+  --shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.05);
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 26px 68px rgba(0, 0, 0, 0.12);
+}
+
+html.dark {
+  --bg: #050505;
+  --bg-strong: #111111;
+  --panel: #111111;
+  --panel-soft: #171717;
+  --border: #2f2f2f;
+  --border-strong: #525252;
+  --muted: #a3a3a3;
+  --text: #ffffff;
+  --text-soft: #e5e5e5;
+  --primary-soft: rgba(255, 255, 255, 0.08);
+  --secondary-soft: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background:
+    radial-gradient(circle at 45% -12%, rgba(0, 0, 0, 0.06), transparent 32rem),
+    linear-gradient(135deg, var(--bg), var(--bg-strong));
+  color: var(--text);
+}
+
+body::before {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.12);
+}
+
+.auth-view {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(0, 0, 0, 0.06), transparent 18rem),
+    linear-gradient(135deg, #ffffff 0%, #f4f4f5 100%);
+}
+
+.auth-panel-inner,
+.field input,
+.field select,
+.field textarea {
+  border-color: var(--border);
+  background: #ffffff;
+  color: var(--text);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar {
+  background:
+    radial-gradient(circle at 24% 6%, rgba(255, 255, 255, 0.14), transparent 12rem),
+    linear-gradient(180deg, #18181b 0%, #09090b 58%, #000000 100%);
+  color: #ffffff;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08), 18px 0 42px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar .brand,
+.brand-mark,
+.sidebar-upgrade b {
+  color: #ffffff;
+}
+
+.brand-mark {
+  border-color: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 0 0 7px rgba(255, 255, 255, 0.08);
+}
+
+.brand small,
+.nav-section,
+.sidebar-upgrade p,
+.sidebar-copy {
+  color: #d4d4d8;
+}
+
+.nav button {
+  color: #f4f4f5;
+}
+
+.nav button .ui-icon {
+  color: #d4d4d8;
+}
+
+.nav button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.nav button.active {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+}
+
+.nav button.active .ui-icon {
+  color: #000000;
+}
+
+.sidebar-upgrade {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-upgrade .btn {
+  background: #ffffff;
+  color: #000000;
+}
+
+.topbar {
+  border-bottom-color: var(--border);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.breadcrumb,
+.profile,
+.icon-btn,
+.btn.secondary {
+  color: #111111;
+}
+
+.search,
+.icon-btn,
+.profile {
+  border-color: var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile {
+  background: #f4f4f5;
+}
+
+.btn,
+.btn.danger {
+  background: #000000;
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16);
+}
+
+.btn:hover,
+.btn.danger:hover {
+  background: #27272a;
+}
+
+.btn.secondary {
+  border-color: #d4d4d8;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.btn.secondary:hover {
+  border-color: #000000;
+  background: #f4f4f5;
+}
+
+.card,
+.entity-card,
+.quick-card,
+.stat-chip,
+.hero-card,
+.page-hero,
+.workspace-shell,
+.profile-hero,
+.metric-card,
+.premium-analytics-grid .analytics-card,
+.analytics-layout .analytics-card {
+  border-color: var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover,
+.entity-card:hover,
+.quick-card:hover {
+  border-color: #a3a3a3;
+  box-shadow: var(--shadow);
+}
+
+.eyebrow,
+.metric-label,
+.metric-note,
+.analytics-table th,
+.audit-table th,
+.analytics-empty {
+  color: #71717a;
+}
+
+.hero-card h2,
+.metric-value,
+.analytics-layout .bar-row span:last-child,
+.analytics-table tbody td:first-child,
+.audit-table .audit-description {
+  color: #000000;
+}
+
+.metric-icon,
+.stat-chip .ui-icon,
+.settings-box-head .ui-icon,
+.quick-card .ui-icon {
+  background: #f4f4f5;
+  color: #000000;
+}
+
+.trend-badge,
+.mini,
+.metric-footer .trend-badge,
+.analytics-table-count {
+  border-color: #d4d4d8;
+  background: #f4f4f5;
+  color: #111111;
+}
+
+.growth-summary div,
+.registration-summary div,
+.calendar-day-report,
+.chart-wrap,
+.course-usage-row,
+.bulkbar,
+.sticky-save,
+.meta-item,
+.permission-band,
+.tool-integration,
+.analytics-table tbody tr,
+.audit-table tbody tr {
+  border-color: var(--border);
+  background: #fafafa;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.calendar-cell,
+.heat-0 {
+  background: #ffffff;
+}
+
+.calendar-cell:hover,
+.calendar-cell:focus-visible,
+.calendar-cell.selected {
+  border-color: #000000;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+.heat-1 { background: #f5f5f5; }
+.heat-2 { background: #e5e5e5; }
+.heat-3 { background: #a3a3a3; color: #000000; }
+.heat-4 { background: #525252; color: #ffffff; }
+.heat-5 { background: #000000; color: #ffffff; }
+
+.course-thumb,
+.avatar,
+.avatar-admin,
+.avatar-module,
+.avatar-lesson,
+.avatar-quiz {
+  background: linear-gradient(135deg, #111111, #525252);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16);
+}
+
+.progress-track,
+.bar-row div,
+.course-progress-line,
+.analytics-share {
+  background: #e5e5e5;
+}
+
+.progress-track i,
+.bar-row i,
+.course-progress-line i,
+.analytics-share i {
+  background: linear-gradient(90deg, #000000, #737373);
+}
+
+.pill.ok,
+.pill.warn,
+.pill.danger {
+  background: #f4f4f5;
+  color: #111111;
+}
+
+.analytics-table tbody td,
+.audit-table td {
+  color: #525252;
+}
