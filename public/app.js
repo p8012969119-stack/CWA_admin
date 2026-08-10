@@ -1614,30 +1614,10 @@ const renderPopularCoursesCard = (analytics) => {
 const renderLogin = () => {
   app.innerHTML = `
     <section class="auth-view">
-      <div class="auth-brand-stage" aria-hidden="true">
-        <div class="auth-brand-lockup">
-          <span class="brand-mark">C</span>
-          <span><b>CrackWithAI</b><small>Admin Panel</small></span>
-        </div>
-        <div class="auth-preview-card">
-          <p class="eyebrow">Command center</p>
-          <h2>Control your AI learning platform.</h2>
-          <p>Manage courses, users, tools, quizzes, certificates, and platform health from one secure workspace.</p>
-          <div class="auth-preview-metrics">
-            <span><b>17</b><small>users</small></span>
-            <span><b>15</b><small>courses</small></span>
-            <span><b>7</b><small>AI tools</small></span>
-          </div>
-        </div>
-      </div>
       <div class="auth-panel">
         <div class="auth-panel-inner">
-          <div class="auth-mobile-brand">
-            <span class="brand-mark">C</span>
-            <span><b>CrackWithAI</b><small>Admin Panel</small></span>
-          </div>
+          <p class="brand">CrackWithAI Admin</p>
           <div class="login-hero">
-            <p class="eyebrow">Admin access</p>
             <h1>Login to your account</h1>
             <p class="subtitle">Enter your credentials to access the admin dashboard.</p>
           </div>

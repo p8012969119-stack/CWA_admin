@@ -12,7 +12,7 @@ PORT=3000
 
 ## Deploy build
 
-Use Dockerfile deployment only.
+Use Dockerfile deployment.
 
 If the deploy platform asks for Docker settings, set:
 
@@ -20,6 +20,9 @@ If the deploy platform asks for Docker settings, set:
 Dockerfile Path: Dockerfile
 Build Context: .
 ```
+
+For Docker Compose deployments, use the included `docker-compose.yml`; it already
+sets `build.context: .`.
 
 The app stores only the admin JWT in browser `localStorage` and sends it as a Bearer token to admin-protected backend routes.
 

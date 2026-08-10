@@ -1,0 +1,13 @@
+services:
+  cwa-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cwa-admin:latest
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      ADMIN_API_BASE_URL: ${ADMIN_API_BASE_URL:-https://api.crackwithai.net/api}
+    ports:
+      - "${PORT:-3000}:3000"
+    restart: unless-stopped
