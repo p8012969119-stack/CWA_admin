@@ -604,75 +604,121 @@ const renderAdminCard = (item) =>
   `);
 
 const renderCourseCard = (item) =>
-  cardShell("courses", item, `
-    <div class="course-thumb">
-      ${item.thumbnail ? `<img src="${escapeHtml(item.thumbnail)}" alt="" loading="lazy" />` : `<i data-lucide="graduation-cap"></i>`}
-      ${statusPill(item.status)}
-    </div>
-    <div class="entity-copy">
-      <p class="eyebrow">${escapeHtml(item.level || "Course")}</p>
-      <h3>${escapeHtml(item.title || "Untitled course")}</h3>
-      <p>${escapeHtml(compactText(item.shortDescription || item.description))}</p>
-    </div>
-    <div class="entity-meta">
-      ${metaItem("Duration", `${Number(item.duration || 0)} min`)}
-      ${metaItem("Students", item.enrolledUsers || item.students || item.learners || "-")}
-      ${metaItem("Price", item.isFree ? "Free" : `Rs ${Number(item.price || 0)}`)}
-      ${metaItem("Updated", formatDate(item.updatedAt || item.createdAt))}
-    </div>
-  `);
-
-const renderCoursesTable = (items, isEmpty) => `
-  <section class="card courses-table-card reveal">
-    <div class="courses-table-wrap">
-      <table class="courses-table">
-        <thead>
-          <tr>
-            <th scope="col">Course</th>
-            <th scope="col">Level</th>
-            <th scope="col">Status</th>
-            <th scope="col">Duration</th>
-            <th scope="col">Students</th>
-            <th scope="col">Price</th>
-            <th scope="col">Updated</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((item) => `
-            <tr>
-              <td>
-                <span class="courses-table-course">
-                  <span class="course-table-thumb">
-                    ${item.thumbnail ? `<img src="${escapeHtml(item.thumbnail)}" alt="" loading="lazy" />` : `<i data-lucide="graduation-cap"></i>`}
-                  </span>
-                  <span>
-                    <b>${escapeHtml(item.title || "Untitled course")}</b>
-                    <small>${escapeHtml(compactText(item.shortDescription || item.description, item.slug || "Managed course"))}</small>
-                  </span>
-                </span>
-              </td>
-              <td>${escapeHtml(item.level || "-")}</td>
-              <td>${statusPill(item.status)}</td>
-              <td>${escapeHtml(`${Number(item.duration || 0)} min`)}</td>
-              <td>${escapeHtml(item.enrolledUsers || item.students || item.learners || "-")}</td>
-              <td>${escapeHtml(item.isFree ? "Free" : `Rs ${Number(item.price || 0)}`)}</td>
-              <td>${escapeHtml(formatDate(item.updatedAt || item.createdAt))}</td>
-              <td><div class="entity-actions courses-table-actions">${renderActions("courses", item)}</div></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>
-    ${isEmpty ? `
-      <div class="empty-state">
-        ${iconMarkup("inbox")}
-        <h3>No courses found</h3>
-        <p>Use Create or adjust the filters to add and manage records.</p>
+  `<article class="course-management-card">
+    <div class="course-card-top">
+      <span class="course-card-thumb">
+        ${item.thumbnail ? `<img src="${escapeHtml(item.thumbnail)}" alt="${escapeHtml(item.title || "Course")} thumbnail" loading="lazy" />` : `<i data-lucide="graduation-cap"></i>`}
+      </span>
+      <div class="course-card-heading">
+        <h3>${escapeHtml(item.title || "Untitled course")}</h3>
+        <div class="course-card-badges" aria-label="Course state">
+          <span class="pill muted">${escapeHtml(item.level || "Course")}</span>
+          ${statusPill(item.status)}
+        </div>
       </div>
-    ` : ""}
+    </div>
+
+    <p class="course-card-description">${escapeHtml(compactText(item.shortDescription || item.description, item.slug || "Managed course"))}</p>
+
+    <dl class="course-card-meta">
+      <div>
+        <dt>Duration</dt>
+        <dd>${escapeHtml(`${Number(item.duration || 0)} min`)}</dd>
+      </div>
+      <div>
+        <dt>Students</dt>
+        <dd>${escapeHtml(item.enrolledUsers || item.students || item.learners || "-")}</dd>
+      </div>
+      <div>
+        <dt>Price</dt>
+        <dd>${escapeHtml(item.isFree ? "Free" : `Rs ${Number(item.price || 0)}`)}</dd>
+      </div>
+      <div>
+        <dt>Updated</dt>
+        <dd>${escapeHtml(formatDate(item.updatedAt || item.createdAt))}</dd>
+      </div>
+    </dl>
+
+    <div class="course-card-actions">
+      ${renderCourseCardActions(item)}
+    </div>
+  </article>`;
+
+const renderCourseCardActions = (item) => {
+  const id = escapeHtml(item._id);
+  const busy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
+  const isPublished = String(item.status || "").toLowerCase() === "published";
+  const publishLabel = isPublished ? "Unpublish" : "Publish";
+  const nextStatus = isPublished ? "draft" : "published";
+  const button = (label, attributes, className = "mini", icon = "circle") =>
+    `<button class="${className}" ${attributes} ${busy} type="button">${iconMarkup(icon, label)}</button>`;
+
+  return `
+    ${button("Edit", `data-edit-record="courses:${id}" aria-label="Edit ${escapeHtml(item.title || "course")}"`, "mini secondary-action edit-action", "pencil")}
+    ${button(publishLabel, `data-status-record="courses:${id}:${nextStatus}" aria-label="${publishLabel} ${escapeHtml(item.title || "course")}"`, "mini primary-action", isPublished ? "eye-off" : "send")}
+    ${button("Archive", `data-status-record="courses:${id}:archived" aria-label="Archive ${escapeHtml(item.title || "course")}"`, "mini secondary-action", "archive")}
+    ${button("Duplicate", `data-duplicate-record="courses:${id}" aria-label="Duplicate ${escapeHtml(item.title || "course")}"`, "mini secondary-action", "copy")}
+    ${button("Delete", `data-delete-record="courses:${id}" aria-label="Delete ${escapeHtml(item.title || "course")}"`, "mini secondary-action danger-text", "trash-2")}
+  `;
+};
+
+const renderCoursesSkeleton = () => `
+  <section class="courses-grid-card card reveal" aria-label="Loading courses">
+    <div class="course-card-grid">
+      ${Array.from({ length: 6 }).map(() => `
+        <article class="course-management-card course-card-skeleton" aria-hidden="true">
+          <div class="course-card-top">
+            <span class="course-skeleton-thumb"></span>
+            <div class="course-skeleton-stack">
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <span class="course-skeleton-line wide"></span>
+          <span class="course-skeleton-line"></span>
+          <div class="course-skeleton-meta">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="course-skeleton-actions">
+            <span></span><span></span>
+          </div>
+        </article>
+      `).join("")}
+    </div>
   </section>
 `;
+
+const renderCoursesGrid = (items, isEmpty) => {
+  if (state.loading && isEmpty) return renderCoursesSkeleton();
+
+  if (state.error && isEmpty) {
+    return `
+      <section class="courses-grid-card card reveal">
+        <div class="course-state-card" role="alert">
+          ${iconMarkup("alert-circle")}
+          <h3>Unable to load courses</h3>
+          <p>${escapeHtml(state.error)}</p>
+          <button class="btn" data-refresh="courses" type="button">Retry</button>
+        </div>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="courses-grid-card card reveal">
+      <div class="course-card-grid">
+        ${items.map((item) => renderCourseCard(item)).join("")}
+      </div>
+      ${isEmpty ? `
+        <div class="course-state-card empty-state">
+          ${iconMarkup("inbox")}
+          <h3>No courses found</h3>
+          <p>Use Create or adjust the filters to add and manage records.</p>
+        </div>
+      ` : ""}
+    </section>
+  `;
+};
 
 const renderModuleCard = (item) =>
   cardShell("modules", item, `
@@ -1132,12 +1178,21 @@ const loadEntity = async (key) => {
   if (key === "users") params.set("limit", "100");
 
   const path = `${config.endpoint}${params.toString() ? `?${params.toString()}` : ""}`;
-  const response = await request(path);
-
-  state.data[key] = config.unwrap(response);
-  state.selectedIds = new Set();
-  state.view = key;
+  state.loading = true;
   render();
+
+  try {
+    const response = await request(path);
+    state.data[key] = config.unwrap(response);
+    state.selectedIds = new Set();
+    state.view = key;
+    state.error = "";
+  } catch (error) {
+    state.error = error.message;
+  } finally {
+    state.loading = false;
+    render();
+  }
 };
 
 const loadSettings = async () => {
@@ -2037,7 +2092,7 @@ const renderEntity = (key) => {
       ${statChip("Primary action", "Create", "plus-circle")}
       ${statChip("Data source", config.endpoint, "route")}
     </section>
-    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesTable(items, isEmpty) : key === "modules" ? renderModulesTable(items, isEmpty) : key === "lessons" ? renderLessonsTable(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
+    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesTable(items, isEmpty) : key === "lessons" ? renderLessonsTable(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
         ${isEmpty ? `
@@ -2066,8 +2121,9 @@ const renderBulkActions = () => `
 
 const renderActions = (key, item) => {
   const config = entityConfigs[key];
+  const busy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
   const actionButton = (label, attributes, className = "mini", icon = "circle") =>
-    `<button class="${className}" ${attributes} type="button">${iconMarkup(icon, label)}</button>`;
+    `<button class="${className}" ${attributes} ${busy} type="button">${iconMarkup(icon, label)}</button>`;
 
   return (config.actions || [])
     .map((action) => {
@@ -2376,6 +2432,8 @@ const renderApp = () => {
   else if (state.view === "auditLogs") content = renderAuditLogs();
   else if (state.view === "profile") content = renderProfile();
   else if (entityConfigs[state.view]) content = renderEntity(state.view);
+
+  document.body.classList.toggle("courses-admin-page", state.view === "courses");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
