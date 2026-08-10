@@ -4518,3 +4518,181 @@ textarea:focus-visible {
 .audit-table td {
   color: #525252;
 }
+
+/* Platform Overview Grid Design */
+.platform-overview-container {
+  background: #fdfbf7;
+  border: 1px solid rgba(220, 210, 200, 0.5);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.platform-overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.platform-overview-title .eyebrow {
+  color: #a87a51;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.platform-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.platform-title-row h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #4a3424;
+  margin: 0;
+}
+
+.platform-title-icon {
+  background: #f8e5d6;
+  color: #a87a51;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tracked-signals {
+  background: #fff;
+  border: 1px solid rgba(220, 210, 200, 0.5);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8c6a51;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.signal-dot {
+  width: 8px;
+  height: 8px;
+  background: #b88d6c;
+  border-radius: 50%;
+}
+
+.platform-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .platform-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .platform-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.platform-metric-card {
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.platform-metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.platform-metric-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.platform-metric-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.platform-metric-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+}
+
+.platform-metric-trend {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.platform-metric-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.platform-metric-note {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Themes */
+.theme-orange { background: #fffaf0; border-color: rgba(255,235,210,0.8); }
+.theme-orange .platform-metric-icon { background: #ffe4c4; color: #a05a2c; }
+.theme-orange .platform-metric-trend { background: #dcfce7; color: #166534; }
+
+.theme-green { background: #f2fcf5; border-color: rgba(210,245,225,0.8); }
+.theme-green .platform-metric-icon { background: #dcfce7; color: #166534; }
+.theme-green .platform-metric-trend { background: #e0f2fe; color: #0369a1; }
+
+.theme-purple { background: #faf5ff; border-color: rgba(235,220,250,0.8); }
+.theme-purple .platform-metric-icon { background: #f3e8ff; color: #6b21a8; }
+.theme-purple .platform-metric-trend { background: #f3e8ff; color: #6b21a8; }
+
+.theme-blue { background: #f0f9ff; border-color: rgba(210,235,255,0.8); }
+.theme-blue .platform-metric-icon { background: #e0f2fe; color: #0369a1; }
+.theme-blue .platform-metric-trend { background: #e0f2fe; color: #0369a1; }
+
+.theme-yellow { background: #fffbeb; border-color: rgba(250,240,210,0.8); }
+.theme-yellow .platform-metric-icon { background: #fef3c7; color: #92400e; }
+.theme-yellow .platform-metric-trend { background: #ffedd5; color: #c2410c; }
+
+.theme-pink { background: #fff1f2; border-color: rgba(255,225,230,0.8); }
+.theme-pink .platform-metric-icon { background: #ffe4e6; color: #9f1239; }
+.theme-pink .platform-metric-trend { background: #dcfce7; color: #166534; }
+
+.theme-cyan { background: #f0fdfa; border-color: rgba(210,250,245,0.8); }
+.theme-cyan .platform-metric-icon { background: #ccfbf1; color: #0f766e; }
+.theme-cyan .platform-metric-trend { background: #e0f2fe; color: #0369a1; }
+
+.theme-brown { background: #fffcfcf5; border-color: rgba(240,230,225,0.8); }
+.theme-brown .platform-metric-icon { background: #f5ece6; color: #5c4332; }
+.theme-brown .platform-metric-trend { background: #f5ece6; color: #5c4332; }
+

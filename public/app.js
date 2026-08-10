@@ -1186,44 +1186,51 @@ const metricCard = (label, value, note = "", icon = "activity", trend = "") => `
   </section>
 `;
 
-const renderDashboardMetricsTable = (rows) => `
-  <section class="card metrics-table-card reveal">
-    <div class="metrics-table-head">
-      <div>
-        <p class="eyebrow">Live metrics</p>
-        <h2>Platform overview</h2>
+const renderDashboardMetricsTable = (rows) => {
+  const themes = [
+    'theme-orange', 'theme-green', 'theme-purple', 'theme-blue',
+    'theme-yellow', 'theme-pink', 'theme-cyan', 'theme-brown'
+  ];
+  return `
+  <section class="platform-overview-container reveal">
+    <div class="platform-overview-header">
+      <div class="platform-overview-title">
+        <p class="eyebrow">LIVE METRICS</p>
+        <div class="platform-title-row">
+          <h2>Platform overview</h2>
+          <div class="platform-title-icon">
+            <i data-lucide="trending-up"></i>
+          </div>
+        </div>
       </div>
-      <span>${rows.length} tracked signals</span>
+      <div class="tracked-signals">
+        <span class="signal-dot"></span>
+        ${rows.length} tracked signals
+      </div>
     </div>
-    <div class="metrics-table-wrap">
-      <table class="metrics-table">
-        <thead>
-          <tr>
-            <th scope="col">Metric</th>
-            <th scope="col">Value</th>
-            <th scope="col">Detail</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>
-                <span class="metric-table-name">
-                  <span class="metric-icon metric-table-icon"><i data-lucide="${escapeHtml(row.icon)}"></i></span>
-                  <span>${escapeHtml(row.label)}</span>
-                </span>
-              </td>
-              <td><strong class="metric-table-value" data-count="${escapeHtml(row.value)}">${escapeHtml(row.value)}</strong></td>
-              <td>${escapeHtml(row.note || "-")}</td>
-              <td>${row.trend ? `<span class="trend-badge">${escapeHtml(row.trend)}</span>` : "-"}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
+    <div class="platform-metrics-grid">
+      ${rows.map((row, index) => {
+        const themeClass = themes[index % themes.length];
+        return \`
+          <div class="platform-metric-card \${themeClass}">
+            <div class="platform-metric-icon">
+              <i data-lucide="\${escapeHtml(row.icon)}"></i>
+            </div>
+            <div class="platform-metric-content">
+              <div class="platform-metric-top">
+                <span class="platform-metric-label">\${escapeHtml(row.label)}</span>
+                \${row.trend ? \`<span class="platform-metric-trend">\${escapeHtml(row.trend)}</span>\` : ''}
+              </div>
+              <div class="platform-metric-value" data-count="\${escapeHtml(row.value)}">\${escapeHtml(row.value)}</div>
+              <div class="platform-metric-note">\${escapeHtml(row.note || "-")}</div>
+            </div>
+          </div>
+        \`;
+      }).join("")}
     </div>
   </section>
-`;
+  `;
+};
 
 const bars = (items, labelKey = "_id", valueKey = "count") => {
   const list = items || [];
@@ -1745,14 +1752,14 @@ const renderDashboard = () => {
   const learning = stats.learning || {};
   const analytics = state.analytics || {};
   const dashboardMetrics = [
-    { label: "Total Users", value: users.total ?? 0, note: `${users.active ?? 0} active`, icon: "users", trend: "+ live" },
-    { label: "Daily Active", value: users.dailyActive ?? 0, note: `${users.weeklyActive ?? 0} weekly`, icon: "activity", trend: "today" },
-    { label: "Courses", value: courses.total ?? 0, note: `${courses.published ?? 0} published`, icon: "book-open", trend: "content" },
-    { label: "AI Tools", value: aiTools.total ?? 0, note: `${aiTools.active ?? 0} active`, icon: "bot", trend: "tools" },
-    { label: "Certificates", value: certs.issued ?? 0, note: "issued", icon: "award", trend: "trust" },
-    { label: "Registrations", value: users.newRegistrations ?? 0, note: "last 7 days", icon: "user-plus", trend: "growth" },
-    { label: "Avg Completion", value: `${learning.averageProgress ?? 0}%`, note: `${learning.completedEnrollments ?? 0} complete`, icon: "gauge", trend: "learning" },
-    { label: "Lessons", value: modules.lessons ?? 0, note: `${modules.total ?? 0} modules`, icon: "layers", trend: "library" }
+    { label: "Total Users", value: users.total ?? 0, note: `${users.active ?? 0} active`, icon: "users", trend: "Live" },
+    { label: "Daily Active", value: users.dailyActive ?? 0, note: `${users.weeklyActive ?? 0} weekly`, icon: "activity", trend: "Today" },
+    { label: "Courses", value: courses.total ?? 0, note: `${courses.published ?? 0} published`, icon: "graduation-cap", trend: "Content" },
+    { label: "AI Tools", value: aiTools.total ?? 0, note: `${aiTools.active ?? 0} active`, icon: "wand", trend: "Tools" },
+    { label: "Certificates", value: certs.issued ?? 0, note: "issued", icon: "shield", trend: "Trust" },
+    { label: "Registrations", value: users.newRegistrations ?? 0, note: "last 7 days", icon: "bar-chart-2", trend: "Growth" },
+    { label: "Avg Completion", value: `${learning.averageProgress ?? 0}%`, note: `${learning.completedEnrollments ?? 0} complete`, icon: "pie-chart", trend: "Learning" },
+    { label: "Lessons", value: modules.lessons ?? 0, note: `${modules.total ?? 0} modules`, icon: "book-open", trend: "Library" }
   ];
 
   return `
