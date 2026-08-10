@@ -898,76 +898,169 @@ const renderModulesGrid = (items, isEmpty) => {
   `;
 };
 
-const renderLessonCard = (item) =>
-  cardShell("lessons", item, `
-    <div class="entity-head">
-      ${avatarMarkup(`L${item.order || ""}`, "", "avatar-lesson")}
-      <div>
-        <p class="eyebrow">${escapeHtml(plainValue(item, "module.title", "Course lesson"))}</p>
-        <h3>${escapeHtml(item.title || "Untitled lesson")}</h3>
-        <p>${escapeHtml(plainValue(item, "course.title", "No course linked"))}</p>
-      </div>
-      ${statusPill(item.status)}
-    </div>
-    <div class="entity-meta">
-      ${metaItem("Type", item.videoUrl ? "Video" : item.content ? "Reading" : "Lesson")}
-      ${metaItem("Duration", `${Number(item.duration || 0)} min`)}
-      ${metaItem("Order", item.order || "-")}
-      ${metaItem("Preview", item.isPreview ? "Yes" : "No")}
-    </div>
-  `);
+const lessonIconLabel = (item) => {
+  const order = Number(item.order || 0);
+  if (order > 0 && order < 100) return `L${String(order).padStart(2, "0")}`;
+  return "L";
+};
 
-const renderLessonsTable = (items, isEmpty) => `
-  <section class="card lessons-table-card reveal">
-    <div class="lessons-table-wrap">
-      <table class="lessons-table">
-        <thead>
-          <tr>
-            <th scope="col">Lesson</th>
-            <th scope="col">Course</th>
-            <th scope="col">Module</th>
-            <th scope="col">Status</th>
-            <th scope="col">Type</th>
-            <th scope="col">Duration</th>
-            <th scope="col">Order</th>
-            <th scope="col">Preview</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((item) => `
-            <tr>
-              <td>
-                <span class="lessons-table-lesson">
-                  ${avatarMarkup(`L${item.order || ""}`, "", "avatar-lesson")}
-                  <span>
-                    <b>${escapeHtml(item.title || "Untitled lesson")}</b>
-                    <small>${escapeHtml(compactText(item.description || item.content, "Lesson content"))}</small>
-                  </span>
-                </span>
-              </td>
-              <td>${escapeHtml(plainValue(item, "course.title", "No course linked"))}</td>
-              <td>${escapeHtml(plainValue(item, "module.title", "Course lesson"))}</td>
-              <td>${statusPill(item.status)}</td>
-              <td>${escapeHtml(item.videoUrl ? "Video" : item.content ? "Reading" : "Lesson")}</td>
-              <td>${escapeHtml(`${Number(item.duration || 0)} min`)}</td>
-              <td>${escapeHtml(item.order || "-")}</td>
-              <td>${escapeHtml(item.isPreview ? "Yes" : "No")}</td>
-              <td><div class="entity-actions lessons-table-actions">${renderActions("lessons", item)}</div></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>
-    ${isEmpty ? `
-      <div class="empty-state">
-        ${iconMarkup("inbox")}
-        <h3>No lessons found</h3>
-        <p>Use Create or adjust the filters to add and manage records.</p>
+const getLessonType = (item) => {
+  const explicitType = item.contentType || item.lessonType || item.type;
+  if (explicitType) return String(explicitType).replace(/[-_]+/g, " ");
+  if (item.videoUrl) return "Video";
+  if (item.quiz || item.quizId) return "Quiz";
+  if (item.audioUrl) return "Audio";
+  if (item.documentUrl || item.pdfUrl) return "Document";
+  if (item.content) return "Reading";
+  return "Lesson";
+};
+
+const hasLessonPreview = (item) => Boolean(item.isPreview);
+
+const renderPreviewValue = (enabled) => `
+  <span class="lesson-preview-value ${enabled ? "is-available" : "is-unavailable"}">
+    <span aria-hidden="true"></span>${enabled ? "Yes" : "No"}
+  </span>
+`;
+
+const renderLessonCard = (item) => {
+  const title = item.title || "Untitled lesson";
+  const description = compactText(item.description || item.content, "Lesson content");
+  const courseTitle = plainValue(item, "course.title", "No course linked");
+  const moduleTitle = plainValue(item, "module.title", "Course lesson");
+  const lessonType = getLessonType(item);
+  const previewEnabled = hasLessonPreview(item);
+
+  return `<article class="lesson-management-card">
+    <div class="lesson-card-top">
+      <span class="lesson-card-icon" aria-hidden="true">${escapeHtml(lessonIconLabel(item))}</span>
+      <div class="lesson-card-heading">
+        <p class="lesson-card-kicker">${escapeHtml(lessonType)}</p>
+        <h3 title="${escapeHtml(title)}">${escapeHtml(title)}</h3>
       </div>
-    ` : ""}
+    </div>
+
+    <p class="lesson-card-description" title="${escapeHtml(description)}">${escapeHtml(description)}</p>
+
+    <div class="lesson-card-badges">
+      ${statusPill(item.status)}
+      <span class="lesson-type-badge">${escapeHtml(lessonType)}</span>
+    </div>
+
+    <dl class="lesson-card-meta">
+      <div>
+        <dt>Course</dt>
+        <dd title="${escapeHtml(courseTitle)}">${escapeHtml(courseTitle)}</dd>
+      </div>
+      <div>
+        <dt>Module</dt>
+        <dd title="${escapeHtml(moduleTitle)}">${escapeHtml(moduleTitle)}</dd>
+      </div>
+      <div>
+        <dt>Duration</dt>
+        <dd>${escapeHtml(`${Number(item.duration || 0)} min`)}</dd>
+      </div>
+      <div>
+        <dt>Order</dt>
+        <dd>${escapeHtml(item.order || "-")}</dd>
+      </div>
+      <div>
+        <dt>Type</dt>
+        <dd>${escapeHtml(lessonType)}</dd>
+      </div>
+      <div>
+        <dt>Preview</dt>
+        <dd>${renderPreviewValue(previewEnabled)}</dd>
+      </div>
+    </dl>
+
+    <div class="lesson-card-actions">
+      ${renderLessonCardActions(item)}
+    </div>
+  </article>`;
+};
+
+const renderLessonCardActions = (item) => {
+  const id = escapeHtml(item._id);
+  const status = String(item.status || "").toLowerCase();
+  const isPublished = status === "published";
+  const isArchived = status === "archived";
+  const previewEnabled = hasLessonPreview(item);
+  const busy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
+  const loader = state.loading ? `<span class="lesson-button-loader" aria-hidden="true"></span>` : "";
+  const button = (label, attributes, className = "mini", icon = "circle", disabled = false) =>
+    `<button class="${className}" ${attributes} ${busy} ${disabled ? "disabled aria-disabled=\"true\"" : ""} type="button">${loader || iconMarkup(icon)}<span>${escapeHtml(label)}</span></button>`;
+
+  const publishButton = isPublished
+    ? button("Unpublish", `data-status-record="lessons:${id}:draft" aria-label="Unpublish ${escapeHtml(item.title || "lesson")}"`, "mini lesson-action unpublish-action", "eye-off")
+    : button("Publish", `data-status-record="lessons:${id}:published" aria-label="Publish ${escapeHtml(item.title || "lesson")}" title="${isArchived ? "Archived lessons can be restored from Edit before publishing." : ""}"`, "mini lesson-action publish-action", "send", isArchived);
+
+  return `
+    ${button("Edit", `data-edit-record="lessons:${id}" aria-label="Edit ${escapeHtml(item.title || "lesson")}"`, "mini lesson-action edit-action", "pencil")}
+    ${button("Preview", `data-preview-lesson="${id}" aria-label="Preview ${escapeHtml(item.title || "lesson")}" title="${previewEnabled ? "Preview lesson" : "Preview is disabled for this lesson."}"`, "mini lesson-action preview-action", "eye", !previewEnabled)}
+    ${publishButton}
+    ${button("Archive", `data-status-record="lessons:${id}:archived" aria-label="Archive ${escapeHtml(item.title || "lesson")}"`, "mini lesson-action archive-action", "archive", isArchived)}
+    ${button("Delete", `data-delete-record="lessons:${id}" aria-label="Delete ${escapeHtml(item.title || "lesson")}"`, "mini lesson-action delete-action", "trash-2")}
+  `;
+};
+
+const renderLessonsSkeleton = () => `
+  <section class="lessons-grid-card card reveal" aria-label="Loading lessons">
+    <div class="lesson-card-grid">
+      ${Array.from({ length: 6 }).map(() => `
+        <article class="lesson-management-card lesson-card-skeleton" aria-hidden="true">
+          <div class="lesson-card-top">
+            <span class="lesson-skeleton-icon"></span>
+            <div class="lesson-skeleton-stack">
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <span class="lesson-skeleton-line wide"></span>
+          <span class="lesson-skeleton-line"></span>
+          <div class="lesson-skeleton-meta">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="lesson-skeleton-actions">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </article>
+      `).join("")}
+    </div>
   </section>
 `;
+
+const renderLessonsGrid = (items, isEmpty) => {
+  if (state.loading && isEmpty) return renderLessonsSkeleton();
+
+  if (state.error) {
+    return `
+      <section class="lessons-grid-card card reveal">
+        <div class="lesson-state-card" role="alert">
+          ${iconMarkup("alert-circle")}
+          <h3>Unable to load lessons</h3>
+          <p>${escapeHtml(state.error)}</p>
+          <button class="btn" data-refresh="lessons" type="button">Retry</button>
+        </div>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="lessons-grid-card card reveal">
+      <div class="lesson-card-grid">
+        ${items.map((item) => renderLessonCard(item)).join("")}
+      </div>
+      ${isEmpty ? `
+        <div class="lesson-state-card empty-state">
+          ${iconMarkup("inbox")}
+          <h3>No lessons found</h3>
+          <p>Use Create or adjust the filters to add and manage records.</p>
+        </div>
+      ` : ""}
+    </section>
+  `;
+};
 
 const renderQuizCard = (item) =>
   cardShell("quizzes", item, `
@@ -2203,7 +2296,7 @@ const renderEntity = (key) => {
       ${statChip("Primary action", "Create", "plus-circle")}
       ${statChip("Data source", config.endpoint, "route")}
     </section>
-    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsTable(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
+    ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsGrid(items, isEmpty) : key === "aiTools" ? renderAiToolsTable(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
         ${isEmpty ? `
@@ -2292,6 +2385,37 @@ const renderDetailModal = (key, item) => `
     </section>
   </dialog>
 `;
+
+const renderLessonPreviewModal = (item) => {
+  const resources = Array.isArray(item.resources) ? item.resources.filter(Boolean) : [];
+  const previewBody = item.videoUrl
+    ? `<p><a href="${escapeHtml(item.videoUrl)}" target="_blank" rel="noreferrer">Open video lesson</a></p>`
+    : item.content
+      ? `<pre>${escapeHtml(String(item.content))}</pre>`
+      : resources.length
+        ? `<ul class="lesson-preview-resources">${resources.map((resource) => `<li><a href="${escapeHtml(resource)}" target="_blank" rel="noreferrer">${escapeHtml(resource)}</a></li>`).join("")}</ul>`
+        : `<p class="muted-copy">This lesson is marked as preview, but no video, content, or resource URL is available from the API.</p>`;
+
+  return `
+    <dialog class="modal" open>
+      <section class="modal-panel lesson-preview-modal">
+        <div class="modal-head">
+          <div>
+            <p class="eyebrow">Lesson preview</p>
+            <h2>${escapeHtml(item.title || "Untitled lesson")}</h2>
+          </div>
+          <button class="icon-btn" data-close-modal type="button">x</button>
+        </div>
+        <div class="lesson-preview-meta">
+          <span>${escapeHtml(getLessonType(item))}</span>
+          <span>${escapeHtml(`${Number(item.duration || 0)} min`)}</span>
+          <span>${escapeHtml(plainValue(item, "module.title", "Course lesson"))}</span>
+        </div>
+        ${previewBody}
+      </section>
+    </dialog>
+  `;
+};
 
 const renderAnalytics = () => {
   const analytics = state.analytics || {};
@@ -2546,6 +2670,7 @@ const renderApp = () => {
 
   document.body.classList.toggle("courses-admin-page", state.view === "courses");
   document.body.classList.toggle("modules-admin-page", state.view === "modules");
+  document.body.classList.toggle("lessons-admin-page", state.view === "lessons");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
@@ -2860,6 +2985,9 @@ const bindEvents = () => {
       await openDetail(key, id);
     });
   });
+  document.querySelectorAll("[data-preview-lesson]").forEach((button) => {
+    button.addEventListener("click", () => openLessonPreview(button.dataset.previewLesson));
+  });
   document.querySelectorAll("[data-delete-record]").forEach((button) => {
     button.addEventListener("click", () => {
       const [key, id] = button.dataset.deleteRecord.split(":");
@@ -2957,6 +3085,13 @@ const openDetail = async (key, id) => {
   }
 
   app.insertAdjacentHTML("beforeend", renderDetailModal(key, item));
+  document.querySelectorAll("[data-close-modal]").forEach((button) => button.addEventListener("click", closeModal));
+};
+
+const openLessonPreview = (id) => {
+  const item = findItem("lessons", id);
+  if (!item || !hasLessonPreview(item)) return;
+  app.insertAdjacentHTML("beforeend", renderLessonPreviewModal(item));
   document.querySelectorAll("[data-close-modal]").forEach((button) => button.addEventListener("click", closeModal));
 };
 
