@@ -477,57 +477,89 @@ const renderUserCard = (item) => {
   `);
 };
 
-const renderUsersTable = (items, isEmpty) => `
-  <section class="card users-table-card reveal">
-    <div class="users-table-wrap">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th scope="col">Select</th>
-            <th scope="col">User</th>
-            <th scope="col">Status</th>
-            <th scope="col">Role</th>
-            <th scope="col">Joined</th>
-            <th scope="col">Verified</th>
-            <th scope="col">Premium</th>
-            <th scope="col">Progress</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((item) => {
-            const progress = Number(item.progressPercentage || item.learningProgress || item.progress?.progressPercentage || 0);
-            return `
-              <tr>
-                <td>
-                  ${state.selectedIds ? `<input class="select-dot" type="checkbox" data-select-id="${escapeHtml(item._id)}" ${state.selectedIds.has(item._id) ? "checked" : ""} aria-label="Select ${escapeHtml(recordTitle(item))}" />` : ""}
-                </td>
-                <td>
-                  <span class="users-table-user">
-                    ${avatarMarkup(item.fullName || item.email, item.avatar || item.profileImage)}
-                    <span>
-                      <b>${escapeHtml(item.fullName || "Learner")}</b>
-                      <small>${escapeHtml(item.email || "-")}</small>
-                    </span>
-                  </span>
-                </td>
-                <td>${statusPill(item.isActive === false ? "Inactive" : "Active")}</td>
-                <td>${escapeHtml(item.role || "user")}</td>
-                <td>${escapeHtml(formatDate(item.createdAt))}</td>
-                <td>${escapeHtml(item.isVerified ? "Yes" : "No")}</td>
-                <td>${escapeHtml(item.isPremium ? "Yes" : "No")}</td>
-                <td>
-                  <div class="users-table-progress">
-                    <span>${escapeHtml(progress)}%</span>
-                    ${progressBar(progress)}
-                  </div>
-                </td>
-                <td><div class="entity-actions users-table-actions">${renderActions("users", item)}</div></td>
-              </tr>
-            `;
-          }).join("")}
-        </tbody>
-      </table>
+const userPipelineStages = [
+  { key: "new", label: "New", tone: "blue" },
+  { key: "open", label: "Open", tone: "purple" },
+  { key: "inProgress", label: "In-progress", tone: "green" },
+  { key: "premium", label: "Premium", tone: "amber" },
+  { key: "closed", label: "Closed", tone: "pink" },
+];
+
+const userProgressValue = (item) =>
+  Math.max(0, Math.min(100, Number(item.progressPercentage || item.learningProgress || item.progress?.progressPercentage || 0)));
+
+const userPipelineStageKey = (item) => {
+  const progress = userProgressValue(item);
+
+  if (item.isActive === false) return "closed";
+  if (progress >= 100) return "closed";
+  if (item.isPremium) return "premium";
+  if (progress > 0) return "inProgress";
+  if (item.isVerified) return "open";
+  return "new";
+};
+
+const renderUserPipelineCard = (item) => {
+  const progress = userProgressValue(item);
+  const stage = userPipelineStageKey(item);
+  const joinedLabel = formatDate(item.createdAt);
+  const verifiedLabel = item.isVerified ? "Verified" : "Unverified";
+  const premiumLabel = item.isPremium ? "Premium" : "Free";
+
+  return `
+    <article class="user-pipeline-card user-stage-${stage}">
+      <div class="user-pipeline-card-head">
+        ${state.selectedIds ? `<input class="select-dot" type="checkbox" data-select-id="${escapeHtml(item._id)}" ${state.selectedIds.has(item._id) ? "checked" : ""} aria-label="Select ${escapeHtml(recordTitle(item))}" />` : ""}
+        ${avatarMarkup(item.fullName || item.email, item.avatar || item.profileImage)}
+        <div>
+          <h3>${escapeHtml(item.fullName || "Learner")}</h3>
+          <p>${escapeHtml(joinedLabel)}</p>
+        </div>
+        <button class="user-pipeline-menu" data-view-record="users:${escapeHtml(item._id)}" type="button" aria-label="View ${escapeHtml(recordTitle(item))}">
+          ${iconMarkup("more-vertical")}
+        </button>
+      </div>
+      <div class="user-pipeline-contact">
+        <span>${iconMarkup("mail")}${escapeHtml(item.email || "-")}</span>
+        <span>${iconMarkup("shield-check")}${escapeHtml(verifiedLabel)} · ${escapeHtml(premiumLabel)}</span>
+      </div>
+      <div class="user-pipeline-progress">
+        <div><span>${escapeHtml(item.role || "user")}</span><b>${escapeHtml(progress)}%</b></div>
+        ${progressBar(progress)}
+      </div>
+      <div class="entity-actions user-pipeline-actions">${renderActions("users", item)}</div>
+    </article>
+  `;
+};
+
+const renderUsersTable = (items, isEmpty) => {
+  const grouped = userPipelineStages.map((stage) => ({
+    ...stage,
+    items: items.filter((item) => userPipelineStageKey(item) === stage.key),
+  }));
+
+  return `
+  <section class="users-pipeline-section reveal">
+    <div class="users-pipeline-board">
+      ${grouped.map((stage) => `
+        <section class="users-pipeline-column stage-${stage.tone}">
+          <header class="users-pipeline-column-head">
+            <span class="stage-dot" aria-hidden="true"></span>
+            <h3>${escapeHtml(stage.label)}</h3>
+            <b>${escapeHtml(stage.items.length)} USERS</b>
+            <button class="pipeline-icon-btn" data-open-form="users" type="button" aria-label="Add user">${iconMarkup("plus")}</button>
+            <button class="pipeline-icon-btn" type="button" aria-label="${escapeHtml(stage.label)} options">${iconMarkup("more-vertical")}</button>
+          </header>
+          <div class="users-pipeline-list">
+            ${stage.items.map(renderUserPipelineCard).join("") || `
+              <div class="users-pipeline-empty">
+                ${iconMarkup("user-plus")}
+                <span>No users in ${escapeHtml(stage.label.toLowerCase())}</span>
+              </div>
+            `}
+          </div>
+        </section>
+      `).join("")}
     </div>
     ${isEmpty ? `
       <div class="empty-state">
@@ -537,7 +569,8 @@ const renderUsersTable = (items, isEmpty) => `
       </div>
     ` : ""}
   </section>
-`;
+  `;
+};
 
 const renderAdminCard = (item) =>
   cardShell("admins", item, `
