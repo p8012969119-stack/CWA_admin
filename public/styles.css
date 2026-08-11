@@ -408,6 +408,208 @@ h3 {
   outline: none;
 }
 
+.global-search-shell {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+}
+
+.global-search-shell:focus-within {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14), var(--shadow-sm);
+}
+
+.global-search-clear,
+.toolbar-search-clear {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d9ded9;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0b0f0c;
+}
+
+.global-search-clear .ui-icon,
+.toolbar-search-clear .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.global-search-dropdown {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 10px);
+  left: 0;
+  width: min(720px, calc(100vw - 48px));
+  max-height: min(68vh, 620px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid #d9ded9;
+  border-radius: 22px;
+  background: #ffffff;
+  color: #0b0f0c;
+  box-shadow: 0 24px 60px rgba(11, 15, 12, 0.16);
+}
+
+.global-search-state {
+  display: flex;
+  min-height: 74px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #4b5563;
+  font-weight: 850;
+}
+
+.global-search-state .ui-icon {
+  color: #16a34a;
+}
+
+.global-search-state.search-error {
+  color: #991b1b;
+}
+
+.global-search-state.search-error .ui-icon {
+  color: #e3262e;
+}
+
+.global-search-state button,
+.global-search-group-title button {
+  border: 1px solid #d9ded9;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0b0f0c;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.global-search-group {
+  display: grid;
+  gap: 6px;
+}
+
+.global-search-group + .global-search-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eef1ee;
+}
+
+.global-search-group-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 4px 6px;
+  color: #4b5563;
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.global-search-option {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #0b0f0c;
+  text-align: left;
+  transition: background-color 180ms var(--ease), border-color 180ms var(--ease), transform 180ms var(--ease);
+}
+
+.global-search-option .ui-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: #f3f4f3;
+  color: #065f46;
+}
+
+.global-search-option span:not(.ui-icon) {
+  min-width: 0;
+}
+
+.global-search-option b,
+.global-search-option small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.global-search-option b {
+  color: #0b0f0c;
+  font-size: 0.95rem;
+  font-weight: 950;
+}
+
+.global-search-option small {
+  margin-top: 2px;
+  color: #4b5563;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.global-search-option em {
+  justify-self: end;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f7f8f7;
+  color: #4b5563;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.global-search-option:hover,
+.global-search-option.is-active,
+.global-search-option:focus-visible {
+  border-color: #16a34a;
+  background: #ecfdf5;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.global-search-option.is-active em,
+.global-search-option:hover em,
+.global-search-option:focus-visible em {
+  background: #dcfce7;
+  color: #065f46;
+}
+
+.toolbar-search {
+  position: relative;
+  display: flex;
+  min-width: min(260px, 100%);
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-search input {
+  min-width: 0;
+  padding-right: 42px;
+}
+
+.toolbar-search-clear {
+  position: absolute;
+  right: 8px;
+}
+
+.record-highlight {
+  border-color: #16a34a !important;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.16), 0 18px 42px rgba(11, 15, 12, 0.12) !important;
+}
+
 .actions,
 .hero-actions,
 .row-actions,
@@ -3663,6 +3865,15 @@ pre {
 
   .nav-section {
     grid-column: 1 / -1;
+  }
+
+  .global-search-dropdown {
+    position: fixed;
+    top: 96px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-height: calc(100dvh - 128px);
   }
 
   .metrics,

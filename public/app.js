@@ -17,6 +17,18 @@ const state = {
   view: "dashboard",
   sidebarCollapsed: false,
   sidebarScrollTop: readStoredSidebarScrollTop(),
+  entitySearches: {},
+  entityFilters: {},
+  highlightRecord: null,
+  globalSearch: {
+    query: "",
+    status: "idle",
+    isOpen: false,
+    results: [],
+    activeIndex: -1,
+    error: "",
+    focusInput: false,
+  },
   stats: null,
   analytics: null,
   settings: null,
@@ -504,6 +516,275 @@ const statusPill = (value, fallback = "Draft") =>
 
 const iconMarkup = (name, label = "") =>
   `<span class="ui-icon" aria-hidden="true"><i data-lucide="${escapeHtml(name)}"></i></span>${label ? `<span>${escapeHtml(label)}</span>` : ""}`;
+
+const searchResultLimit = 5;
+let globalSearchTimer = null;
+let globalSearchController = null;
+let globalSearchDocumentEventsBound = false;
+let routeEventsBound = false;
+const entitySearchTimers = {};
+const entitySearchControllers = {};
+
+const normalizeSearchQuery = (value = "") =>
+  String(value || "")
+    .replace(/[<>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+
+const entitySearchKeys = () => [...Object.keys(entityConfigs), "auditLogs"];
+const searchableEntityKeys = () => Object.keys(entityConfigs);
+const isSearchableEntity = (key) => Object.prototype.hasOwnProperty.call(entityConfigs, key);
+const recordDomId = (key, id) => `admin-record-${normalizeAssetKey(key)}-${normalizeAssetKey(id || "unknown")}`;
+
+const isHighlightedRecord = (key, item) =>
+  state.highlightRecord?.key === key && String(state.highlightRecord?.id || "") === String(item?._id || item?.id || "");
+
+const auditLogRecordId = (log, index = 0) =>
+  String(log?._id || log?.id || log?.entityId || log?.createdAt || `${log?.action || "audit"}-${index}`);
+
+const recordDomAttributes = (key, item) => {
+  const id = key === "auditLogs" ? auditLogRecordId(item) : item?._id || item?.id || "";
+  const highlighted = isHighlightedRecord(key, item);
+  return `id="${escapeHtml(recordDomId(key, id))}" data-record-key="${escapeHtml(key)}" data-record-id="${escapeHtml(id)}" ${highlighted ? 'data-highlighted-record="true"' : ""}`;
+};
+
+const getCurrentEntitySearch = (key) => normalizeSearchQuery(state.entitySearches[key] || "");
+
+const searchParamsFromState = () => {
+  const params = new URLSearchParams();
+  if (state.view && state.view !== "dashboard") params.set("view", state.view);
+  const search = getCurrentEntitySearch(state.view);
+  if (isSearchableEntity(state.view) && search) params.set("search", search);
+  if (state.view === "auditLogs" && state.auditSearch) params.set("search", normalizeSearchQuery(state.auditSearch));
+  if (state.highlightRecord?.key === state.view && state.highlightRecord?.id) {
+    params.set("highlight", state.highlightRecord.id);
+  }
+  return params;
+};
+
+const updateAdminUrl = ({ replace = false } = {}) => {
+  if (!window.history?.pushState) return;
+  const params = searchParamsFromState();
+  const query = params.toString();
+  const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash || ""}`;
+  const method = replace ? "replaceState" : "pushState";
+  window.history[method]({ view: state.view }, "", nextUrl);
+};
+
+const applyUrlState = () => {
+  const params = new URLSearchParams(window.location.search);
+  const requestedView = params.get("view");
+  const view = navItems.some((item) => item.key === requestedView) ? requestedView : "dashboard";
+  const search = normalizeSearchQuery(params.get("search") || "");
+  const highlight = normalizeSearchQuery(params.get("highlight") || "");
+
+  state.view = view;
+  if (isSearchableEntity(view) && search) state.entitySearches[view] = search;
+  if (view === "auditLogs" && search) state.auditSearch = search;
+  state.highlightRecord = highlight ? { key: view, id: highlight } : null;
+};
+
+const pageSearchHaystack = (item) =>
+  [item.label, item.key, item.section]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+const pageShortcutResults = (query) => {
+  const normalized = query.toLowerCase();
+  if (!normalized) return [];
+  return navItems
+    .filter((item) => pageSearchHaystack(item).includes(normalized))
+    .slice(0, searchResultLimit)
+    .map((item) => ({
+      group: "Pages",
+      type: "page",
+      view: item.key,
+      title: item.label,
+      meta: `${item.section} page`,
+      icon: item.icon || "circle",
+      search: "",
+    }));
+};
+
+const globalSearchEntities = [
+  { key: "users", group: "Users", icon: "user", endpoint: "/admins/users" },
+  { key: "admins", group: "Admins", icon: "shield", endpoint: "/admins" },
+  { key: "courses", group: "Courses", icon: "book-open", endpoint: "/auth/courses" },
+  { key: "modules", group: "Modules", icon: "layers", endpoint: "/auth/modules" },
+  { key: "lessons", group: "Lessons", icon: "play-square", endpoint: "/auth/lessons" },
+  { key: "quizzes", group: "Quizzes", icon: "help-circle", endpoint: "/auth/quizzes" },
+  { key: "aiTools", group: "AI Tools", icon: "wand-2", endpoint: "/auth/aitools" },
+  { key: "categories", group: "Categories", icon: "grid", endpoint: "/auth/tool-categories" },
+  { key: "certificates", group: "Certificates", icon: "award", endpoint: "/certificates" },
+  { key: "notifications", group: "Notifications", icon: "bell", endpoint: "/auth/notifications" },
+  { key: "auditLogs", group: "Audit Logs", icon: "file-text", endpoint: "/admins/audit-logs" },
+];
+
+const unwrapSearchResponse = (key, response) => {
+  if (key === "auditLogs") return response.data || response.logs || [];
+  const config = entityConfigs[key];
+  return config ? config.unwrap(response) : [];
+};
+
+const resultTitleForRecord = (key, item) => {
+  if (key === "certificates") return item.certificateId || item.certificateNumber || item.recipientName || "Certificate";
+  if (key === "auditLogs") return item.action || item.description || "Audit activity";
+  return recordTitle(item);
+};
+
+const resultMetaForRecord = (key, item) => {
+  if (key === "users" || key === "admins") return [item.email, item.role].filter(Boolean).join(" · ") || "Account record";
+  if (key === "courses") return [item.level, item.status, compactText(item.description || item.shortDescription, "", 52)].filter(Boolean).join(" · ");
+  if (key === "modules") return [plainValue(item, "course.title", ""), compactText(item.description, "", 52)].filter(Boolean).join(" · ") || "Module record";
+  if (key === "lessons") return [plainValue(item, "course.title", ""), plainValue(item, "module.title", ""), getLessonType(item)].filter(Boolean).join(" · ");
+  if (key === "quizzes") return [plainValue(item, "course.title", ""), compactText(item.description, "", 52)].filter(Boolean).join(" · ") || "Quiz record";
+  if (key === "aiTools") return [item.slug, plainValue(item, "category.name", item.category || ""), item.flowType].filter(Boolean).join(" · ");
+  if (key === "categories") return [item.slug, compactText(item.description, "", 52)].filter(Boolean).join(" · ") || "Category record";
+  if (key === "certificates") return [item.recipientName, item.user?.email, item.courseName || plainValue(item, "course.title", "")].filter(Boolean).join(" · ");
+  if (key === "notifications") return [item.type, item.user?.email || item.targetAudience, compactText(item.message, "", 52)].filter(Boolean).join(" · ");
+  if (key === "auditLogs") return [item.entityType, item.admin?.email, formatDate(item.createdAt)].filter(Boolean).join(" · ");
+  return compactText(item.description || item.message || item.email || item.slug || "", "Managed record", 64);
+};
+
+const searchableRecordHaystack = (key, item) => {
+  const fieldSets = {
+    users: [item.fullName, item.name, item.email, item.role],
+    admins: [item.fullName, item.name, item.email, item.role],
+    courses: [item.title, item.description, item.shortDescription, item.level, item.status, ...(Array.isArray(item.tags) ? item.tags : [])],
+    modules: [item.title, item.description, plainValue(item, "course.title", ""), item.status],
+    lessons: [item.title, item.description, plainValue(item, "course.title", ""), plainValue(item, "module.title", ""), getLessonType(item), item.status],
+    quizzes: [item.title, item.description, plainValue(item, "course.title", ""), plainValue(item, "module.title", ""), plainValue(item, "lesson.title", ""), item.status],
+    aiTools: [item.name, item.description, item.slug, item.flowType, plainValue(item, "category.name", item.category || ""), item.pricingType, item.status],
+    categories: [item.name, item.slug, item.description],
+    certificates: [item.certificateId, item.certificateNumber, item.recipientName, item.user?.email, item.courseName, plainValue(item, "course.title", ""), item.status],
+    notifications: [item.title, item.message, item.type, item.user?.email, item.targetAudience, item.status],
+    auditLogs: [item.action, item.description, item.entityType, item.entityId, item.admin?.email, item.ipAddress, item.device],
+  };
+
+  return (fieldSets[key] || Object.values(item || {}))
+    .filter((value) => value !== null && value !== undefined)
+    .join(" ")
+    .toLowerCase();
+};
+
+const recordMatchesQuery = (key, item, query) => {
+  const normalized = normalizeSearchQuery(query).toLowerCase();
+  return !normalized || searchableRecordHaystack(key, item).includes(normalized);
+};
+
+const recordSearchResult = (entry, item, query) => {
+  const id = entry.key === "auditLogs" ? auditLogRecordId(item) : item._id || item.id || "";
+  return {
+    group: entry.group,
+    type: "record",
+    view: entry.key === "auditLogs" ? "auditLogs" : entry.key,
+    recordId: String(id),
+    title: resultTitleForRecord(entry.key, item),
+    meta: resultMetaForRecord(entry.key, item),
+    icon: entry.icon,
+    search: query,
+  };
+};
+
+const groupedSearchResults = () =>
+  state.globalSearch.results.reduce((groups, result, index) => {
+    const group = groups.find((item) => item.label === result.group);
+    const option = { ...result, index };
+    if (group) group.items.push(option);
+    else groups.push({ label: result.group, items: [option] });
+    return groups;
+  }, []);
+
+const renderGlobalSearchDropdown = () => {
+  const search = state.globalSearch;
+  if (!search.isOpen) return "";
+  const groups = groupedSearchResults();
+  const hasResults = groups.some((group) => group.items.length);
+  const statusText = search.status === "loading"
+    ? "Searching admin records..."
+    : search.status === "error"
+      ? search.error || "Search failed."
+      : hasResults
+        ? `${search.results.length} search results available.`
+        : search.query
+          ? "No results found."
+          : "Type to search admin pages and records.";
+
+  return `
+    <div class="global-search-dropdown" id="global-search-results" role="listbox" aria-label="Admin search results">
+      <p class="visually-hidden" aria-live="polite">${escapeHtml(statusText)}</p>
+      ${search.status === "loading" ? `
+        <div class="global-search-state">${iconMarkup("loader-2")}<span>Searching...</span></div>
+      ` : ""}
+      ${search.status === "error" ? `
+        <div class="global-search-state search-error" role="alert">
+          ${iconMarkup("circle-alert")}
+          <span>${escapeHtml(search.error || "Unable to search right now.")}</span>
+          <button type="button" data-search-retry>Retry</button>
+        </div>
+      ` : ""}
+      ${!hasResults && search.status !== "loading" && search.status !== "error" ? `
+        <div class="global-search-state">
+          ${iconMarkup(search.query ? "search-x" : "search")}
+          <span>${escapeHtml(search.query ? "No results found" : "Type something to start")}</span>
+        </div>
+      ` : ""}
+      ${groups.map((group) => `
+        <section class="global-search-group" aria-label="${escapeHtml(group.label)}">
+          <div class="global-search-group-title">
+            <span>${escapeHtml(group.label)}</span>
+            ${group.items.length >= searchResultLimit ? `<button type="button" data-search-view-all="${escapeHtml(group.items[0].view)}">View all results</button>` : ""}
+          </div>
+          ${group.items.map((result) => `
+            <button
+              class="global-search-option ${result.index === search.activeIndex ? "is-active" : ""}"
+              id="global-search-option-${escapeHtml(result.index)}"
+              data-search-result="${escapeHtml(result.index)}"
+              role="option"
+              aria-selected="${result.index === search.activeIndex ? "true" : "false"}"
+              type="button">
+              ${iconMarkup(result.icon)}
+              <span>
+                <b>${escapeHtml(result.title)}</b>
+                <small>${escapeHtml(result.meta || result.group)}</small>
+              </span>
+              <em>${escapeHtml(result.type === "page" ? "Page" : result.group)}</em>
+            </button>
+          `).join("")}
+        </section>
+      `).join("")}
+    </div>
+  `;
+};
+
+const renderGlobalSearch = () => {
+  const query = state.globalSearch.query;
+  const activeId = state.globalSearch.activeIndex >= 0 ? `global-search-option-${state.globalSearch.activeIndex}` : "";
+  return `
+    <div class="search global-search-shell" role="search">
+      <label class="visually-hidden" for="global-search">Search admin panel</label>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <input
+        id="global-search"
+        type="search"
+        value="${escapeHtml(query)}"
+        placeholder="Search courses, users, tools..."
+        role="combobox"
+        autocomplete="off"
+        aria-label="Search admin panel"
+        aria-expanded="${state.globalSearch.isOpen ? "true" : "false"}"
+        aria-controls="global-search-results"
+        ${activeId ? `aria-activedescendant="${escapeHtml(activeId)}"` : ""}
+      />
+      ${query ? `<button class="global-search-clear" data-search-clear type="button" aria-label="Clear search">${iconMarkup("x")}</button>` : ""}
+      ${renderGlobalSearchDropdown()}
+    </div>
+  `;
+};
+
+applyUrlState();
 
 const learningCardAnimation = (type) => {
   const animations = {
@@ -1508,7 +1789,7 @@ const progressBar = (value = 0) => {
 };
 
 const cardShell = (key, item, body, extraClass = "") => `
-  <article class="entity-card ${key}-card ${extraClass}">
+  <article class="entity-card ${key}-card ${extraClass} ${isHighlightedRecord(key, item) ? "record-highlight" : ""}" ${recordDomAttributes(key, item)}>
     ${body}
     <div class="entity-actions">${renderActions(key, item)}</div>
   </article>
@@ -1572,7 +1853,7 @@ const renderUserPipelineRow = (item) => {
   const activeLabel = item.isActive === false ? "Inactive" : "Active";
 
   return `
-    <article class="user-pipeline-row user-stage-${stage}">
+    <article class="user-pipeline-row user-stage-${stage} ${isHighlightedRecord("users", item) ? "record-highlight" : ""}" ${recordDomAttributes("users", item)}>
       <div class="user-pipeline-select">
         ${state.selectedIds ? `<input class="select-dot" type="checkbox" data-select-id="${escapeHtml(item._id)}" ${state.selectedIds.has(item._id) ? "checked" : ""} aria-label="Select ${escapeHtml(recordTitle(item))}" />` : ""}
       </div>
@@ -1669,7 +1950,7 @@ const renderAdminCard = (item) =>
 const renderCourseCard = (item) => {
   const image = getCourseImageSource(item);
 
-  return `<article class="course-management-card">
+  return `<article class="course-management-card ${isHighlightedRecord("courses", item) ? "record-highlight" : ""}" ${recordDomAttributes("courses", item)}>
     <div class="course-card-top">
       <span class="course-card-thumb ${image.fitClass === "course-image-cover" ? "is-cover" : ""}">
         <img
@@ -1804,7 +2085,7 @@ const renderModuleCard = (item) => {
   const description = compactText(item.description, "Structured module content");
   const courseTitle = plainValue(item, "course.title", "No course linked");
 
-  return `<article class="module-management-card">
+  return `<article class="module-management-card ${isHighlightedRecord("modules", item) ? "record-highlight" : ""}" ${recordDomAttributes("modules", item)}>
     <div class="module-card-top">
       <span class="module-card-icon" aria-hidden="true">${escapeHtml(moduleIconLabel(item))}</span>
       <div class="module-card-heading">
@@ -1957,7 +2238,7 @@ const renderLessonCard = (item) => {
   const lessonType = getLessonType(item);
   const previewEnabled = hasLessonPreview(item);
 
-  return `<article class="lesson-management-card">
+  return `<article class="lesson-management-card ${isHighlightedRecord("lessons", item) ? "record-highlight" : ""}" ${recordDomAttributes("lessons", item)}>
     <div class="lesson-card-top">
       <span class="lesson-card-icon" aria-hidden="true">${escapeHtml(lessonIconLabel(item))}</span>
       <div class="lesson-card-heading">
@@ -2170,7 +2451,7 @@ const renderQuizCard = (item) => {
   const title = item.title || "Untitled quiz";
   const description = compactText(item.description, "Questions, options, and answers are stored from the quiz API.");
 
-  return `<article class="quiz-management-card">
+  return `<article class="quiz-management-card ${isHighlightedRecord("quizzes", item) ? "record-highlight" : ""}" ${recordDomAttributes("quizzes", item)}>
     <div class="quiz-card-head">
       <span class="quiz-card-icon" aria-hidden="true">Q</span>
       <div class="quiz-card-copy">
@@ -2313,7 +2594,7 @@ const renderToolCard = (item) => {
   const featured = item.isFeatured ? "Yes" : "No";
   const website = formatAiToolWebsite(item);
 
-  return `<article class="ai-tool-management-card">
+  return `<article class="ai-tool-management-card ${isHighlightedRecord("aiTools", item) ? "record-highlight" : ""}" ${recordDomAttributes("aiTools", item)}>
     <div class="ai-tool-card-head">
       ${renderAiToolAnimation(item)}
       <div class="ai-tool-card-copy">
@@ -2443,6 +2724,295 @@ const request = async (path, options = {}) => {
   }
 
   return data;
+};
+
+const buildSearchPath = (endpoint, query, limit = searchResultLimit) => {
+  const params = new URLSearchParams();
+  params.set("search", query);
+  params.set("q", query);
+  params.set("limit", String(limit));
+  return `${endpoint}?${params.toString()}`;
+};
+
+const executeGlobalSearch = async (query) => {
+  const safeQuery = normalizeSearchQuery(query);
+  state.globalSearch.query = safeQuery;
+  state.globalSearch.error = "";
+  state.globalSearch.activeIndex = -1;
+
+  if (globalSearchController) globalSearchController.abort();
+
+  const pageResults = pageShortcutResults(safeQuery);
+  if (!safeQuery) {
+    state.globalSearch = {
+      ...state.globalSearch,
+      status: "idle",
+      isOpen: false,
+      results: [],
+      activeIndex: -1,
+      error: "",
+    };
+    render();
+    return;
+  }
+
+  state.globalSearch.status = "loading";
+  state.globalSearch.isOpen = true;
+  state.globalSearch.results = pageResults;
+  state.globalSearch.focusInput = true;
+  render();
+
+  const controller = new AbortController();
+  globalSearchController = controller;
+
+  try {
+    const responses = await Promise.allSettled(
+      globalSearchEntities.map(async (entry) => {
+        const response = await request(buildSearchPath(entry.endpoint, safeQuery), { signal: controller.signal });
+        return unwrapSearchResponse(entry.key, response)
+          .filter((item) => recordMatchesQuery(entry.key, item, safeQuery))
+          .slice(0, searchResultLimit)
+          .map((item) => recordSearchResult(entry, item, safeQuery))
+          .filter((item) => item.recordId || item.view === "auditLogs");
+      })
+    );
+
+    if (controller.signal.aborted) return;
+
+    const recordResults = responses
+      .filter((result) => result.status === "fulfilled")
+      .flatMap((result) => result.value);
+    const failures = responses.filter((result) => result.status === "rejected");
+
+    state.globalSearch.results = [...pageResults, ...recordResults];
+    state.globalSearch.status = failures.length === responses.length ? "error" : "success";
+    state.globalSearch.error = failures.length === responses.length ? "Unable to search records. Please retry." : "";
+    state.globalSearch.activeIndex = state.globalSearch.results.length ? 0 : -1;
+    state.globalSearch.focusInput = true;
+    render();
+  } catch (error) {
+    if (error.name === "AbortError") return;
+    state.globalSearch.status = "error";
+    state.globalSearch.error = error.message || "Unable to search records. Please retry.";
+    state.globalSearch.focusInput = true;
+    render();
+  }
+};
+
+const queueGlobalSearch = (query) => {
+  const safeQuery = normalizeSearchQuery(query);
+  window.clearTimeout(globalSearchTimer);
+  state.globalSearch.query = safeQuery;
+  state.globalSearch.isOpen = Boolean(safeQuery);
+  state.globalSearch.error = "";
+  state.globalSearch.focusInput = true;
+
+  if (!safeQuery) {
+    if (globalSearchController) globalSearchController.abort();
+    state.globalSearch.status = "idle";
+    state.globalSearch.results = [];
+    state.globalSearch.activeIndex = -1;
+    render();
+    return;
+  }
+
+  state.globalSearch.results = pageShortcutResults(safeQuery);
+  state.globalSearch.status = "loading";
+  state.globalSearch.activeIndex = state.globalSearch.results.length ? 0 : -1;
+  render();
+  globalSearchTimer = window.setTimeout(() => executeGlobalSearch(safeQuery), 300);
+};
+
+const closeGlobalSearch = () => {
+  state.globalSearch.isOpen = false;
+  state.globalSearch.activeIndex = -1;
+  state.globalSearch.focusInput = false;
+  render();
+};
+
+const openGlobalSearch = () => {
+  if (state.globalSearch.isOpen) {
+    state.globalSearch.focusInput = true;
+    return;
+  }
+  state.globalSearch.isOpen = true;
+  state.globalSearch.focusInput = true;
+  if (state.globalSearch.query && !state.globalSearch.results.length) {
+    queueGlobalSearch(state.globalSearch.query);
+    return;
+  }
+  render();
+};
+
+const activeGlobalSearchResult = () =>
+  state.globalSearch.results[state.globalSearch.activeIndex] || null;
+
+const restoreGlobalSearchFocus = () => {
+  if (!state.globalSearch.focusInput) return;
+  const input = document.querySelector("#global-search");
+  if (!input) return;
+  input.focus({ preventScroll: true });
+  const length = input.value.length;
+  try {
+    input.setSelectionRange(length, length);
+  } catch {
+    // Search input selection can fail in older browsers.
+  }
+  state.globalSearch.focusInput = false;
+};
+
+const scrollHighlightedRecordIntoView = () => {
+  if (!state.highlightRecord) return;
+  const cssEscape = window.CSS?.escape || ((value) => String(value).replace(/["\\]/g, "\\$&"));
+  const selector = `[data-record-key="${cssEscape(state.highlightRecord.key)}"][data-record-id="${cssEscape(state.highlightRecord.id)}"]`;
+  const record = document.querySelector(selector);
+  if (!record) return;
+  record.scrollIntoView({ block: "nearest", behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth" });
+};
+
+const selectGlobalSearchResult = async (result) => {
+  if (!result) return;
+  saveSidebarScrollPosition();
+  state.globalSearch.isOpen = false;
+  state.globalSearch.focusInput = false;
+
+  if (result.type === "page") {
+    state.highlightRecord = null;
+    state.entitySearches[result.view] = "";
+    await switchView(result.view, { search: "", replaceHistory: false });
+    return;
+  }
+
+  state.highlightRecord = result.recordId ? { key: result.view, id: result.recordId } : null;
+  state.entitySearches[result.view] = result.search || state.globalSearch.query;
+  await switchView(result.view, {
+    search: state.entitySearches[result.view],
+    highlight: result.recordId,
+    replaceHistory: false,
+  });
+};
+
+const handleGlobalSearchKeydown = (event) => {
+  const results = state.globalSearch.results;
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") return;
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeGlobalSearch();
+    return;
+  }
+
+  if (!state.globalSearch.isOpen && ["ArrowDown", "ArrowUp"].includes(event.key)) {
+    event.preventDefault();
+    openGlobalSearch();
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    state.globalSearch.activeIndex = results.length ? (state.globalSearch.activeIndex + 1 + results.length) % results.length : -1;
+    state.globalSearch.focusInput = true;
+    render();
+    return;
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    state.globalSearch.activeIndex = results.length ? (state.globalSearch.activeIndex - 1 + results.length) % results.length : -1;
+    state.globalSearch.focusInput = true;
+    render();
+    return;
+  }
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+    selectGlobalSearchResult(activeGlobalSearchResult());
+  }
+};
+
+const queueEntitySearch = (key, query) => {
+  const safeQuery = normalizeSearchQuery(query);
+  state.entitySearches[key] = safeQuery;
+  state.highlightRecord = null;
+  window.clearTimeout(entitySearchTimers[key]);
+
+  if (entitySearchControllers[key]) entitySearchControllers[key].abort();
+  entitySearchTimers[key] = window.setTimeout(() => {
+    const controller = new AbortController();
+    entitySearchControllers[key] = controller;
+    loadEntity(key, { signal: controller.signal, replaceHistory: true });
+  }, 300);
+};
+
+const bindGlobalSearchEvents = () => {
+  const input = document.querySelector("#global-search");
+  input?.addEventListener("focus", openGlobalSearch);
+  input?.addEventListener("input", (event) => queueGlobalSearch(event.target.value));
+  input?.addEventListener("keydown", handleGlobalSearchKeydown);
+
+  document.querySelector("[data-search-clear]")?.addEventListener("click", () => {
+    if (globalSearchController) globalSearchController.abort();
+    state.globalSearch.query = "";
+    state.globalSearch.results = [];
+    state.globalSearch.status = "idle";
+    state.globalSearch.error = "";
+    state.globalSearch.activeIndex = -1;
+    state.globalSearch.isOpen = false;
+    state.globalSearch.focusInput = true;
+    render();
+  });
+
+  document.querySelector("[data-search-retry]")?.addEventListener("click", () => executeGlobalSearch(state.globalSearch.query));
+
+  document.querySelectorAll("[data-search-result]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const result = state.globalSearch.results[Number(button.dataset.searchResult)];
+      selectGlobalSearchResult(result);
+    });
+  });
+
+  document.querySelectorAll("[data-search-view-all]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const view = button.dataset.searchViewAll;
+      const search = state.globalSearch.query;
+      state.globalSearch.isOpen = false;
+      state.globalSearch.focusInput = false;
+      state.entitySearches[view] = search;
+      switchView(view, { search });
+    });
+  });
+
+  if (globalSearchDocumentEventsBound) return;
+  globalSearchDocumentEventsBound = true;
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      state.globalSearch.focusInput = true;
+      state.globalSearch.isOpen = true;
+      render();
+    }
+  });
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!state.globalSearch.isOpen) return;
+    if (event.target.closest?.(".global-search-shell")) return;
+    state.globalSearch.isOpen = false;
+    state.globalSearch.activeIndex = -1;
+    state.globalSearch.focusInput = false;
+    render();
+  });
+};
+
+const bindRouteEvents = () => {
+  if (routeEventsBound) return;
+  routeEventsBound = true;
+
+  window.addEventListener("popstate", () => {
+    saveSidebarScrollPosition();
+    applyUrlState();
+    switchView(state.view, { skipHistory: true, replaceHistory: true });
+  });
 };
 
 const setBusy = (loading) => {
@@ -2576,18 +3146,24 @@ const loadSession = async () => {
   }
 
   renderSessionLoading();
+  applyUrlState();
+  const requestedView = state.view;
 
   try {
     const response = await request("/admins/me");
     state.admin = response.data;
-    await loadDashboard();
-    render();
+    await loadDashboard({ setView: requestedView === "dashboard" });
+    if (requestedView !== "dashboard") await switchView(requestedView, { replaceHistory: true });
+    else {
+      updateAdminUrl({ replace: true });
+      render();
+    }
   } catch {
     logout();
   }
 };
 
-const loadDashboard = async () => {
+const loadDashboard = async ({ setView = true } = {}) => {
   const [statsResponse, analyticsResponse] = await Promise.all([
     request("/admins/stats"),
     request("/admins/analytics"),
@@ -2595,7 +3171,7 @@ const loadDashboard = async () => {
 
   state.stats = statsResponse.data;
   state.analytics = analyticsResponse.data;
-  state.view = "dashboard";
+  if (setView) state.view = "dashboard";
 };
 
 const refreshAnalyticsOverview = async () => {
@@ -2621,14 +3197,16 @@ const refreshAnalyticsOverview = async () => {
   }
 };
 
-const loadEntity = async (key) => {
+const loadEntity = async (key, options = {}) => {
   const config = entityConfigs[key];
-  const search = document.querySelector(`#${key}-search`)?.value || "";
+  const search = normalizeSearchQuery(state.entitySearches[key] ?? document.querySelector(`#${key}-search`)?.value ?? "");
   const params = new URLSearchParams();
 
-  if (config.searchable && search) params.set("search", search);
+  if (search) params.set("search", search);
   (config.filters || []).forEach((filter) => {
-    const value = document.querySelector(`#${key}-${filter.name}`)?.value || "";
+    const filterElement = document.querySelector(`#${key}-${filter.name}`);
+    const value = filterElement ? filterElement.value : state.entityFilters[key]?.[filter.name] || "";
+    state.entityFilters[key] = { ...(state.entityFilters[key] || {}), [filter.name]: value };
     if (value) params.set(filter.name, value);
   });
   if (key === "users") params.set("limit", "100");
@@ -2638,14 +3216,19 @@ const loadEntity = async (key) => {
   render();
 
   try {
-    const response = await request(path);
-    state.data[key] = config.unwrap(response);
+    const response = await request(path, options.signal ? { signal: options.signal } : {});
+    const records = config.unwrap(response);
+    state.data[key] = search ? records.filter((item) => recordMatchesQuery(key, item, search)) : records;
     state.selectedIds = new Set();
     state.view = key;
     state.error = "";
+    state.entitySearches[key] = search;
+    updateAdminUrl({ replace: options.replaceHistory !== false });
   } catch (error) {
+    if (error.name === "AbortError") return;
     state.error = error.message;
   } finally {
+    if (options.signal?.aborted) return;
     state.loading = false;
     render();
   }
@@ -2658,17 +3241,34 @@ const loadSettings = async () => {
   render();
 };
 
-const loadAuditLogs = async () => {
-  const response = await request("/admins/audit-logs");
-  state.data.auditLogs = response.data || [];
-  state.view = "auditLogs";
-  render();
+const loadAuditLogs = async (options = {}) => {
+  const params = new URLSearchParams();
+  const search = normalizeSearchQuery(state.auditSearch);
+  if (search) params.set("search", search);
+  try {
+    const response = await request(`/admins/audit-logs${params.toString() ? `?${params.toString()}` : ""}`, options.signal ? { signal: options.signal } : {});
+    state.data.auditLogs = response.data || [];
+    state.view = "auditLogs";
+    updateAdminUrl({ replace: options.replaceHistory !== false });
+    render();
+  } catch (error) {
+    if (error.name === "AbortError") return;
+    throw error;
+  }
 };
 
-const switchView = async (view) => {
+const switchView = async (view, options = {}) => {
   state.error = "";
   state.message = "";
   state.view = view;
+  if (options.search !== undefined && isSearchableEntity(view)) {
+    state.entitySearches[view] = normalizeSearchQuery(options.search);
+  }
+  if (options.search !== undefined && view === "auditLogs") {
+    state.auditSearch = normalizeSearchQuery(options.search);
+  }
+  if (options.highlight) state.highlightRecord = { key: view, id: String(options.highlight) };
+  if (!options.skipHistory) updateAdminUrl({ replace: Boolean(options.replaceHistory) });
   render();
 
   try {
@@ -2676,7 +3276,7 @@ const switchView = async (view) => {
     else if (view === "analytics" && !state.analytics) await refreshAnalyticsOverview();
     else if (view === "settings") await loadSettings();
     else if (view === "auditLogs") await loadAuditLogs();
-    else if (entityConfigs[view]) await loadEntity(view);
+    else if (entityConfigs[view]) await loadEntity(view, { replaceHistory: true });
   } catch (error) {
     setMessage("", error.message);
   }
@@ -3901,6 +4501,7 @@ const renderEntity = (key) => {
   const config = entityConfigs[key];
   const hasLoaded = Object.prototype.hasOwnProperty.call(state.data, key);
   const items = state.data[key] || [];
+  const searchValue = getCurrentEntitySearch(key);
   const usesAnimatedEmpty = key === "categories" || key === "notifications";
   const isEmpty = hasLoaded && !items.length;
   const shouldShowInitialLoading = usesAnimatedEmpty && !hasLoaded;
@@ -3929,11 +4530,15 @@ const renderEntity = (key) => {
         <p>${escapeHtml(pageCopy[key] || "Create, review, and manage records with the existing admin API.")}</p>
       </div>
       <div class="toolbar-controls">
-        ${config.searchable ? `<input id="${key}-search" placeholder="Search ${escapeHtml(config.title.toLowerCase())}" />` : ""}
+        <div class="toolbar-search">
+          <label class="visually-hidden" for="${escapeHtml(key)}-search">Search ${escapeHtml(config.title.toLowerCase())}</label>
+          <input id="${escapeHtml(key)}-search" value="${escapeHtml(searchValue)}" placeholder="Search ${escapeHtml(config.title.toLowerCase())}" type="search" autocomplete="off" />
+          ${searchValue ? `<button class="toolbar-search-clear" data-clear-entity-search="${escapeHtml(key)}" type="button" aria-label="Clear ${escapeHtml(config.title)} search">${iconMarkup("x")}</button>` : ""}
+        </div>
         ${(config.filters || [])
           .map((filter) => `
             <select id="${key}-${filter.name}" aria-label="${escapeHtml(filter.label)}">
-              ${filter.options.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join("")}
+              ${filter.options.map(([value, label]) => `<option value="${escapeHtml(value)}" ${String(state.entityFilters[key]?.[filter.name] || "") === String(value) ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}
             </select>
           `)
           .join("")}
@@ -4299,7 +4904,11 @@ const renderAuditLogs = () => {
         <p>Review admin activity with a clean table view and status-coded actions.</p>
       </div>
       <div class="toolbar-controls">
-        <input id="audit-search" placeholder="Search logs" value="${escapeHtml(state.auditSearch)}" />
+        <div class="toolbar-search">
+          <label class="visually-hidden" for="audit-search">Search audit logs</label>
+          <input id="audit-search" placeholder="Search logs" value="${escapeHtml(state.auditSearch)}" type="search" autocomplete="off" />
+          ${state.auditSearch ? `<button class="toolbar-search-clear" data-clear-audit-search type="button" aria-label="Clear audit search">${iconMarkup("x")}</button>` : ""}
+        </div>
         <select id="audit-type" aria-label="Filter audit action">
           ${[
             ["", "All actions"],
@@ -4327,17 +4936,20 @@ const renderAuditLogs = () => {
             </tr>
           </thead>
           <tbody>
-            ${filteredLogs.map((log) => `
-              <tr>
-                <td>${statusPill(log.action || "Activity")}</td>
-                <td class="audit-description">${escapeHtml(log.description || log.action || "Admin activity")}</td>
-                <td>${escapeHtml(log.admin?.email || "-")}</td>
-                <td>${escapeHtml(log.entityType || "-")}</td>
-                <td>${escapeHtml(log.entityId || "-")}</td>
-                <td>${escapeHtml(log.ipAddress || log.device || "-")}</td>
-                <td>${escapeHtml(formatDate(log.createdAt))}</td>
-              </tr>
-            `).join("") || `
+            ${filteredLogs.map((log, index) => {
+              const rowRecord = { ...log, _id: auditLogRecordId(log, index) };
+              return `
+                <tr class="${isHighlightedRecord("auditLogs", rowRecord) ? "record-highlight" : ""}" ${recordDomAttributes("auditLogs", rowRecord)}>
+                  <td>${statusPill(log.action || "Activity")}</td>
+                  <td class="audit-description">${escapeHtml(log.description || log.action || "Admin activity")}</td>
+                  <td>${escapeHtml(log.admin?.email || "-")}</td>
+                  <td>${escapeHtml(log.entityType || "-")}</td>
+                  <td>${escapeHtml(log.entityId || "-")}</td>
+                  <td>${escapeHtml(log.ipAddress || log.device || "-")}</td>
+                  <td>${escapeHtml(formatDate(log.createdAt))}</td>
+                </tr>
+              `;
+            }).join("") || `
               <tr>
                 <td colspan="7" class="audit-empty">
                   ${iconMarkup("file-search")}
@@ -4465,10 +5077,7 @@ const renderApp = () => {
               <h1>${escapeHtml(viewTitle())}</h1>
               <p class="breadcrumb">${escapeHtml(state.admin?.fullName || "")} · <span class="current-date">${new Date().toLocaleDateString()}</span></p>
             </div>
-            <div class="search" role="search">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <input id="global-search" placeholder="Search courses, users, tools..." />
-            </div>
+            ${renderGlobalSearch()}
           </div>
           <div class="actions">
             <div class="profile"><span class="admin-name">${escapeHtml(state.admin?.fullName || "Admin")}</span></div>
@@ -4487,6 +5096,9 @@ const renderApp = () => {
   restoreSidebarScrollPosition();
   bindEvents();
   bindSidebarScrollPersistence();
+  bindRouteEvents();
+  restoreGlobalSearchFocus();
+  scrollHighlightedRecordIntoView();
   initCharts();
   initCountUps();
   initCertificateSummaryAnimations();
@@ -4868,11 +5480,7 @@ const bindEvents = () => {
   document.querySelector('#theme-toggle')?.addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');
   });
-  document.querySelector('#global-search')?.addEventListener('input', (e) => {
-    // lightweight client-side hinting: filter current list view if available
-    const q = String(e.target.value || '').trim().toLowerCase();
-    if (!q) return;
-  });
+  bindGlobalSearchEvents();
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
       saveSidebarScrollPosition();
@@ -4912,20 +5520,47 @@ const bindEvents = () => {
   document.querySelectorAll(".toolbar select[id*='-']").forEach((select) => {
     const key = select.id.split("-")[0];
     if (entityConfigs[key]) {
-      select.addEventListener("change", () => loadEntity(key));
+      select.addEventListener("change", () => {
+        state.highlightRecord = null;
+        loadEntity(key);
+      });
     }
   });
   Object.keys(entityConfigs).forEach((key) => {
+    document.querySelector(`#${key}-search`)?.addEventListener("input", (event) => {
+      queueEntitySearch(key, event.target.value || "");
+    });
     document.querySelector(`#${key}-search`)?.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") loadEntity(key);
+      if (event.key === "Enter") {
+        window.clearTimeout(entitySearchTimers[key]);
+        loadEntity(key, { replaceHistory: true });
+      }
+    });
+  });
+  document.querySelectorAll("[data-clear-entity-search]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.clearEntitySearch;
+      state.entitySearches[key] = "";
+      state.highlightRecord = null;
+      loadEntity(key, { replaceHistory: true });
     });
   });
   document.querySelector("[data-refresh-logs]")?.addEventListener("click", loadAuditLogs);
+  document.querySelector("#audit-search")?.addEventListener("input", (event) => {
+    state.auditSearch = normalizeSearchQuery(event.target.value || "");
+    window.clearTimeout(entitySearchTimers.auditLogs);
+    entitySearchTimers.auditLogs = window.setTimeout(() => loadAuditLogs({ replaceHistory: true }), 300);
+  });
   document.querySelector("#audit-search")?.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
-      state.auditSearch = event.target.value || "";
-      render();
+      window.clearTimeout(entitySearchTimers.auditLogs);
+      state.auditSearch = normalizeSearchQuery(event.target.value || "");
+      loadAuditLogs({ replaceHistory: true });
     }
+  });
+  document.querySelector("[data-clear-audit-search]")?.addEventListener("click", () => {
+    state.auditSearch = "";
+    loadAuditLogs({ replaceHistory: true });
   });
   document.querySelector("#audit-type")?.addEventListener("change", (event) => {
     state.auditType = event.target.value || "";
