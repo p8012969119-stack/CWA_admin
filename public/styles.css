@@ -14788,15 +14788,22 @@ body.courses-admin-page textarea:focus-visible {
 body.lessons-admin-page .nav button.active,
 body.modules-admin-page .nav button.active,
 body.courses-admin-page .nav button.active {
-  background: #16a34a !important;
-  color: #ffffff !important;
+  background: transparent !important;
+  color: #064e3b !important;
+}
+
+.nav button.active::before,
+body.lessons-admin-page .nav button.active::before,
+body.modules-admin-page .nav button.active::before,
+body.courses-admin-page .nav button.active::before {
+  content: none !important;
 }
 
 .nav button.active .ui-icon,
 body.lessons-admin-page .nav button.active .ui-icon,
 body.modules-admin-page .nav button.active .ui-icon,
 body.courses-admin-page .nav button.active .ui-icon {
-  color: #ffffff !important;
+  color: #166534 !important;
 }
 
 /* Final sidebar interaction state: non-active clicks/focus never look selected */
@@ -14829,14 +14836,31 @@ body.courses-admin-page .nav button.active .ui-icon {
 }
 
 .sidebar .nav button.active {
-  background: #16a34a !important;
-  color: #ffffff !important;
+  background: transparent !important;
+  color: #064e3b !important;
   transform: none;
-  box-shadow: 0 12px 24px rgba(22, 163, 74, 0.22) !important;
+  box-shadow: none !important;
+}
+
+.sidebar .nav button.active::before {
+  content: none !important;
 }
 
 .sidebar .nav button.active .ui-icon {
-  color: #ffffff !important;
+  color: #166534 !important;
+}
+
+.sidebar .nav button.active:focus,
+.sidebar .nav button.active:focus-visible,
+.sidebar .nav button.active:active {
+  background: transparent !important;
+  color: #064e3b !important;
+  box-shadow: none !important;
+}
+
+.sidebar .nav button.active:focus-visible {
+  outline: 2px solid #0b0f0c;
+  outline-offset: 3px;
 }
 
 @media (hover: hover) and (pointer: fine) {
