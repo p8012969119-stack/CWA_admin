@@ -4035,7 +4035,10 @@ const renderApp = () => {
               <p class="nav-section">${escapeHtml(section)}</p>
               ${navItems
                 .filter((item) => item.section === section)
-                .map((item) => `<button class="${state.view === item.key ? "active" : ""}" data-view="${item.key}" type="button">${iconMarkup(item.icon || "circle", item.label)}</button>`)
+                .map((item) => {
+                  const isActive = state.view === item.key;
+                  return `<button class="${isActive ? "active" : ""}" data-view="${item.key}" type="button" ${isActive ? 'aria-current="page"' : ""}>${iconMarkup(item.icon || "circle", item.label)}</button>`;
+                })
                 .join("")}
             `)
             .join("")}

@@ -3396,12 +3396,11 @@ body {
   height: 100vh;
   padding: 26px 18px;
   border: 0;
+  border-right: 1px solid #a7f3d0;
   border-radius: 0;
-  background:
-    radial-gradient(circle at 16% 4%, rgba(255, 232, 204, 0.16), transparent 11rem),
-    linear-gradient(180deg, #4a220d 0%, #321507 64%, #261006 100%);
-  color: #fff8ef;
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08), 18px 0 42px rgba(54, 31, 16, 0.08);
+  background: #ecfdf5;
+  color: #064e3b;
+  box-shadow: 14px 0 32px rgba(6, 78, 59, 0.08);
 }
 
 .sidebar .brand {
@@ -3409,7 +3408,7 @@ body {
   align-items: center;
   gap: 12px;
   margin: 0 0 34px;
-  color: #fff8ef;
+  color: #064e3b;
   font-size: 1rem;
   font-weight: 900;
 }
@@ -3423,12 +3422,13 @@ body {
   width: 52px;
   height: 52px;
   place-items: center;
-  border: 2px solid rgba(255, 248, 239, 0.78);
+  border: 2px solid #16a34a;
   border-radius: 50%;
-  color: #fff8ef;
+  background: #dcfce7;
+  color: #064e3b;
   font-size: 1.35rem;
   font-weight: 950;
-  box-shadow: inset 0 0 0 7px rgba(255, 248, 239, 0.08);
+  box-shadow: inset 0 0 0 7px rgba(22, 163, 74, 0.08);
 }
 
 .brand b,
@@ -3438,14 +3438,14 @@ body {
 
 .brand small {
   margin-top: 3px;
-  color: #f1d8bf;
+  color: #166534;
   font-size: 0.88rem;
   font-weight: 750;
 }
 
 .nav-section {
   margin: 24px 8px 8px;
-  color: #dfbea0;
+  color: #15803d;
   font-size: 0.7rem;
   letter-spacing: 0.16em;
 }
@@ -3455,24 +3455,24 @@ body {
   gap: 12px;
   padding: 0 14px;
   border-radius: 12px;
-  color: #fff2e4;
+  color: #064e3b;
 }
 
 .nav button .ui-icon {
   width: 24px;
-  color: #f8dfc7;
+  color: #166534;
 }
 
 .nav button:hover {
-  background: transparent;
-  color: #ffffff;
+  background: #d1fae5;
+  color: #065f46;
   box-shadow: none;
 }
 
 .nav button.active {
-  background: linear-gradient(135deg, #7b3d16, #4d230d);
+  background: #16a34a;
   color: #ffffff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 12px 24px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 12px 24px rgba(22, 163, 74, 0.22);
 }
 
 .nav button.active .ui-icon {
@@ -3484,19 +3484,19 @@ body {
   gap: 12px;
   margin: 34px 6px 22px;
   padding: 18px;
-  border: 1px solid rgba(255, 248, 239, 0.13);
+  border: 1px solid #a7f3d0;
   border-radius: 16px;
-  background: rgba(74, 34, 13, 0.48);
+  background: #dcfce7;
 }
 
 .sidebar-upgrade b {
-  color: #fff8ef;
+  color: #064e3b;
 }
 
 .sidebar-upgrade p,
 .sidebar-copy {
   margin: 0;
-  color: #ecd1b7;
+  color: #166534;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.55;
@@ -3504,7 +3504,8 @@ body {
 
 .sidebar-upgrade .btn {
   min-height: 44px;
-  background: linear-gradient(135deg, #9d5a23, #5b2d10);
+  background: #16a34a;
+  color: #ffffff;
   box-shadow: none;
 }
 
@@ -6116,48 +6117,48 @@ textarea:focus-visible {
 }
 
 .sidebar {
-  background:
-    radial-gradient(circle at 24% 6%, rgba(255, 255, 255, 0.14), transparent 12rem),
-    linear-gradient(180deg, #18181b 0%, #09090b 58%, #000000 100%);
-  color: #ffffff;
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08), 18px 0 42px rgba(0, 0, 0, 0.08);
+  border-right: 1px solid #a7f3d0;
+  background: #ecfdf5;
+  color: #064e3b;
+  box-shadow: 14px 0 32px rgba(6, 78, 59, 0.08);
 }
 
 .sidebar .brand,
 .brand-mark,
 .sidebar-upgrade b {
-  color: #ffffff;
+  color: #064e3b;
 }
 
 .brand-mark {
-  border-color: rgba(255, 255, 255, 0.78);
-  box-shadow: inset 0 0 0 7px rgba(255, 255, 255, 0.08);
+  border-color: #16a34a;
+  background: #dcfce7;
+  box-shadow: inset 0 0 0 7px rgba(22, 163, 74, 0.08);
 }
 
 .brand small,
 .nav-section,
 .sidebar-upgrade p,
 .sidebar-copy {
-  color: #d4d4d8;
+  color: #166534;
 }
 
 .nav button {
-  color: #f4f4f5;
+  color: #064e3b;
 }
 
 .nav button .ui-icon {
-  color: #d4d4d8;
+  color: #166534;
 }
 
 .nav button:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .nav button.active {
-  background: var(--primary);
+  background: #16a34a;
   color: #ffffff;
-  box-shadow: 0 14px 30px rgba(220, 38, 38, 0.28);
+  box-shadow: 0 14px 30px rgba(22, 163, 74, 0.26);
 }
 
 .nav button.active .ui-icon {
@@ -6165,13 +6166,13 @@ textarea:focus-visible {
 }
 
 .sidebar-upgrade {
-  border-color: rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: #a7f3d0;
+  background: #dcfce7;
 }
 
 .sidebar-upgrade .btn {
-  background: #ffffff;
-  color: #000000;
+  background: #16a34a;
+  color: #ffffff;
 }
 
 .topbar {
@@ -8568,6 +8569,226 @@ textarea:focus-visible {
   .dashboard-panels.premium-analytics-grid > .courses-usage-card {
     height: auto !important;
     min-height: 0 !important;
+  }
+}
+
+/* Final sidebar guard after page-specific admin styles */
+.sidebar {
+  border-right: 1px solid #a7f3d0 !important;
+  background: #ecfdf5 !important;
+  color: #064e3b !important;
+}
+
+.nav button.active,
+body.lessons-admin-page .nav button.active,
+body.modules-admin-page .nav button.active,
+body.courses-admin-page .nav button.active {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+/* Light green admin sidebar theme */
+@keyframes sidebarLightEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes brandGreenPulse {
+  0% {
+    box-shadow: inset 0 0 0 7px rgba(22, 163, 74, 0.08), 0 0 0 0 rgba(22, 163, 74, 0.34);
+  }
+
+  70% {
+    box-shadow: inset 0 0 0 7px rgba(22, 163, 74, 0.08), 0 0 0 13px rgba(22, 163, 74, 0);
+  }
+
+  100% {
+    box-shadow: inset 0 0 0 7px rgba(22, 163, 74, 0.08), 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+@keyframes activeIndicatorSlide {
+  from {
+    opacity: 0;
+    transform: translate(-6px, -50%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+.sidebar {
+  border-right: 1px solid #a7f3d0 !important;
+  background: #ecfdf5 !important;
+  color: #064e3b !important;
+  box-shadow: 14px 0 32px rgba(6, 78, 59, 0.08) !important;
+  animation: sidebarLightEnter 320ms var(--ease) both;
+  scrollbar-color: #a7f3d0 transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #a7f3d0;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #16a34a;
+}
+
+.sidebar .brand {
+  color: #064e3b !important;
+}
+
+.sidebar .brand b {
+  color: #064e3b !important;
+}
+
+.sidebar .brand small {
+  color: #166534 !important;
+}
+
+.sidebar .brand::before {
+  display: none !important;
+}
+
+.brand-mark {
+  border-color: #16a34a !important;
+  background: #dcfce7 !important;
+  color: #064e3b !important;
+  box-shadow: inset 0 0 0 7px rgba(22, 163, 74, 0.08) !important;
+  animation: brandGreenPulse 1400ms ease-out 180ms both;
+}
+
+.brand-mark:hover {
+  border-color: #065f46 !important;
+}
+
+.nav-section {
+  color: #15803d !important;
+}
+
+.nav button {
+  position: relative;
+  color: #064e3b !important;
+  background: transparent !important;
+  transition: background-color 200ms ease, color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+
+.nav button .ui-icon {
+  color: #166534 !important;
+  transition: color 200ms ease, transform 200ms ease;
+}
+
+.nav button:hover {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+  transform: translateX(2px);
+  box-shadow: none !important;
+}
+
+.nav button:hover .ui-icon {
+  color: #065f46 !important;
+}
+
+.nav button:focus-visible {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+  background: #d1fae5 !important;
+  color: #064e3b !important;
+  box-shadow: none !important;
+}
+
+.nav button.active,
+body.lessons-admin-page .nav button.active,
+body.modules-admin-page .nav button.active,
+body.courses-admin-page .nav button.active {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  transform: none;
+  box-shadow: 0 12px 24px rgba(22, 163, 74, 0.22) !important;
+}
+
+.nav button.active::before,
+body.lessons-admin-page .nav button.active::before,
+body.modules-admin-page .nav button.active::before,
+body.courses-admin-page .nav button.active::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 4px;
+  height: 26px;
+  border-radius: 999px;
+  background: #ffffff;
+  animation: activeIndicatorSlide 220ms var(--ease) both;
+}
+
+.nav button.active .ui-icon,
+body.lessons-admin-page .nav button.active .ui-icon,
+body.modules-admin-page .nav button.active .ui-icon,
+body.courses-admin-page .nav button.active .ui-icon {
+  color: #ffffff !important;
+}
+
+.sidebar-upgrade {
+  border-color: #a7f3d0 !important;
+  background: #dcfce7 !important;
+  color: #064e3b !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.sidebar-upgrade b {
+  color: #064e3b !important;
+}
+
+.sidebar-upgrade p,
+.sidebar-copy {
+  color: #166534 !important;
+}
+
+.sidebar-upgrade .btn {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 22px rgba(22, 163, 74, 0.18) !important;
+}
+
+.sidebar-upgrade .btn:hover,
+.sidebar-upgrade .btn:focus-visible {
+  background: #065f46 !important;
+  color: #ffffff !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .brand-mark,
+  .nav button.active::before {
+    animation: none !important;
+  }
+
+  .nav button,
+  .nav button .ui-icon {
+    transition: none !important;
+  }
+
+  .nav button:hover {
+    transform: none;
   }
 }
 
@@ -13244,4 +13465,26 @@ body.courses-admin-page textarea:focus-visible {
   .dashboard-panels.premium-analytics-grid > .courses-usage-card {
     min-height: 0 !important;
   }
+}
+
+/* Final sidebar guard after every page-specific admin block */
+.sidebar {
+  border-right: 1px solid #a7f3d0 !important;
+  background: #ecfdf5 !important;
+  color: #064e3b !important;
+}
+
+.nav button.active,
+body.lessons-admin-page .nav button.active,
+body.modules-admin-page .nav button.active,
+body.courses-admin-page .nav button.active {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+.nav button.active .ui-icon,
+body.lessons-admin-page .nav button.active .ui-icon,
+body.modules-admin-page .nav button.active .ui-icon,
+body.courses-admin-page .nav button.active .ui-icon {
+  color: #ffffff !important;
 }
