@@ -885,6 +885,98 @@ const certificateSummaryCard = (label, value, type) => {
 };
 
 const adminSummaryIllustration = (type) => {
+  if (type === "users-records") {
+    return `
+      <span class="admin-summary-visual users-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <circle class="summary-user user-back left" cx="29" cy="32" r="8"></circle>
+          <path class="summary-user user-back left" d="M17 58c3-10 21-10 24 0"></path>
+          <circle class="summary-user user-back right" cx="55" cy="32" r="8"></circle>
+          <path class="summary-user user-back right" d="M43 58c3-10 21-10 24 0"></path>
+          <circle class="summary-user user-main" cx="42" cy="28" r="10"></circle>
+          <path class="summary-user user-main" d="M25 64c5-14 29-14 34 0"></path>
+          <circle class="summary-active-dot" cx="63" cy="22" r="6"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "users-create") {
+    return `
+      <span class="admin-summary-visual users-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <circle class="summary-add-user" cx="34" cy="30" r="12"></circle>
+          <path class="summary-add-user" d="M16 66c5-17 31-17 36 0"></path>
+          <circle class="summary-plus-disc" cx="63" cy="57" r="14"></circle>
+          <path class="summary-plus" d="M63 48v18M54 57h18"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "users-api") {
+    return `
+      <span class="admin-summary-visual users-visual-api" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-server" x="15" y="22" width="32" height="44" rx="8"></rect>
+          <path class="summary-server-line" d="M24 36h14M24 48h14M24 59h10"></path>
+          <rect class="summary-endpoint" x="61" y="31" width="16" height="26" rx="5"></rect>
+          <path class="summary-route route-one" d="M48 36h12"></path>
+          <path class="summary-route route-two" d="M48 55h12"></path>
+          <circle class="summary-packet packet-one" cx="52" cy="36" r="3"></circle>
+          <circle class="summary-packet packet-two" cx="55" cy="55" r="3"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "admins-records") {
+    return `
+      <span class="admin-summary-visual admins-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <circle class="summary-user user-back left" cx="31" cy="34" r="8"></circle>
+          <path class="summary-user user-back left" d="M19 61c3-10 21-10 24 0"></path>
+          <circle class="summary-user user-main" cx="43" cy="29" r="10"></circle>
+          <path class="summary-user user-main" d="M26 65c5-14 29-14 34 0"></path>
+          <path class="summary-shield" d="M63 26l12 4v10c0 9-5 15-12 18-7-3-12-9-12-18V30Z"></path>
+          <path class="summary-shield-check" d="M58 42l4 4 8-10"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "admins-create") {
+    return `
+      <span class="admin-summary-visual admins-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <circle class="summary-add-user" cx="32" cy="30" r="11"></circle>
+          <path class="summary-add-user" d="M15 65c5-16 29-16 34 0"></path>
+          <path class="summary-shield" d="M59 29l12 4v9c0 9-5 15-12 18-7-3-12-9-12-18v-9Z"></path>
+          <circle class="summary-plus-disc" cx="64" cy="62" r="12"></circle>
+          <path class="summary-plus" d="M64 55v14M57 62h14"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "admins-api") {
+    return `
+      <span class="admin-summary-visual admins-visual-api" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-server" x="14" y="23" width="32" height="43" rx="8"></rect>
+          <path class="summary-server-line" d="M23 36h14M23 48h14M23 59h10"></path>
+          <path class="summary-shield api-shield" d="M65 28l11 4v9c0 8-5 14-11 17-7-3-11-9-11-17v-9Z"></path>
+          <path class="summary-lock" d="M61 45v-5c0-5 8-5 8 0v5"></path>
+          <rect class="summary-lock-body" x="59" y="44" width="12" height="10" rx="3"></rect>
+          <path class="summary-route route-one" d="M47 37h9"></path>
+          <path class="summary-route route-two" d="M47 56h13"></path>
+          <circle class="summary-packet packet-one" cx="51" cy="37" r="3"></circle>
+          <circle class="summary-packet packet-two" cx="55" cy="56" r="3"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
   if (type === "category-records") {
     return `
       <span class="admin-summary-visual category-visual-records" aria-hidden="true">
@@ -981,11 +1073,12 @@ const adminSummaryIllustration = (type) => {
 };
 
 const animatedSummaryCard = ({ key, label, value, type, accent = "black", createTarget = "" }) => {
+  const valueTitle = typeof value === "string" && value.includes("/") ? ` title="${escapeHtml(value)}"` : "";
   const content = `
     ${adminSummaryIllustration(type)}
     <div>
       <span>${escapeHtml(label)}</span>
-      <b ${Number.isFinite(Number(value)) ? `data-count="${escapeHtml(value)}" data-count-once="${escapeHtml(key)}-${escapeHtml(type)}"` : ""}>${escapeHtml(value)}</b>
+      <b${valueTitle} ${Number.isFinite(Number(value)) ? `data-count="${escapeHtml(value)}" data-count-once="${escapeHtml(key)}-${escapeHtml(type)}"` : ""}>${escapeHtml(value)}</b>
     </div>
   `;
 
@@ -1233,8 +1326,8 @@ const renderEntitySummary = (key, count, endpoint) => {
     `;
   }
 
-  if (key === "categories" || key === "notifications") {
-    const prefix = key === "categories" ? "category" : "notification";
+  if (key === "users" || key === "admins" || key === "categories" || key === "notifications") {
+    const prefix = key === "users" ? "users" : key === "admins" ? "admins" : key === "categories" ? "category" : "notification";
     return `
       <section class="entity-summary animated-summary-grid ${escapeHtml(key)}-summary-grid">
         ${animatedSummaryCard({ key, label: "Loaded records", value: count, type: `${prefix}-records`, accent: "black" })}
