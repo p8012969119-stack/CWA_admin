@@ -452,6 +452,82 @@ const statusPill = (value, fallback = "Draft") =>
 const iconMarkup = (name, label = "") =>
   `<span class="ui-icon" aria-hidden="true"><i data-lucide="${escapeHtml(name)}"></i></span>${label ? `<span>${escapeHtml(label)}</span>` : ""}`;
 
+const learningCardAnimation = (type) => {
+  const animations = {
+    courses: `
+      <svg viewBox="0 0 96 96" role="img" aria-label="Animated course books">
+        <path class="learning-path" d="M21 68 C34 46 54 62 72 31" />
+        <g class="course-book book-one">
+          <rect x="20" y="44" width="28" height="34" rx="5" />
+          <path d="M27 52h13M27 60h10" />
+        </g>
+        <g class="course-book book-two">
+          <rect x="35" y="34" width="28" height="38" rx="5" />
+          <path d="M42 44h13M42 52h10" />
+        </g>
+        <g class="course-book book-three">
+          <rect x="50" y="24" width="28" height="40" rx="5" />
+          <path d="M58 35h11M58 43h8" />
+        </g>
+        <circle class="progress-dot" cx="72" cy="31" r="8" />
+        <path class="play-mark" d="M70 27l7 4-7 4z" />
+      </svg>
+    `,
+    modules: `
+      <svg viewBox="0 0 96 96" role="img" aria-label="Animated connected modules">
+        <path class="module-line line-one" d="M31 35H52" />
+        <path class="module-line line-two" d="M59 44v16" />
+        <rect class="module-block module-a" x="16" y="22" width="28" height="24" rx="7" />
+        <rect class="module-block module-b" x="52" y="28" width="28" height="24" rx="7" />
+        <rect class="module-block module-c" x="34" y="58" width="28" height="24" rx="7" />
+        <circle class="module-check-dot" cx="70" cy="62" r="9" />
+        <path class="module-check" d="M66 62l3 3 6-7" />
+      </svg>
+    `,
+    lessons: `
+      <svg viewBox="0 0 96 96" role="img" aria-label="Animated lesson document">
+        <rect class="lesson-doc" x="23" y="16" width="44" height="58" rx="8" />
+        <path class="lesson-fold" d="M55 16v14h12" />
+        <path class="lesson-line line-one" d="M32 36h24" />
+        <path class="lesson-line line-two" d="M32 47h28" />
+        <path class="lesson-line line-three" d="M32 58h20" />
+        <circle class="lesson-play" cx="67" cy="64" r="13" />
+        <path class="lesson-play-mark" d="M64 58l10 6-10 6z" />
+        <path class="lesson-eye" d="M20 80c5-8 18-8 23 0-5 8-18 8-23 0z" />
+        <circle class="lesson-eye-dot" cx="31.5" cy="80" r="3" />
+      </svg>
+    `,
+    quizzes: `
+      <svg viewBox="0 0 96 96" role="img" aria-label="Animated quiz paper">
+        <rect class="quiz-paper" x="22" y="18" width="52" height="62" rx="9" />
+        <path class="quiz-question" d="M46 31c0-6 10-6 10 0 0 5-6 5-6 10" />
+        <circle class="quiz-question-dot" cx="50" cy="48" r="2" />
+        <path class="quiz-option option-one" d="M33 58h24" />
+        <path class="quiz-option option-two" d="M33 68h18" />
+        <circle class="quiz-check-bg" cx="66" cy="66" r="9" />
+        <path class="quiz-check" d="M62 66l3 3 6-7" />
+        <text class="quiz-mark" x="72" y="31">?</text>
+      </svg>
+    `,
+    certificates: `
+      <svg viewBox="0 0 96 96" role="img" aria-label="Animated certificate">
+        <rect class="certificate-doc" x="18" y="18" width="54" height="50" rx="8" />
+        <path class="certificate-line line-one" d="M29 32h27" />
+        <path class="certificate-line line-two" d="M29 43h33" />
+        <path class="certificate-line line-three" d="M29 54h20" />
+        <circle class="certificate-seal" cx="68" cy="66" r="13" />
+        <path class="certificate-check" d="M62 66l4 4 8-10" />
+        <path class="certificate-ribbon ribbon-one" d="M62 77l-3 10 9-5" />
+        <path class="certificate-ribbon ribbon-two" d="M74 77l3 10-9-5" />
+        <path class="certificate-lock" d="M27 76v-6c0-6 10-6 10 0v6" />
+        <rect class="certificate-lock-body" x="25" y="75" width="14" height="10" rx="3" />
+      </svg>
+    `,
+  };
+
+  return `<span class="learning-animation learning-animation-${escapeHtml(type)}">${animations[type] || animations.courses}</span>`;
+};
+
 const avatarMarkup = (label, imageUrl = "", className = "") => {
   if (imageUrl) {
     return `<span class="avatar ${className}"><img src="${escapeHtml(imageUrl)}" alt="" loading="lazy" /></span>`;
@@ -3398,18 +3474,19 @@ const renderLearning = () => `
   </section>
   <section class="quick-grid">
     ${[
-      ["courses", "Courses", "Published paths, pricing, levels, and thumbnails.", "book-open"],
-      ["modules", "Modules", "Order course sections and map them to live courses.", "layers-3"],
-      ["lessons", "Lessons", "Manage lesson content, videos, order, and visibility.", "play-square"],
-      ["quizzes", "Quizzes", "Create API-backed questions, options, and answers.", "clipboard-check"],
-      ["certificates", "Certificates", "Review issued and locked certificate records.", "award"],
-    ].map(([view, title, copy, icon]) => `
+      ["courses", "Courses", "Published paths, pricing, levels, and thumbnails.", "courses"],
+      ["modules", "Modules", "Order course sections and map them to live courses.", "modules"],
+      ["lessons", "Lessons", "Manage lesson content, videos, order, and visibility.", "lessons"],
+      ["quizzes", "Quizzes", "Create API-backed questions, options, and answers.", "quizzes"],
+      ["certificates", "Certificates", "Review issued and locked certificate records.", "certificates"],
+    ].map(([view, title, copy, animation]) => `
       <button class="quick-card reveal" data-view="${view}" type="button">
-        ${iconMarkup(icon)}
+        ${learningCardAnimation(animation)}
         <span>
           <b>${title}</b>
           <small>${copy}</small>
         </span>
+        <span class="learning-card-arrow" aria-hidden="true"><i data-lucide="arrow-right"></i></span>
       </button>
     `).join("")}
   </section>
@@ -4011,6 +4088,7 @@ const renderApp = () => {
   else if (entityConfigs[state.view]) content = renderEntity(state.view);
 
   document.body.classList.toggle("courses-admin-page", state.view === "courses");
+  document.body.classList.toggle("learning-admin-page", state.view === "learning");
   document.body.classList.toggle("modules-admin-page", state.view === "modules");
   document.body.classList.toggle("lessons-admin-page", state.view === "lessons");
   document.body.classList.toggle("quizzes-admin-page", state.view === "quizzes");

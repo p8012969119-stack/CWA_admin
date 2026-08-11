@@ -8747,6 +8747,445 @@ body.courses-admin-page .nav button.active .ui-icon {
   color: #ffffff !important;
 }
 
+/* Learning page animated navigation cards */
+body.learning-admin-page .quick-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+
+body.learning-admin-page .quick-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 176px;
+  height: 100%;
+  padding: 28px;
+  overflow: hidden;
+  border: 1px solid #a7f3d0;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 16px 36px rgba(6, 78, 59, 0.07);
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+body.learning-admin-page .quick-card:hover {
+  border-color: #16a34a;
+  box-shadow: 0 22px 46px rgba(6, 78, 59, 0.12);
+  transform: translateY(-2px);
+}
+
+body.learning-admin-page .quick-card:focus-visible {
+  outline: 3px solid rgba(22, 163, 74, 0.28);
+  outline-offset: 3px;
+  border-color: #16a34a;
+}
+
+body.learning-admin-page .quick-card > span:not(.learning-animation):not(.learning-card-arrow) {
+  min-width: 0;
+}
+
+body.learning-admin-page .quick-card b {
+  display: -webkit-box;
+  margin-bottom: 7px;
+  overflow: hidden;
+  color: #0b0f0c;
+  font-size: 1.08rem;
+  font-weight: 950;
+  line-height: 1.2;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+body.learning-admin-page .quick-card small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #667085;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.learning-animation {
+  display: inline-grid;
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  place-items: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid #a7f3d0;
+  border-radius: 22px;
+  background: #dcfce7;
+}
+
+.learning-animation svg {
+  width: 82px;
+  height: 82px;
+  overflow: visible;
+}
+
+.learning-animation rect,
+.learning-animation path,
+.learning-animation circle {
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.learning-animation path,
+.learning-animation rect {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.learning-card-arrow {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  color: #065f46;
+  transition: background-color 200ms ease, color 200ms ease, transform 200ms ease;
+}
+
+.learning-card-arrow svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.6;
+}
+
+body.learning-admin-page .quick-card:hover .learning-card-arrow {
+  background: #16a34a;
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+.learning-animation .learning-path,
+.learning-animation .module-line,
+.learning-animation .lesson-line,
+.learning-animation .certificate-line,
+.learning-animation .quiz-option {
+  fill: none;
+  stroke: #16a34a;
+  stroke-width: 3.2;
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: learningLineDraw 1600ms ease forwards;
+}
+
+.learning-animation .course-book rect,
+.learning-animation .module-block,
+.learning-animation .lesson-doc,
+.learning-animation .quiz-paper,
+.learning-animation .certificate-doc {
+  fill: #ffffff;
+  stroke: #0b0f0c;
+  stroke-width: 3;
+}
+
+.learning-animation .course-book path,
+.learning-animation .lesson-fold {
+  fill: none;
+  stroke: #065f46;
+  stroke-width: 2.5;
+}
+
+.learning-animation .book-one {
+  animation: bookFloat 2800ms ease-in-out infinite;
+}
+
+.learning-animation .book-two {
+  animation: bookFloat 2800ms ease-in-out 180ms infinite;
+}
+
+.learning-animation .book-three {
+  animation: bookFloat 2800ms ease-in-out 360ms infinite;
+}
+
+.learning-animation .progress-dot,
+.learning-animation .lesson-play,
+.learning-animation .quiz-check-bg,
+.learning-animation .certificate-seal,
+.learning-animation .module-check-dot {
+  fill: #16a34a;
+  animation: popIn 1300ms ease both;
+}
+
+.learning-animation .play-mark,
+.learning-animation .lesson-play-mark {
+  fill: #ffffff;
+}
+
+.learning-animation .module-block {
+  animation: moduleAssemble 2400ms ease-in-out infinite;
+}
+
+.learning-animation .module-b {
+  animation-delay: 180ms;
+}
+
+.learning-animation .module-c {
+  animation-delay: 360ms;
+}
+
+.learning-animation .module-check,
+.learning-animation .quiz-check,
+.learning-animation .certificate-check {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 3.4;
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  animation: learningLineDraw 1200ms ease 600ms forwards;
+}
+
+.learning-animation .lesson-doc {
+  animation: lessonSlide 2400ms ease-in-out infinite;
+}
+
+.learning-animation .lesson-eye {
+  fill: none;
+  stroke: #065f46;
+  stroke-width: 2.8;
+  animation: eyePulse 2200ms ease-in-out infinite;
+}
+
+.learning-animation .lesson-eye-dot {
+  fill: #065f46;
+  animation: eyePulse 2200ms ease-in-out infinite;
+}
+
+.learning-animation .quiz-paper {
+  animation: quizCardLift 2600ms ease-in-out infinite;
+}
+
+.learning-animation .quiz-question,
+.learning-animation .quiz-question-dot {
+  fill: none;
+  stroke: #0b0f0c;
+  stroke-width: 3;
+}
+
+.learning-animation .quiz-question-dot {
+  fill: #0b0f0c;
+  stroke: none;
+}
+
+.learning-animation .quiz-mark {
+  fill: #e3262e;
+  font-size: 22px;
+  font-weight: 950;
+  animation: questionBob 2200ms ease-in-out infinite;
+}
+
+.learning-animation .certificate-doc {
+  animation: certificateUnfold 2600ms ease-in-out infinite;
+}
+
+.learning-animation .certificate-ribbon {
+  fill: #16a34a;
+  stroke: #065f46;
+  stroke-width: 2;
+}
+
+.learning-animation .certificate-lock {
+  fill: none;
+  stroke: #0b0f0c;
+  stroke-width: 3;
+  animation: lockOpen 2600ms ease-in-out infinite;
+}
+
+.learning-animation .certificate-lock-body {
+  fill: #ffffff;
+  stroke: #0b0f0c;
+  stroke-width: 2.8;
+}
+
+@keyframes learningLineDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes bookFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes moduleAssemble {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes lessonSlide {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes eyePulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes quizCardLift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes questionBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes certificateUnfold {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(0.96);
+  }
+}
+
+@keyframes lockOpen {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(-10deg) translateX(-1px);
+  }
+}
+
+@media (max-width: 980px) {
+  body.learning-admin-page .quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .learning-animation {
+    width: 82px;
+    height: 82px;
+    border-radius: 20px;
+  }
+
+  .learning-animation svg {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 620px) {
+  body.learning-admin-page .quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.learning-admin-page .quick-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 0;
+    padding: 20px;
+  }
+
+  .learning-animation {
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
+  }
+
+  .learning-animation svg {
+    width: 60px;
+    height: 60px;
+  }
+
+  .learning-card-arrow {
+    grid-column: 2;
+    justify-self: start;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learning-animation *,
+  .learning-card-arrow,
+  body.learning-admin-page .quick-card {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .learning-animation .learning-path,
+  .learning-animation .module-line,
+  .learning-animation .lesson-line,
+  .learning-animation .certificate-line,
+  .learning-animation .quiz-option,
+  .learning-animation .module-check,
+  .learning-animation .quiz-check,
+  .learning-animation .certificate-check {
+    stroke-dashoffset: 0 !important;
+  }
+
+  body.learning-admin-page .quick-card:hover,
+  body.learning-admin-page .quick-card:hover .learning-card-arrow {
+    transform: none;
+  }
+}
+
 .sidebar-upgrade {
   border-color: #a7f3d0 !important;
   background: #dcfce7 !important;
