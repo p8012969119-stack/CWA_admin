@@ -1275,6 +1275,172 @@ h3 {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
 }
 
+.workspace-shell {
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  align-items: stretch;
+  gap: 28px;
+  min-height: 318px;
+  padding: clamp(24px, 4vw, 38px);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 30px;
+  background: #ffffff;
+  box-shadow: 0 20px 46px rgba(11, 15, 12, 0.08);
+}
+
+.workspace-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.workspace-shell .eyebrow {
+  color: #065f46;
+}
+
+.workspace-shell h2 {
+  max-width: 760px;
+  margin: 0 0 14px;
+  color: #0b0f0c;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.workspace-description,
+.workspace-support {
+  max-width: 800px;
+  min-width: 0;
+  margin: 0;
+  color: #374151;
+  font-weight: 750;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.workspace-description {
+  font-size: clamp(1rem, 1.2vw, 1.18rem);
+}
+
+.workspace-support {
+  margin-top: 18px;
+  color: #065f46;
+}
+
+.workspace-shell .chat-preview {
+  align-self: stretch;
+  min-width: 0;
+  border-color: #e5e7eb;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px #f3f4f6;
+}
+
+.workspace-shell .chat-preview span {
+  background: #fee2e2;
+}
+
+.workspace-shell .chat-preview b {
+  background: #e3262e;
+  box-shadow: 0 16px 26px rgba(227, 38, 46, 0.18);
+}
+
+.workspace-shell .hero-actions {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  margin-top: 2px;
+}
+
+.workspace-primary-cta {
+  min-width: 190px;
+  min-height: 54px;
+  border: 1px solid #e3262e;
+  background: #e3262e;
+  color: #ffffff;
+  box-shadow: 0 16px 30px rgba(227, 38, 46, 0.22);
+  transition: background-color 180ms ease, border-color 180ms ease, transform 120ms ease, box-shadow 180ms ease;
+}
+
+.workspace-primary-cta:hover {
+  border-color: #991b1b;
+  background: #991b1b;
+  box-shadow: 0 18px 34px rgba(153, 27, 27, 0.24);
+}
+
+.workspace-primary-cta:focus-visible {
+  outline: 3px solid #16a34a;
+  outline-offset: 3px;
+}
+
+.workspace-primary-cta:active {
+  transform: scale(0.98);
+}
+
+.workspace-primary-cta:disabled,
+.workspace-primary-cta[aria-disabled="true"] {
+  cursor: not-allowed;
+  border-color: #d1d5db;
+  background: #9ca3af;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.workspace-primary-cta[aria-busy="true"]::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: workspaceCtaSpin 700ms linear infinite;
+}
+
+@keyframes workspaceCtaSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .workspace-shell {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .workspace-shell .chat-preview {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 620px) {
+  .workspace-shell {
+    padding: 22px;
+    border-radius: 28px;
+  }
+
+  .workspace-shell .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workspace-shell .hero-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-primary-cta,
+  .workspace-primary-cta[aria-busy="true"]::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -14359,5 +14525,143 @@ body.courses-admin-page .nav button.active .ui-icon {
   .sidebar .nav button:not(.active):active {
     background: transparent !important;
     transform: none;
+  }
+}
+
+/* Final AI Workspace card redesign */
+.workspace-shell {
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px) !important;
+  align-items: stretch !important;
+  gap: 28px !important;
+  min-height: 318px;
+  padding: clamp(24px, 4vw, 38px) !important;
+  overflow: hidden;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 30px !important;
+  background: #ffffff !important;
+  box-shadow: 0 20px 46px rgba(11, 15, 12, 0.08) !important;
+}
+
+.workspace-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.workspace-shell .eyebrow {
+  color: #065f46 !important;
+}
+
+.workspace-shell h2 {
+  max-width: 760px;
+  margin: 0 0 14px;
+  color: #0b0f0c !important;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.workspace-description,
+.workspace-support {
+  max-width: 800px;
+  min-width: 0;
+  margin: 0;
+  color: #374151;
+  font-weight: 750;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.workspace-support {
+  margin-top: 18px;
+  color: #065f46;
+}
+
+.workspace-shell .chat-preview {
+  align-self: stretch;
+  min-width: 0;
+  border-color: #e5e7eb;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px #f3f4f6;
+}
+
+.workspace-shell .chat-preview span {
+  background: #fee2e2;
+}
+
+.workspace-shell .chat-preview b {
+  background: #e3262e;
+  box-shadow: 0 16px 26px rgba(227, 38, 46, 0.18);
+}
+
+.workspace-shell .hero-actions {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  margin-top: 2px;
+}
+
+.workspace-primary-cta {
+  min-width: 190px;
+  min-height: 54px;
+  border: 1px solid #e3262e !important;
+  background: #e3262e !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 30px rgba(227, 38, 46, 0.22) !important;
+}
+
+.workspace-primary-cta:hover {
+  border-color: #991b1b !important;
+  background: #991b1b !important;
+}
+
+.workspace-primary-cta:focus-visible {
+  outline: 3px solid #16a34a;
+  outline-offset: 3px;
+}
+
+.workspace-primary-cta:active {
+  transform: scale(0.98);
+}
+
+.workspace-primary-cta[aria-busy="true"]::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: workspaceCtaSpin 700ms linear infinite;
+}
+
+@media (max-width: 900px) {
+  .workspace-shell {
+    grid-template-columns: 1fr !important;
+    min-height: 0;
+  }
+
+  .workspace-shell .chat-preview {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 620px) {
+  .workspace-shell {
+    padding: 22px !important;
+    border-radius: 28px !important;
+  }
+
+  .workspace-shell .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workspace-shell .hero-actions .btn {
+    width: 100%;
   }
 }

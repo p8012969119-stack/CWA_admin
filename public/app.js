@@ -3583,11 +3583,11 @@ const renderLearning = () => `
 
 const renderWorkspace = () => `
   <section class="workspace-shell card reveal">
-    <div>
-      <p class="eyebrow">AI Workspace</p>
-      <h2>Manage the AI tools that power learner workflows.</h2>
-      <p class="workspace-start-text">Type something to start</p>
-      <p>Keep tool cards, integrations, categories, featured status, and visibility organized from the admin side.</p>
+    <div class="workspace-copy">
+      <p class="eyebrow">AI WORKSPACE</p>
+      <h2>One workspace. Every AI task.</h2>
+      <p class="workspace-description">Chat with AI, write emails, generate images, create code, summarize PDFs, translate content, and produce voice, all from one intelligent workspace.</p>
+      <p class="workspace-support">Choose a tool, enter your prompt, and continue your recent work anytime.</p>
     </div>
     <div class="chat-preview" aria-hidden="true">
       <span></span>
@@ -3596,7 +3596,7 @@ const renderWorkspace = () => `
       <b></b>
     </div>
     <div class="hero-actions">
-      <button class="btn" data-view="aiTools" type="button">${iconMarkup("bot", "Manage AI tools")}</button>
+      <button class="btn workspace-primary-cta" data-view="aiTools" type="button" aria-label="Start creating in AI Workspace">${iconMarkup("sparkles", "Start Creating")}</button>
       <button class="btn secondary" data-view="categories" type="button">${iconMarkup("folder-tree", "Manage categories")}</button>
     </div>
   </section>
