@@ -9073,9 +9073,22 @@ textarea:focus-visible {
 
 /* Final sidebar guard after page-specific admin styles */
 .sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  align-self: start !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   border-right: 1px solid #a7f3d0 !important;
   background: #ecfdf5 !important;
   color: #064e3b !important;
+}
+
+.main {
+  min-width: 0;
 }
 
 .nav button.active,

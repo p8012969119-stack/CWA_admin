@@ -1,10 +1,22 @@
 const app = document.querySelector("#app");
 const storageKey = "cwa_admin_token";
+const sidebarScrollStorageKey = "cwa_admin_sidebar_scroll_top";
+
+const readStoredSidebarScrollTop = () => {
+  try {
+    const value = Number(sessionStorage.getItem(sidebarScrollStorageKey) || 0);
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  } catch {
+    return 0;
+  }
+};
 
 const state = {
   admin: null,
   token: localStorage.getItem(storageKey),
   view: "dashboard",
+  sidebarCollapsed: false,
+  sidebarScrollTop: readStoredSidebarScrollTop(),
   stats: null,
   analytics: null,
   settings: null,
@@ -26,6 +38,47 @@ const state = {
 };
 
 const animatedCountKeys = new Set();
+
+const getSidebarElement = () => document.querySelector(".sidebar");
+
+const persistSidebarScrollTop = (scrollTop) => {
+  const safeScrollTop = Math.max(0, Math.round(Number(scrollTop) || 0));
+  state.sidebarScrollTop = safeScrollTop;
+
+  try {
+    sessionStorage.setItem(sidebarScrollStorageKey, String(safeScrollTop));
+  } catch {
+    // Session storage can be unavailable in private or restricted contexts.
+  }
+};
+
+const saveSidebarScrollPosition = () => {
+  const sidebar = getSidebarElement();
+  if (!sidebar) return;
+  persistSidebarScrollTop(sidebar.scrollTop);
+};
+
+const restoreSidebarScrollPosition = () => {
+  const sidebar = getSidebarElement();
+  if (!sidebar) return;
+
+  const applyScrollTop = () => {
+    const maxScrollTop = Math.max(0, sidebar.scrollHeight - sidebar.clientHeight);
+    sidebar.scrollTop = Math.min(state.sidebarScrollTop, maxScrollTop);
+  };
+
+  applyScrollTop();
+  window.requestAnimationFrame?.(applyScrollTop);
+};
+
+const bindSidebarScrollPersistence = () => {
+  const sidebar = getSidebarElement();
+  if (!sidebar) return;
+
+  sidebar.addEventListener("scroll", () => {
+    persistSidebarScrollTop(sidebar.scrollTop);
+  }, { passive: true });
+};
 
 const getRuntimeApiBaseUrl = () => {
   const configured = window.__CWA_ADMIN_CONFIG__?.apiBaseUrl;
@@ -4351,6 +4404,8 @@ const viewTitle = () => {
 };
 
 const renderApp = () => {
+  saveSidebarScrollPosition();
+
   let content = "";
   if (state.view === "dashboard") content = renderDashboard();
   else if (state.view === "learning") content = renderLearning();
@@ -4375,7 +4430,7 @@ const renderApp = () => {
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
-    <section class="layout">
+    <section class="layout${state.sidebarCollapsed ? " sidebar-collapsed" : ""}">
       <aside class="sidebar">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true">C</span>
@@ -4429,7 +4484,9 @@ const renderApp = () => {
   `;
 
   if (window.lucide && typeof lucide.replace === 'function') try{ lucide.replace(); }catch(e){}
+  restoreSidebarScrollPosition();
   bindEvents();
+  bindSidebarScrollPersistence();
   initCharts();
   initCountUps();
   initCertificateSummaryAnimations();
@@ -4803,7 +4860,10 @@ const findItem = (key, id) => (state.data[key] || []).find((item) => String(item
 
 const bindEvents = () => {
   document.querySelector("#sidebar-toggle")?.addEventListener("click", () => {
-    document.querySelector('.layout')?.classList.toggle('sidebar-collapsed');
+    saveSidebarScrollPosition();
+    state.sidebarCollapsed = !state.sidebarCollapsed;
+    document.querySelector('.layout')?.classList.toggle('sidebar-collapsed', state.sidebarCollapsed);
+    if (!state.sidebarCollapsed) restoreSidebarScrollPosition();
   });
   document.querySelector('#theme-toggle')?.addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');
@@ -4814,7 +4874,10 @@ const bindEvents = () => {
     if (!q) return;
   });
   document.querySelectorAll("[data-view]").forEach((button) => {
-    button.addEventListener("click", () => switchView(button.dataset.view));
+    button.addEventListener("click", () => {
+      saveSidebarScrollPosition();
+      switchView(button.dataset.view);
+    });
   });
   document.querySelector("[data-growth-range]")?.addEventListener("change", (event) => {
     state.analyticsFilters.userGrowthDays = Number(event.target.value || 7);
