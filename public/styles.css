@@ -13906,6 +13906,378 @@ body.courses-admin-page textarea:focus-visible {
   }
 }
 
+/* Dashboard platform metric animations */
+.platform-metric-icon {
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
+  min-height: 68px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.platform-metric-animation {
+  display: inline-grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: currentColor;
+}
+
+.platform-metric-animation svg {
+  width: 42px;
+  height: 42px;
+  overflow: visible;
+}
+
+.platform-metric-animation path,
+.platform-metric-animation rect,
+.platform-metric-animation circle {
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.platform-metric-animation path,
+.platform-metric-animation rect {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.metric-user-main,
+.metric-user-back,
+.metric-book,
+.metric-certificate-doc,
+.metric-form,
+.metric-lesson-page,
+.metric-progress-track {
+  fill: none;
+  stroke: #0b0f0c;
+  stroke-width: 3.4;
+}
+
+.metric-user-back {
+  opacity: 0.46;
+  animation: metricUserAppear 2600ms ease-in-out infinite;
+}
+
+.metric-user-main {
+  animation: metricSoftFloat 2600ms ease-in-out infinite;
+}
+
+.metric-status-dot,
+.metric-node,
+.metric-seal,
+.metric-play {
+  fill: #16a34a;
+  stroke: none;
+  animation: metricPulse 2200ms ease-in-out infinite;
+}
+
+.metric-pulse-ring {
+  fill: none;
+  stroke: #16a34a;
+  stroke-width: 2.6;
+  opacity: 0;
+  animation: metricPulseRing 2400ms ease-out infinite;
+}
+
+.metric-activity-line,
+.metric-path-line,
+.metric-node-line,
+.metric-plus,
+.metric-check,
+.metric-page-line {
+  fill: none;
+  stroke: #16a34a;
+  stroke-width: 3.2;
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: metricLineDraw 2200ms ease-in-out infinite;
+}
+
+.metric-page-line {
+  stroke: #065f46;
+  stroke-width: 2.8;
+}
+
+.metric-book {
+  fill: #ffffff;
+  animation: metricBookStack 2600ms ease-in-out infinite;
+}
+
+.metric-book.book-b {
+  animation-delay: 160ms;
+}
+
+.metric-book.book-c {
+  animation-delay: 320ms;
+}
+
+.metric-ai-spark {
+  fill: #0b0f0c;
+  stroke: #0b0f0c;
+  stroke-width: 1.4;
+  animation: metricSparkPop 2400ms ease-in-out infinite;
+}
+
+.metric-node-line {
+  stroke-width: 2.4;
+  opacity: 0.74;
+}
+
+.metric-certificate-doc,
+.metric-form,
+.metric-lesson-page {
+  fill: #ffffff;
+}
+
+.metric-certificate-doc {
+  animation: metricUnfold 2600ms ease-in-out infinite;
+}
+
+.metric-seal {
+  stroke: #065f46;
+  stroke-width: 2;
+}
+
+.metric-sparkle {
+  fill: #16a34a;
+  stroke: #16a34a;
+  stroke-width: 1.4;
+  animation: metricSparkMove 2600ms ease-in-out infinite;
+}
+
+.metric-form {
+  animation: metricRise 2400ms ease-in-out infinite;
+}
+
+.metric-progress-track {
+  stroke: rgba(11, 15, 12, 0.16);
+  stroke-width: 4;
+}
+
+.metric-progress-ring {
+  fill: none;
+  stroke: #16a34a;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transform: rotate(-90deg);
+  transform-origin: 32px 32px;
+  animation: metricProgressDraw 1400ms ease-out forwards;
+}
+
+.progress-check {
+  stroke: #065f46;
+  stroke-width: 4;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: metricLineDrawOnce 700ms ease-out 1200ms forwards;
+}
+
+.lesson-back {
+  opacity: 0.48;
+  animation: metricPageShift 2600ms ease-in-out infinite;
+}
+
+.lesson-front {
+  animation: metricSoftFloat 2600ms ease-in-out infinite;
+}
+
+.metric-play-mark {
+  fill: #ffffff;
+}
+
+@keyframes metricUserAppear {
+  0%,
+  100% {
+    opacity: 0.38;
+    transform: translateX(0);
+  }
+
+  50% {
+    opacity: 0.66;
+    transform: translateX(1px);
+  }
+}
+
+@keyframes metricSoftFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes metricPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.86;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+@keyframes metricPulseRing {
+  0% {
+    opacity: 0.42;
+    transform: scale(0.72);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes metricLineDraw {
+  0% {
+    stroke-dashoffset: 80;
+  }
+
+  45%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes metricLineDrawOnce {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes metricBookStack {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes metricSparkPop {
+  0%,
+  100% {
+    transform: scale(0.94);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes metricSparkMove {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(2px, -2px);
+  }
+}
+
+@keyframes metricUnfold {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(0.96);
+  }
+}
+
+@keyframes metricRise {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes metricProgressDraw {
+  to {
+    stroke-dashoffset: var(--metric-progress-offset);
+  }
+}
+
+@keyframes metricPageShift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(2px, -2px);
+  }
+}
+
+@media (max-width: 1024px) {
+  .platform-metric-icon {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+  }
+
+  .platform-metric-animation svg {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 640px) {
+  .platform-metric-icon {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    min-height: 54px;
+  }
+
+  .platform-metric-animation svg {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-metric-animation *,
+  .platform-metric-animation svg {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .metric-activity-line,
+  .metric-path-line,
+  .metric-node-line,
+  .metric-plus,
+  .metric-check,
+  .metric-page-line,
+  .progress-check {
+    stroke-dashoffset: 0 !important;
+  }
+
+  .metric-progress-ring {
+    stroke-dashoffset: var(--metric-progress-offset) !important;
+  }
+}
+
 /* Final sidebar guard after every page-specific admin block */
 .sidebar {
   border-right: 1px solid #a7f3d0 !important;
@@ -13926,4 +14298,66 @@ body.lessons-admin-page .nav button.active .ui-icon,
 body.modules-admin-page .nav button.active .ui-icon,
 body.courses-admin-page .nav button.active .ui-icon {
   color: #ffffff !important;
+}
+
+/* Final sidebar interaction state: non-active clicks/focus never look selected */
+.sidebar .nav button {
+  -webkit-tap-highlight-color: transparent;
+  background: transparent !important;
+}
+
+.sidebar .nav button:not(.active) {
+  background: transparent !important;
+  color: #064e3b !important;
+  box-shadow: none !important;
+}
+
+.sidebar .nav button:not(.active):focus,
+.sidebar .nav button:not(.active):focus-visible,
+.sidebar .nav button:not(.active):active {
+  background: transparent !important;
+  color: #064e3b !important;
+  box-shadow: none !important;
+}
+
+.sidebar .nav button:not(.active):focus-visible {
+  outline: 2px solid #16a34a;
+  outline-offset: 3px;
+}
+
+.sidebar .nav button:not(.active):active {
+  transform: scale(0.99);
+}
+
+.sidebar .nav button.active {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  transform: none;
+  box-shadow: 0 12px 24px rgba(22, 163, 74, 0.22) !important;
+}
+
+.sidebar .nav button.active .ui-icon {
+  color: #ffffff !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sidebar .nav button:not(.active):hover {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+    transform: translateX(2px);
+  }
+
+  .sidebar .nav button:not(.active):hover .ui-icon {
+    color: #065f46 !important;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .sidebar .nav button:not(.active):hover,
+  .sidebar .nav button:not(.active):focus,
+  .sidebar .nav button:not(.active):focus-visible,
+  .sidebar .nav button:not(.active):active {
+    background: transparent !important;
+    transform: none;
+  }
 }

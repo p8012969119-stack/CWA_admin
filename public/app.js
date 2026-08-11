@@ -528,6 +528,95 @@ const learningCardAnimation = (type) => {
   return `<span class="learning-animation learning-animation-${escapeHtml(type)}">${animations[type] || animations.courses}</span>`;
 };
 
+const clampPercent = (value) => Math.max(0, Math.min(100, Number(value || 0)));
+
+const metricCardAnimation = (type, percentage = 0) => {
+  const progress = clampPercent(percentage);
+  const progressOffset = 100 - progress;
+  const animations = {
+    users: `
+      <svg viewBox="0 0 64 64" role="img" aria-label="Animated user group">
+        <circle class="metric-user-back user-left" cx="21" cy="25" r="7" />
+        <path class="metric-user-back user-left" d="M10 43c2-8 19-8 22 0" />
+        <circle class="metric-user-back user-right" cx="43" cy="25" r="7" />
+        <path class="metric-user-back user-right" d="M32 43c2-8 19-8 22 0" />
+        <circle class="metric-user-main" cx="32" cy="22" r="9" />
+        <path class="metric-user-main" d="M17 49c4-12 26-12 30 0" />
+        <circle class="metric-status-dot" cx="48" cy="17" r="4" />
+      </svg>
+    `,
+    "daily-active": `
+      <svg viewBox="0 0 64 64" role="img" aria-label="Animated active user">
+        <circle class="metric-pulse-ring" cx="32" cy="32" r="21" />
+        <circle class="metric-user-main" cx="32" cy="24" r="8" />
+        <path class="metric-user-main" d="M19 48c4-11 22-11 26 0" />
+        <path class="metric-activity-line" d="M14 21h7l5-8 7 18 5-10h12" />
+        <circle class="metric-status-dot" cx="48" cy="17" r="4" />
+      </svg>
+    `,
+    courses: `
+      <svg viewBox="0 0 64 64" role="img" aria-label="Animated course books">
+        <path class="metric-path-line" d="M13 46c12-18 28 2 39-22" />
+        <rect class="metric-book book-a" x="13" y="30" width="16" height="23" rx="3" />
+        <rect class="metric-book book-b" x="25" y="23" width="16" height="26" rx="3" />
+        <rect class="metric-book book-c" x="37" y="16" width="16" height="27" rx="3" />
+        <path class="metric-page-line" d="M18 37h7M30 31h7M42 25h7" />
+        <circle class="metric-status-dot" cx="52" cy="24" r="4" />
+      </svg>
+    `,
+    "ai-tools": `
+      <svg viewBox="0 0 64 64" role="img" aria-label="Animated AI tool network">
+        <path class="metric-node-line line-one" d="M32 32L18 18" />
+        <path class="metric-node-line line-two" d="M32 32l15-12" />
+        <path class="metric-node-line line-three" d="M32 32l15 14" />
+        <path class="metric-node-line line-four" d="M32 32L17 47" />
+        <circle class="metric-node" cx="18" cy="18" r="5" />
+        <circle class="metric-node" cx="47" cy="20" r="5" />
+        <circle class="metric-node" cx="47" cy="46" r="5" />
+        <circle class="metric-node" cx="17" cy="47" r="5" />
+        <path class="metric-ai-spark" d="M32 18l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" />
+        <circle class="metric-status-dot" cx="49" cy="15" r="4" />
+      </svg>
+    `,
+    certificates: `
+      <svg viewBox="0 0 64 64" role="img" aria-label="Animated certificate">
+        <rect class="metric-certificate-doc" x="13" y="14" width="34" height="33" rx="5" />
+        <path class="metric-page-line" d="M20 24h18M20 32h21M20 40h12" />
+        <circle class="metric-seal" cx="45" cy="45" r="9" />
+        <path class="metric-check" d="M41 45l3 3 6-7" />
+        <path class="metric-sparkle" d="M51 16l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" />
+      </svg>
+    `,
+    registrations: `
+      <svg viewBox="0 0 64 64" role="img" aria-label="Animated registration">
+        <circle class="metric-user-main" cx="23" cy="23" r="8" />
+        <path class="metric-user-main" d="M11 47c3-11 21-11 25 0" />
+        <path class="metric-plus" d="M45 19v16M37 27h16" />
+        <rect class="metric-form" x="35" y="39" width="17" height="13" rx="3" />
+        <path class="metric-check" d="M39 45l3 3 6-7" />
+      </svg>
+    `,
+    completion: `
+      <svg viewBox="0 0 64 64" role="img" aria-label="Animated completion progress" style="--metric-progress-offset:${progressOffset};">
+        <circle class="metric-progress-track" cx="32" cy="32" r="20" />
+        <circle class="metric-progress-ring" cx="32" cy="32" r="20" pathLength="100" />
+        <path class="metric-check progress-check" d="M24 33l6 6 11-14" />
+      </svg>
+    `,
+    lessons: `
+      <svg viewBox="0 0 64 64" role="img" aria-label="Animated lesson pages">
+        <rect class="metric-lesson-page lesson-back" x="18" y="15" width="28" height="35" rx="5" />
+        <rect class="metric-lesson-page lesson-front" x="13" y="20" width="32" height="35" rx="5" />
+        <path class="metric-page-line" d="M21 30h16M21 38h18M21 46h11" />
+        <circle class="metric-play" cx="47" cy="44" r="9" />
+        <path class="metric-play-mark" d="M44 39l8 5-8 5z" />
+      </svg>
+    `,
+  };
+
+  return `<span class="platform-metric-animation platform-metric-animation-${escapeHtml(type)}">${animations[type] || animations.users}</span>`;
+};
+
 const avatarMarkup = (label, imageUrl = "", className = "") => {
   if (imageUrl) {
     return `<span class="avatar ${className}"><img src="${escapeHtml(imageUrl)}" alt="" loading="lazy" /></span>`;
@@ -2399,7 +2488,7 @@ const renderDashboardMetricsTable = (rows) => {
         return `
           <div class="platform-metric-card ${themeClass}">
             <div class="platform-metric-icon">
-              <i data-lucide="${escapeHtml(row.icon)}"></i>
+              ${metricCardAnimation(row.type || "users", row.percentage)}
             </div>
             <div class="platform-metric-content">
               <div class="platform-metric-top">
@@ -3414,14 +3503,14 @@ const renderDashboard = () => {
   const learning = stats.learning || {};
   const analytics = state.analytics || {};
   const dashboardMetrics = [
-    { label: "Total Users", value: users.total ?? 0, note: `${users.active ?? 0} active`, icon: "users", trend: "Live" },
-    { label: "Daily Active", value: users.dailyActive ?? 0, note: `${users.weeklyActive ?? 0} weekly`, icon: "activity", trend: "Today" },
-    { label: "Courses", value: courses.total ?? 0, note: `${courses.published ?? 0} published`, icon: "graduation-cap", trend: "Content" },
-    { label: "AI Tools", value: aiTools.total ?? 0, note: `${aiTools.active ?? 0} active`, icon: "wand", trend: "Tools" },
-    { label: "Certificates", value: certs.issued ?? 0, note: "issued", icon: "shield", trend: "Trust" },
-    { label: "Registrations", value: users.newRegistrations ?? 0, note: "last 7 days", icon: "bar-chart-2", trend: "Growth" },
-    { label: "Avg Completion", value: `${learning.averageProgress ?? 0}%`, note: `${learning.completedEnrollments ?? 0} complete`, icon: "pie-chart", trend: "Learning" },
-    { label: "Lessons", value: modules.lessons ?? 0, note: `${modules.total ?? 0} modules`, icon: "book-open", trend: "Library" }
+    { label: "Total Users", value: users.total ?? 0, note: `${users.active ?? 0} active`, icon: "users", trend: "Live", type: "users" },
+    { label: "Daily Active", value: users.dailyActive ?? 0, note: `${users.weeklyActive ?? 0} weekly`, icon: "activity", trend: "Today", type: "daily-active" },
+    { label: "Courses", value: courses.total ?? 0, note: `${courses.published ?? 0} published`, icon: "graduation-cap", trend: "Content", type: "courses" },
+    { label: "AI Tools", value: aiTools.total ?? 0, note: `${aiTools.active ?? 0} active`, icon: "wand", trend: "Tools", type: "ai-tools" },
+    { label: "Certificates", value: certs.issued ?? 0, note: "issued", icon: "shield", trend: "Trust", type: "certificates" },
+    { label: "Registrations", value: users.newRegistrations ?? 0, note: "last 7 days", icon: "bar-chart-2", trend: "Growth", type: "registrations" },
+    { label: "Avg Completion", value: `${learning.averageProgress ?? 0}%`, note: `${learning.completedEnrollments ?? 0} complete`, icon: "pie-chart", trend: "Learning", type: "completion", percentage: learning.averageProgress ?? 0 },
+    { label: "Lessons", value: modules.lessons ?? 0, note: `${modules.total ?? 0} modules`, icon: "book-open", trend: "Library", type: "lessons" }
   ];
 
   return `
