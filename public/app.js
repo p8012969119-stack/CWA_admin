@@ -717,6 +717,174 @@ const certificateSummaryCard = (label, value, type) => {
   return `<div class="stat-chip certificate-summary-chip certificate-summary-${type}">${content}</div>`;
 };
 
+const adminSummaryIllustration = (type) => {
+  if (type === "category-records") {
+    return `
+      <span class="admin-summary-visual category-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="category-tile tile-one" x="18" y="23" width="22" height="18" rx="5"></rect>
+          <rect class="category-tile tile-two" x="48" y="23" width="22" height="18" rx="5"></rect>
+          <rect class="category-tile tile-three" x="18" y="50" width="22" height="18" rx="5"></rect>
+          <rect class="category-tile tile-four" x="48" y="50" width="22" height="18" rx="5"></rect>
+          <path class="category-tag-line" d="M27 32h6M57 32h6M27 59h6M57 59h6"></path>
+          <circle class="category-check-disc" cx="67" cy="21" r="9"></circle>
+          <path class="category-check" d="M62 21l4 4 8-9"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "category-create") {
+    return `
+      <span class="admin-summary-visual category-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <path class="category-folder" d="M16 31h23l6 8h27v29a7 7 0 0 1-7 7H23a7 7 0 0 1-7-7Z"></path>
+          <path class="category-folder-lid" d="M16 31h22l6 8h28"></path>
+          <path class="category-label" d="M28 53h18M28 62h13"></path>
+          <circle class="summary-plus-disc" cx="64" cy="61" r="13"></circle>
+          <path class="summary-plus" d="M64 53v16M56 61h16"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "category-api") {
+    return `
+      <span class="admin-summary-visual category-visual-api" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-server" x="15" y="22" width="32" height="44" rx="8"></rect>
+          <path class="summary-server-line" d="M24 36h14M24 48h14M24 59h10"></path>
+          <rect class="category-node node-one" x="62" y="23" width="14" height="14" rx="4"></rect>
+          <rect class="category-node node-two" x="60" y="52" width="16" height="16" rx="4"></rect>
+          <path class="summary-route route-one" d="M48 35h13"></path>
+          <path class="summary-route route-two" d="M48 56h12"></path>
+          <circle class="summary-packet packet-one" cx="52" cy="35" r="3"></circle>
+          <circle class="summary-packet packet-two" cx="55" cy="56" r="3"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "notification-records") {
+    return `
+      <span class="admin-summary-visual notification-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <path class="notification-bell" d="M29 55V42c0-9 6-16 15-16s15 7 15 16v13l7 8H22Z"></path>
+          <path class="notification-clapper" d="M39 67c2 5 8 5 10 0"></path>
+          <circle class="notification-badge badge-one" cx="61" cy="29" r="7"></circle>
+          <circle class="notification-badge badge-two" cx="26" cy="36" r="4"></circle>
+          <path class="notification-wave wave-one" d="M22 44c-3-4-3-9 0-13"></path>
+          <path class="notification-wave wave-two" d="M66 44c3-4 3-9 0-13"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "notification-create") {
+    return `
+      <span class="admin-summary-visual notification-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="notification-card" x="18" y="26" width="48" height="36" rx="8"></rect>
+          <path class="notification-card-line" d="M29 39h24M29 49h17"></path>
+          <circle class="summary-plus-disc" cx="64" cy="61" r="13"></circle>
+          <path class="summary-plus" d="M64 53v16M56 61h16"></path>
+          <path class="notification-send" d="M24 68l14-8-14-8 4 8Z"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "notification-api") {
+    return `
+      <span class="admin-summary-visual notification-visual-api" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-server" x="15" y="22" width="32" height="44" rx="8"></rect>
+          <path class="summary-server-line" d="M24 36h14M24 48h14M24 59h10"></path>
+          <path class="notification-mini-bell" d="M65 50V39c0-5 4-9 9-9s9 4 9 9v11l4 6H61Z"></path>
+          <path class="summary-route route-one" d="M48 37h14"></path>
+          <path class="summary-route route-two" d="M48 56h13"></path>
+          <circle class="summary-packet packet-one" cx="52" cy="37" r="3"></circle>
+          <circle class="summary-packet packet-two" cx="55" cy="56" r="3"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  return iconMarkup("circle");
+};
+
+const animatedSummaryCard = ({ key, label, value, type, accent = "black", createTarget = "" }) => {
+  const content = `
+    ${adminSummaryIllustration(type)}
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <b ${Number.isFinite(Number(value)) ? `data-count="${escapeHtml(value)}" data-count-once="${escapeHtml(key)}-${escapeHtml(type)}"` : ""}>${escapeHtml(value)}</b>
+    </div>
+  `;
+
+  if (createTarget) {
+    return `<button class="stat-chip animated-summary-card accent-${escapeHtml(accent)} ${escapeHtml(key)}-summary-${escapeHtml(type)}" data-open-form="${escapeHtml(createTarget)}" type="button" aria-label="Create ${escapeHtml(entityConfigs[createTarget]?.title?.slice(0, -1) || createTarget)}">${content}</button>`;
+  }
+
+  return `<div class="stat-chip animated-summary-card accent-${escapeHtml(accent)} ${escapeHtml(key)}-summary-${escapeHtml(type)}">${content}</div>`;
+};
+
+const adminEmptyStateIllustration = (key) => {
+  if (key === "categories") {
+    return `
+      <span class="admin-empty-visual category-empty-visual" aria-hidden="true">
+        <svg viewBox="0 0 140 120" focusable="false">
+          <path class="empty-folder-back" d="M26 45h34l8 10h48v42a9 9 0 0 1-9 9H35a9 9 0 0 1-9-9Z"></path>
+          <path class="empty-folder-front" d="M22 52h96l-10 50a8 8 0 0 1-8 6H36a8 8 0 0 1-8-6Z"></path>
+          <rect class="empty-tag tag-one" x="34" y="26" width="30" height="18" rx="5"></rect>
+          <rect class="empty-tag tag-two" x="79" y="29" width="28" height="18" rx="5"></rect>
+          <circle class="empty-search" cx="94" cy="66" r="16"></circle>
+          <path class="empty-search-handle" d="M106 78l11 11"></path>
+          <path class="empty-check" d="M87 66l5 5 10-12"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  return `
+    <span class="admin-empty-visual notification-empty-visual" aria-hidden="true">
+      <svg viewBox="0 0 140 120" focusable="false">
+        <path class="empty-bell" d="M55 77V58c0-12 8-21 20-21s20 9 20 21v19l9 11H46Z"></path>
+        <path class="empty-clapper" d="M68 92c3 7 11 7 14 0"></path>
+        <rect class="empty-message message-one" x="22" y="32" width="34" height="22" rx="7"></rect>
+        <rect class="empty-message message-two" x="93" y="38" width="32" height="22" rx="7"></rect>
+        <path class="empty-message-line" d="M31 43h16M102 49h13"></path>
+        <path class="empty-quiet-wave wave-one" d="M43 65c-5-8-5-16 0-24"></path>
+        <path class="empty-quiet-wave wave-two" d="M107 65c5-8 5-16 0-24"></path>
+        <circle class="empty-check-disc" cx="99" cy="30" r="10"></circle>
+        <path class="empty-check" d="M94 30l4 4 8-9"></path>
+      </svg>
+    </span>
+  `;
+};
+
+const renderAnimatedEntityEmptyState = (key) => {
+  const title = key === "categories" ? "No categories found" : "No notifications found";
+  const singular = key === "categories" ? "Category" : "Notification";
+
+  return `
+    <div class="empty-state card admin-animated-empty ${escapeHtml(key)}-empty-state">
+      ${adminEmptyStateIllustration(key)}
+      <h3>${escapeHtml(title)}</h3>
+      <p>Use Create or adjust the filters to add and manage records.</p>
+      <button class="btn" data-open-form="${escapeHtml(key)}" type="button">Create ${escapeHtml(singular)}</button>
+    </div>
+  `;
+};
+
+const renderAnimatedEntityLoadingState = (key) => `
+  <div class="empty-state card admin-animated-empty admin-animated-loading">
+    ${adminEmptyStateIllustration(key)}
+    <h3>Loading ${escapeHtml(entityConfigs[key]?.title || "records")}</h3>
+    <p>Fetching the latest records from the existing admin API.</p>
+  </div>
+`;
+
 const aiToolAnimationTypes = [
   { type: "code", keys: ["ai-code-generator", "code", "coding", "developer"] },
   { type: "image", keys: ["ai-image-generator", "image", "art", "design"] },
@@ -894,6 +1062,17 @@ const renderEntitySummary = (key, count, endpoint) => {
         ${certificateSummaryCard("Loaded records", count, "records")}
         ${certificateSummaryCard("Primary action", "Create", "create")}
         ${certificateSummaryCard("Data source", endpoint, "source")}
+      </section>
+    `;
+  }
+
+  if (key === "categories" || key === "notifications") {
+    const prefix = key === "categories" ? "category" : "notification";
+    return `
+      <section class="entity-summary animated-summary-grid ${escapeHtml(key)}-summary-grid">
+        ${animatedSummaryCard({ key, label: "Loaded records", value: count, type: `${prefix}-records`, accent: "black" })}
+        ${animatedSummaryCard({ key, label: "Primary action", value: "Create", type: `${prefix}-create`, accent: "green", createTarget: key })}
+        ${animatedSummaryCard({ key, label: "Data source", value: endpoint, type: `${prefix}-api`, accent: "red" })}
       </section>
     `;
   }
@@ -3313,8 +3492,11 @@ const renderFormFields = (config, item = {}, mode = "create") =>
 
 const renderEntity = (key) => {
   const config = entityConfigs[key];
+  const hasLoaded = Object.prototype.hasOwnProperty.call(state.data, key);
   const items = state.data[key] || [];
-  const isEmpty = !items.length;
+  const usesAnimatedEmpty = key === "categories" || key === "notifications";
+  const isEmpty = hasLoaded && !items.length;
+  const shouldShowInitialLoading = usesAnimatedEmpty && !hasLoaded;
   const isQuizzes = key === "quizzes";
   const isAiTools = key === "aiTools";
   const hasSpecialToolbar = isQuizzes || isAiTools;
@@ -3357,7 +3539,9 @@ const renderEntity = (key) => {
     ${key === "users" ? renderUsersTable(items, isEmpty) : key === "courses" ? renderCoursesGrid(items, isEmpty) : key === "modules" ? renderModulesGrid(items, isEmpty) : key === "lessons" ? renderLessonsGrid(items, isEmpty) : key === "quizzes" ? renderQuizzesGrid(items, isEmpty) : key === "aiTools" ? renderAiToolsGrid(items, isEmpty) : `
       <section class="entity-grid ${key}-grid">
         ${items.map((item) => renderEntityCard(key, item)).join("")}
-        ${isEmpty ? `
+        ${shouldShowInitialLoading ? renderAnimatedEntityLoadingState(key) : ""}
+        ${usesAnimatedEmpty && isEmpty ? renderAnimatedEntityEmptyState(key) : ""}
+        ${isEmpty && !usesAnimatedEmpty ? `
           <div class="empty-state card">
             ${iconMarkup("inbox")}
             <h3>No ${escapeHtml(config.title.toLowerCase())} found</h3>
@@ -3713,6 +3897,8 @@ const renderApp = () => {
   document.body.classList.toggle("ai-tools-admin-page", state.view === "aiTools");
   document.body.classList.toggle("analytics-admin-page", state.view === "analytics");
   document.body.classList.toggle("certificates-admin-page", state.view === "certificates");
+  document.body.classList.toggle("categories-admin-page", state.view === "categories");
+  document.body.classList.toggle("notifications-admin-page", state.view === "notifications");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
@@ -4111,7 +4297,7 @@ const initCountUps = () => {
 };
 
 const initCertificateSummaryAnimations = () => {
-  const visuals = document.querySelectorAll(".certificate-summary-visual");
+  const visuals = document.querySelectorAll(".certificate-summary-visual, .admin-summary-visual, .admin-empty-visual");
   if (!visuals.length || !("IntersectionObserver" in window)) return;
 
   const observer = new IntersectionObserver((entries) => {

@@ -1689,6 +1689,636 @@ h3 {
   color: var(--primary);
 }
 
+/* Categories and notifications summary animations */
+body.categories-admin-page .entity-summary,
+body.notifications-admin-page .entity-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 18px;
+}
+
+body.categories-admin-page .animated-summary-card,
+body.notifications-admin-page .animated-summary-card {
+  min-height: 128px;
+  width: 100%;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid #dde5dd;
+  border-radius: 22px;
+  background: #ffffff;
+  color: #0b0f0c;
+  box-shadow: 0 14px 34px rgba(11, 15, 12, 0.07);
+  text-align: left;
+  animation: adminSummaryEnter 0.42s var(--ease) both;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+body.categories-admin-page .animated-summary-card:nth-child(2),
+body.notifications-admin-page .animated-summary-card:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+body.categories-admin-page .animated-summary-card:nth-child(3),
+body.notifications-admin-page .animated-summary-card:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+body.categories-admin-page .animated-summary-card:hover,
+body.notifications-admin-page .animated-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(11, 15, 12, 0.11);
+}
+
+body.categories-admin-page .animated-summary-card.accent-black:hover,
+body.notifications-admin-page .animated-summary-card.accent-black:hover {
+  border-color: #0b0f0c;
+}
+
+body.categories-admin-page .animated-summary-card.accent-green:hover,
+body.notifications-admin-page .animated-summary-card.accent-green:hover {
+  border-color: #16a34a;
+}
+
+body.categories-admin-page .animated-summary-card.accent-red:hover,
+body.notifications-admin-page .animated-summary-card.accent-red:hover {
+  border-color: #e3262e;
+}
+
+body.categories-admin-page button.animated-summary-card,
+body.notifications-admin-page button.animated-summary-card {
+  cursor: pointer;
+}
+
+body.categories-admin-page .animated-summary-card span:not(.ui-icon, .admin-summary-visual),
+body.notifications-admin-page .animated-summary-card span:not(.ui-icon, .admin-summary-visual) {
+  color: #4b5563;
+}
+
+body.categories-admin-page .animated-summary-card b,
+body.notifications-admin-page .animated-summary-card b {
+  color: #0b0f0c;
+  font-size: 1.05rem;
+}
+
+.admin-summary-visual {
+  display: inline-flex;
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 18px;
+  box-sizing: border-box;
+}
+
+.admin-summary-visual svg {
+  width: 72px;
+  height: 72px;
+}
+
+.category-visual-records,
+.notification-visual-records {
+  background: #f3f4f3;
+  color: #0b0f0c;
+}
+
+.category-visual-create,
+.notification-visual-create {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.category-visual-api,
+.notification-visual-api {
+  background: #fee2e2;
+  color: #e3262e;
+}
+
+.admin-summary-visual rect,
+.admin-summary-visual path,
+.admin-summary-visual circle,
+.admin-empty-visual rect,
+.admin-empty-visual path,
+.admin-empty-visual circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.admin-summary-visual .category-tile,
+.admin-summary-visual .category-folder,
+.admin-summary-visual .notification-card,
+.admin-summary-visual .notification-bell,
+.admin-empty-visual .empty-folder-front,
+.admin-empty-visual .empty-bell,
+.admin-empty-visual .empty-message {
+  fill: #ffffff;
+}
+
+.admin-summary-visual .category-tile {
+  animation: categoryTileStack 2.4s ease-in-out infinite;
+}
+
+.admin-summary-visual .tile-two {
+  animation-delay: 0.14s;
+}
+
+.admin-summary-visual .tile-three {
+  animation-delay: 0.28s;
+}
+
+.admin-summary-visual .tile-four {
+  animation-delay: 0.42s;
+}
+
+.admin-summary-visual .category-check-disc,
+.admin-summary-visual .summary-plus-disc,
+.admin-empty-visual .empty-check-disc {
+  color: #16a34a;
+  fill: #dcfce7;
+  animation: adminCheckPulse 2.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.admin-summary-visual .summary-plus-disc {
+  fill: #16a34a;
+}
+
+.admin-summary-visual .category-check,
+.admin-empty-visual .empty-check {
+  color: #065f46;
+  stroke-dasharray: 24;
+  animation: adminCheckDraw 2.4s ease-in-out infinite;
+}
+
+.admin-summary-visual .summary-plus {
+  color: #ffffff;
+  animation: adminPlusPulse 2s ease-in-out infinite;
+  transform-origin: 64px 61px;
+}
+
+.admin-summary-visual .category-folder {
+  animation: categoryFolderSettle 2.4s ease-in-out infinite;
+}
+
+.admin-summary-visual .category-folder-lid,
+.admin-summary-visual .category-label {
+  color: #065f46;
+}
+
+.admin-summary-visual .summary-server {
+  color: #991b1b;
+  fill: #fee2e2;
+}
+
+.admin-summary-visual .summary-server-line {
+  color: #991b1b;
+  stroke-width: 3;
+}
+
+.admin-summary-visual .category-node,
+.admin-summary-visual .notification-mini-bell {
+  color: #991b1b;
+  fill: #ffffff;
+}
+
+.admin-summary-visual .summary-route {
+  color: #991b1b;
+  stroke-dasharray: 16 7;
+  animation: adminRoutePulse 2.6s ease-in-out infinite;
+}
+
+.admin-summary-visual .summary-packet {
+  color: #e3262e;
+  fill: #ffffff;
+  animation: adminPacketMove 2.6s ease-in-out infinite;
+}
+
+.admin-summary-visual .packet-two {
+  animation-delay: 0.34s;
+}
+
+.admin-summary-visual .notification-bell,
+.admin-summary-visual .notification-mini-bell {
+  animation: notificationBellRest 2.5s ease-in-out infinite;
+  transform-origin: 44px 62px;
+}
+
+.admin-summary-visual .notification-badge {
+  color: #16a34a;
+  fill: #dcfce7;
+  animation: notificationBadgePop 2.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.admin-summary-visual .badge-two {
+  animation-delay: 0.28s;
+}
+
+.admin-summary-visual .notification-wave {
+  color: #0b0f0c;
+  opacity: 0.56;
+  animation: notificationWaveFade 2.5s ease-in-out infinite;
+}
+
+.admin-summary-visual .notification-card,
+.admin-summary-visual .notification-send {
+  animation: notificationCardSlide 2.4s ease-in-out infinite;
+}
+
+.admin-summary-visual .notification-card-line {
+  color: #065f46;
+  stroke-width: 3;
+}
+
+.admin-animated-empty {
+  min-height: 300px;
+  align-content: center;
+  gap: 12px;
+  padding: 34px 24px;
+  border: 1px solid #dde5dd;
+  border-radius: 24px;
+  background: #ffffff;
+  color: #0b0f0c;
+  box-shadow: 0 14px 34px rgba(11, 15, 12, 0.07);
+}
+
+.admin-animated-empty h3 {
+  margin: 0;
+  color: #0b0f0c;
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+.admin-animated-empty p {
+  max-width: 520px;
+  margin: 0;
+  color: #4b5563;
+  font-weight: 650;
+}
+
+.admin-animated-empty .btn {
+  margin-top: 8px;
+  border: 1px solid #0b0f0c;
+  background: #0b0f0c;
+  color: #ffffff;
+}
+
+.admin-empty-visual {
+  display: inline-flex;
+  width: 150px;
+  height: 128px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #f7f8f7;
+  color: #0b0f0c;
+}
+
+.admin-empty-visual svg {
+  width: 132px;
+  height: 112px;
+}
+
+.admin-empty-visual .empty-folder-back {
+  fill: #f3f4f3;
+  animation: emptyFolderFloat 2.6s ease-in-out infinite;
+}
+
+.admin-empty-visual .empty-folder-front {
+  animation: emptyFolderSettle 2.6s ease-in-out infinite;
+}
+
+.admin-empty-visual .empty-tag {
+  color: #16a34a;
+  fill: #dcfce7;
+  animation: emptyTagDrift 2.8s ease-in-out infinite;
+}
+
+.admin-empty-visual .tag-two {
+  animation-delay: 0.32s;
+}
+
+.admin-empty-visual .empty-search,
+.admin-empty-visual .empty-search-handle {
+  color: #0b0f0c;
+  animation: emptySearchSweep 2.6s ease-in-out infinite;
+}
+
+.admin-empty-visual .empty-bell {
+  animation: emptyBellRest 2.8s ease-in-out infinite;
+  transform-origin: 75px 88px;
+}
+
+.admin-empty-visual .empty-message {
+  animation: emptyMessagePass 2.8s ease-in-out infinite;
+}
+
+.admin-empty-visual .message-two {
+  animation-delay: 0.36s;
+}
+
+.admin-empty-visual .empty-message-line {
+  color: #4b5563;
+  stroke-width: 3;
+}
+
+.admin-empty-visual .empty-quiet-wave {
+  color: #0b0f0c;
+  opacity: 0.52;
+  animation: notificationWaveFade 2.8s ease-in-out infinite;
+}
+
+.admin-animated-loading .admin-empty-visual {
+  opacity: 0.82;
+}
+
+.admin-summary-visual.is-paused *,
+.admin-empty-visual.is-paused * {
+  animation-play-state: paused !important;
+}
+
+@keyframes adminSummaryEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes categoryTileStack {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes adminCheckPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes adminCheckDraw {
+  0% {
+    stroke-dashoffset: 24;
+  }
+
+  36%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes adminPlusPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes categoryFolderSettle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+@keyframes adminRoutePulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    opacity: 1;
+    stroke-dashoffset: -14;
+  }
+}
+
+@keyframes adminPacketMove {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes notificationBellRest {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  45% {
+    transform: rotate(-3deg);
+  }
+
+  65% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes notificationBadgePop {
+  0%,
+  18%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.76;
+  }
+
+  45%,
+  80% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes notificationWaveFade {
+  0%,
+  100% {
+    opacity: 0.28;
+  }
+
+  50% {
+    opacity: 0.72;
+  }
+}
+
+@keyframes notificationCardSlide {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes emptyFolderFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes emptyFolderSettle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes emptyTagDrift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(4px, 3px);
+  }
+}
+
+@keyframes emptySearchSweep {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-4px, 4px);
+  }
+}
+
+@keyframes emptyBellRest {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes emptyMessagePass {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.82;
+  }
+
+  50% {
+    transform: translateX(5px);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1020px) {
+  body.categories-admin-page .entity-summary,
+  body.notifications-admin-page .entity-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-summary-visual {
+    width: 76px;
+    height: 76px;
+    flex-basis: 76px;
+  }
+
+  .admin-summary-visual svg {
+    width: 62px;
+    height: 62px;
+  }
+}
+
+@media (max-width: 640px) {
+  body.categories-admin-page .entity-summary,
+  body.notifications-admin-page .entity-summary {
+    grid-template-columns: 1fr;
+  }
+
+  body.categories-admin-page .animated-summary-card,
+  body.notifications-admin-page .animated-summary-card {
+    min-height: 104px;
+    padding: 18px;
+  }
+
+  .admin-summary-visual {
+    width: 68px;
+    height: 68px;
+    flex-basis: 68px;
+  }
+
+  .admin-summary-visual svg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .admin-empty-visual {
+    width: 128px;
+    height: 110px;
+  }
+
+  .admin-empty-visual svg {
+    width: 112px;
+    height: 96px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.categories-admin-page .animated-summary-card,
+  body.notifications-admin-page .animated-summary-card,
+  .admin-summary-visual *,
+  .admin-empty-visual * {
+    animation: none !important;
+  }
+
+  body.categories-admin-page .animated-summary-card:hover,
+  body.notifications-admin-page .animated-summary-card:hover {
+    transform: none;
+  }
+}
+
 .settings-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
