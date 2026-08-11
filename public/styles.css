@@ -1229,6 +1229,20 @@ h3 {
   grid-column: 1 / -1;
 }
 
+.workspace-start-text {
+  width: fit-content;
+  margin: 0 0 12px;
+  color: #0b0f0c;
+  font-family: Inter, "Arial Black", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.45rem, 2.6vw, 2.4rem);
+  font-style: italic;
+  font-weight: 950;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: skewX(-4deg);
+}
+
 .chat-preview {
   display: grid;
   gap: 12px;

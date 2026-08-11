@@ -3420,6 +3420,7 @@ const renderWorkspace = () => `
     <div>
       <p class="eyebrow">AI Workspace</p>
       <h2>Manage the AI tools that power learner workflows.</h2>
+      <p class="workspace-start-text">Type something to start</p>
       <p>Keep tool cards, integrations, categories, featured status, and visibility organized from the admin side.</p>
     </div>
     <div class="chat-preview" aria-hidden="true">
