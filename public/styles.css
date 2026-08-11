@@ -2358,6 +2358,559 @@ body.notifications-admin-page .animated-summary-card b {
   backdrop-filter: blur(16px);
 }
 
+/* Settings page animated card headers */
+body.settings-admin-page {
+  background: #f7f8f7;
+  color: #0b0f0c;
+}
+
+body.settings-admin-page::before {
+  background-image:
+    linear-gradient(rgba(11, 15, 12, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11, 15, 12, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+body.settings-admin-page .main {
+  background: transparent;
+}
+
+body.settings-admin-page .settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+body.settings-admin-page .settings-box {
+  min-width: 0;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid #dde5dd;
+  border-radius: 24px;
+  background: #ffffff;
+  color: #0b0f0c;
+  box-shadow: 0 14px 34px rgba(11, 15, 12, 0.07);
+  animation: settingsCardEnter 0.42s var(--ease) both;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+body.settings-admin-page .settings-box:nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+body.settings-admin-page .settings-box:nth-child(3) {
+  animation-delay: 0.12s;
+}
+
+body.settings-admin-page .settings-box:nth-child(4) {
+  animation-delay: 0.18s;
+}
+
+body.settings-admin-page .settings-box:nth-child(5) {
+  animation-delay: 0.24s;
+}
+
+body.settings-admin-page .settings-box:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+body.settings-admin-page .settings-box:hover,
+body.settings-admin-page .settings-box:focus-within {
+  border-color: #16a34a;
+  box-shadow: 0 20px 42px rgba(11, 15, 12, 0.11);
+  transform: translateY(-2px);
+}
+
+body.settings-admin-page .settings-box-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+}
+
+body.settings-admin-page .settings-box-head h3 {
+  min-width: 0;
+  color: #0b0f0c;
+  font-size: 1.08rem;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.settings-card-status {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border: 1px solid #16a34a;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #065f46;
+  font-size: 0.68rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.settings-card-status.warning {
+  border-color: #e3262e;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.settings-card-animation {
+  display: inline-flex;
+  width: 84px;
+  height: 84px;
+  flex: 0 0 84px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 18px;
+  box-sizing: border-box;
+  color: #0b0f0c;
+  background: #f3f4f3;
+}
+
+.settings-card-animation svg {
+  width: 68px;
+  height: 68px;
+}
+
+.settings-card-animation rect,
+.settings-card-animation path,
+.settings-card-animation circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.settings-animation-general,
+.settings-animation-account,
+.settings-animation-appearance {
+  background: #f3f4f3;
+}
+
+.settings-animation-security.is-active,
+.settings-animation-smtp.is-active {
+  background: #dcfce7;
+  color: #065f46;
+}
+
+.settings-animation-api,
+.settings-animation-security.is-warning,
+.settings-animation-smtp.is-warning {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.settings-card-animation .settings-status-dot,
+.settings-card-animation .account-check-disc,
+.settings-card-animation .api-check-disc,
+.settings-card-animation .security-pulse,
+.settings-card-animation .smtp-check-disc {
+  fill: #dcfce7;
+  color: #16a34a;
+  animation: settingsPulse 2.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.settings-card-animation .summary-plus-disc,
+.settings-card-animation .smtp-message {
+  fill: #16a34a;
+}
+
+.settings-card-animation .api-server,
+.settings-card-animation .smtp-server {
+  fill: #fee2e2;
+  color: #991b1b;
+}
+
+.settings-card-animation .account-doc,
+.settings-card-animation .security-lock-body,
+.settings-card-animation .smtp-envelope,
+.settings-card-animation .appearance-panel {
+  fill: #ffffff;
+}
+
+.settings-card-animation .settings-gear,
+.settings-card-animation .settings-gear-teeth {
+  animation: settingsGearTilt 2.6s ease-in-out infinite;
+  transform-origin: 28px 30px;
+}
+
+.settings-card-animation .settings-knob {
+  animation: settingsSliderMove 2.6s ease-in-out infinite;
+}
+
+.settings-card-animation .knob-two {
+  animation-delay: 0.18s;
+}
+
+.settings-card-animation .knob-three {
+  animation-delay: 0.36s;
+}
+
+.settings-card-animation .account-head,
+.settings-card-animation .account-body,
+.settings-card-animation .security-shield {
+  stroke-dasharray: 120;
+  animation: settingsLineDraw 2.8s ease-in-out infinite;
+}
+
+.settings-card-animation .account-doc.doc-one {
+  animation: settingsDocSlide 2.6s ease-in-out infinite;
+}
+
+.settings-card-animation .account-doc.doc-two {
+  animation: settingsDocTurn 2.6s ease-in-out infinite;
+  transform-origin: 62px 45px;
+}
+
+.settings-card-animation .account-check,
+.settings-card-animation .api-route,
+.settings-card-animation .smtp-route,
+.settings-card-animation .smtp-signal,
+.settings-card-animation .appearance-sweep {
+  stroke-dasharray: 26;
+  animation: settingsDashDraw 2.4s ease-in-out infinite;
+}
+
+.settings-card-animation .api-packet,
+.settings-card-animation .smtp-message {
+  animation: settingsPacketMove 2.5s ease-in-out infinite;
+}
+
+.settings-card-animation .packet-two {
+  animation-delay: 0.28s;
+}
+
+.settings-card-animation .security-lock-shackle {
+  animation: settingsLockClose 2.8s ease-in-out infinite;
+  transform-origin: 42px 41px;
+}
+
+.settings-card-animation .smtp-envelope,
+.settings-card-animation .smtp-flap {
+  animation: settingsEnvelopeOpen 2.8s ease-in-out infinite;
+  transform-origin: 33px 33px;
+}
+
+.settings-card-animation .appearance-panel {
+  animation: settingsPanelShift 2.6s ease-in-out infinite;
+}
+
+.settings-card-animation .panel-two {
+  animation-delay: 0.2s;
+}
+
+.settings-card-animation .panel-three {
+  animation-delay: 0.4s;
+}
+
+.settings-card-animation .dot-black {
+  fill: #0b0f0c;
+}
+
+.settings-card-animation .dot-green {
+  fill: #16a34a;
+}
+
+.settings-card-animation .dot-red {
+  fill: #e3262e;
+}
+
+.settings-card-animation .appearance-brush {
+  color: #16a34a;
+  animation: settingsBrushMove 2.6s ease-in-out infinite;
+}
+
+body.settings-admin-page .field input,
+body.settings-admin-page .field textarea,
+body.settings-admin-page .field select {
+  border-color: #dde5dd;
+  background: #ffffff;
+  color: #0b0f0c;
+}
+
+body.settings-admin-page .field input:focus,
+body.settings-admin-page .field textarea:focus,
+body.settings-admin-page .field select:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+
+body.settings-admin-page .field input:invalid,
+body.settings-admin-page .field textarea:invalid,
+body.settings-admin-page .field select:invalid {
+  border-color: #e3262e;
+}
+
+body.settings-admin-page .sticky-save {
+  border-color: #dde5dd;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 34px rgba(11, 15, 12, 0.09);
+}
+
+.settings-save-btn {
+  min-width: 178px;
+  min-height: 56px;
+  border: 1px solid #e3262e;
+  background: #e3262e;
+  color: #ffffff;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.settings-save-btn:hover {
+  border-color: #991b1b;
+  background: #991b1b;
+  transform: translateY(-1px);
+}
+
+.settings-save-btn.save-success {
+  border-color: #16a34a;
+  background: #16a34a;
+}
+
+.settings-save-btn.save-error {
+  border-color: #991b1b;
+  background: #991b1b;
+}
+
+.settings-save-btn[aria-busy="true"] .ui-icon,
+.settings-save-btn .ui-icon:has([data-lucide="loader-2"]) {
+  animation: settingsSaveSpin 0.8s linear infinite;
+}
+
+.settings-card-animation.is-paused * {
+  animation-play-state: paused !important;
+}
+
+@keyframes settingsCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes settingsPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 0.82;
+  }
+}
+
+@keyframes settingsGearTilt {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes settingsSliderMove {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes settingsLineDraw {
+  0% {
+    stroke-dashoffset: 120;
+  }
+
+  42%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes settingsDocSlide {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes settingsDocTurn {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes settingsDashDraw {
+  0% {
+    stroke-dashoffset: 26;
+  }
+
+  44%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes settingsPacketMove {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes settingsLockClose {
+  0%,
+  100% {
+    transform: translateY(-3px);
+  }
+
+  50% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes settingsEnvelopeOpen {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes settingsPanelShift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes settingsBrushMove {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-4px, 3px);
+  }
+}
+
+@keyframes settingsSaveSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1120px) {
+  body.settings-admin-page .settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-card-animation {
+    width: 74px;
+    height: 74px;
+    flex-basis: 74px;
+  }
+
+  .settings-card-animation svg {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 680px) {
+  body.settings-admin-page .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.settings-admin-page .settings-box {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  body.settings-admin-page .settings-box-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .settings-card-status {
+    grid-column: 2;
+    justify-self: flex-start;
+  }
+
+  .settings-card-animation {
+    width: 64px;
+    height: 64px;
+    flex-basis: 64px;
+  }
+
+  .settings-card-animation svg {
+    width: 52px;
+    height: 52px;
+  }
+
+  body.settings-admin-page .sticky-save {
+    justify-content: stretch;
+  }
+
+  .settings-save-btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.settings-admin-page .settings-box,
+  .settings-card-animation *,
+  .settings-card-animation,
+  .settings-save-btn[aria-busy="true"] .ui-icon {
+    animation: none !important;
+  }
+
+  body.settings-admin-page .settings-box:hover,
+  body.settings-admin-page .settings-box:focus-within,
+  .settings-save-btn:hover {
+    transform: none;
+  }
+}
+
 .log-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

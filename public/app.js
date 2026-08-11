@@ -12,6 +12,8 @@ const state = {
   selectedIds: new Set(),
   auditSearch: "",
   auditType: "",
+  settingsDraft: null,
+  settingsSaveStatus: "",
   analyticsFilters: {
     userGrowthDays: 7,
     analyticsRange: 30,
@@ -3664,25 +3666,140 @@ const renderAnalytics = () => {
   return renderAnalyticsOverview();
 };
 
+const settingsCardAnimation = (type, isActive = true) => {
+  const activeClass = isActive ? "is-active" : "is-warning";
+
+  if (type === "general") {
+    return `
+      <span class="settings-card-animation settings-animation-general ${activeClass}" aria-hidden="true">
+        <svg viewBox="0 0 84 84" focusable="false">
+          <circle class="settings-gear" cx="28" cy="30" r="12"></circle>
+          <path class="settings-gear-teeth" d="M28 12v7M28 41v7M10 30h7M39 30h7M15 17l5 5M36 38l5 5M41 17l-5 5M20 38l-5 5"></path>
+          <path class="settings-slider slider-one" d="M44 25h22"></path>
+          <path class="settings-slider slider-two" d="M44 42h22"></path>
+          <path class="settings-slider slider-three" d="M20 60h46"></path>
+          <circle class="settings-knob knob-one" cx="54" cy="25" r="4"></circle>
+          <circle class="settings-knob knob-two" cx="61" cy="42" r="4"></circle>
+          <circle class="settings-knob knob-three" cx="37" cy="60" r="4"></circle>
+          <circle class="settings-status-dot" cx="68" cy="18" r="5"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "account") {
+    return `
+      <span class="settings-card-animation settings-animation-account ${activeClass}" aria-hidden="true">
+        <svg viewBox="0 0 84 84" focusable="false">
+          <circle class="account-head" cx="28" cy="27" r="10"></circle>
+          <path class="account-body" d="M13 59c3-13 27-13 30 0"></path>
+          <rect class="account-doc doc-one" x="45" y="18" width="24" height="34" rx="5"></rect>
+          <rect class="account-doc doc-two" x="50" y="28" width="24" height="34" rx="5"></rect>
+          <path class="account-doc-line" d="M56 42h12M56 50h9"></path>
+          <circle class="account-check-disc" cx="49" cy="60" r="8"></circle>
+          <path class="account-check" d="M45 60l3 3 7-8"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "api") {
+    return `
+      <span class="settings-card-animation settings-animation-api ${activeClass}" aria-hidden="true">
+        <svg viewBox="0 0 84 84" focusable="false">
+          <rect class="api-server" x="15" y="22" width="30" height="40" rx="8"></rect>
+          <path class="api-slot" d="M24 34h12M24 45h12M24 55h8"></path>
+          <circle class="api-node node-one" cx="65" cy="26" r="8"></circle>
+          <circle class="api-node node-two" cx="65" cy="58" r="8"></circle>
+          <path class="api-route route-one" d="M46 33h12"></path>
+          <path class="api-route route-two" d="M46 52h12"></path>
+          <circle class="api-packet packet-one" cx="50" cy="33" r="3"></circle>
+          <circle class="api-packet packet-two" cx="54" cy="52" r="3"></circle>
+          <circle class="api-check-disc" cx="70" cy="17" r="6"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "security") {
+    return `
+      <span class="settings-card-animation settings-animation-security ${activeClass}" aria-hidden="true">
+        <svg viewBox="0 0 84 84" focusable="false">
+          <path class="security-shield" d="M42 12l25 10v18c0 17-10 27-25 34-15-7-25-17-25-34V22Z"></path>
+          <path class="security-lock-body" d="M29 41h26v19H29Z"></path>
+          <path class="security-lock-shackle" d="M35 41v-8c0-9 14-9 14 0v8"></path>
+          <circle class="security-pulse" cx="42" cy="51" r="4"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "smtp") {
+    return `
+      <span class="settings-card-animation settings-animation-smtp ${activeClass}" aria-hidden="true">
+        <svg viewBox="0 0 84 84" focusable="false">
+          <rect class="smtp-envelope" x="13" y="30" width="40" height="28" rx="7"></rect>
+          <path class="smtp-flap" d="M15 33l18 15 18-15"></path>
+          <rect class="smtp-server" x="58" y="25" width="14" height="38" rx="5"></rect>
+          <path class="smtp-route" d="M53 42h10"></path>
+          <circle class="smtp-message" cx="55" cy="42" r="3"></circle>
+          <path class="smtp-signal signal-one" d="M23 24c7-5 15-5 22 0"></path>
+          <path class="smtp-signal signal-two" d="M27 20c5-3 10-3 15 0"></path>
+          <circle class="smtp-check-disc" cx="68" cy="19" r="6"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  return `
+    <span class="settings-card-animation settings-animation-appearance ${activeClass}" aria-hidden="true">
+      <svg viewBox="0 0 84 84" focusable="false">
+        <rect class="appearance-panel panel-one" x="14" y="18" width="26" height="22" rx="6"></rect>
+        <rect class="appearance-panel panel-two" x="44" y="18" width="26" height="22" rx="6"></rect>
+        <rect class="appearance-panel panel-three" x="14" y="47" width="56" height="18" rx="6"></rect>
+        <circle class="appearance-dot dot-black" cx="24" cy="56" r="4"></circle>
+        <circle class="appearance-dot dot-green" cx="38" cy="56" r="4"></circle>
+        <circle class="appearance-dot dot-red" cx="52" cy="56" r="4"></circle>
+        <path class="appearance-brush" d="M63 46l7 7-11 11-7-7Z"></path>
+        <path class="appearance-sweep" d="M21 28h12M51 28h12"></path>
+      </svg>
+    </span>
+  `;
+};
+
 const renderSettings = () => {
-  const settings = state.settings || {};
+  const settings = state.settingsDraft || state.settings || {};
   const settingGroups = [
     {
       title: "General Settings",
-      icon: "settings",
+      type: "general",
       fields: [["platformName", "Platform name"], ["logoUrl", "Logo URL"], ["contactEmail", "Contact email"]],
     },
     {
       title: "Account Settings",
-      icon: "user-cog",
+      type: "account",
       fields: [["privacyPolicyUrl", "Privacy policy URL"], ["termsUrl", "Terms URL"]],
     },
     {
       title: "API Configuration",
-      icon: "server-cog",
+      type: "api",
       fields: [["storageProvider", "Storage provider"]],
     },
   ];
+  const saveIcon = state.settingsSaveStatus === "success"
+    ? "check"
+    : state.settingsSaveStatus === "error"
+      ? "alert-circle"
+      : state.loading
+        ? "loader-2"
+        : "save";
+  const saveLabel = state.settingsSaveStatus === "success"
+    ? "Saved"
+    : state.settingsSaveStatus === "error"
+      ? "Retry save"
+      : state.loading
+        ? "Saving"
+        : "Save settings";
 
   return `
     <section class="page-hero card reveal">
@@ -3697,7 +3814,7 @@ const renderSettings = () => {
         ${settingGroups.map((group) => `
           <section class="settings-box card reveal">
             <div class="settings-box-head">
-              ${iconMarkup(group.icon)}
+              ${settingsCardAnimation(group.type, true)}
               <h3>${escapeHtml(group.title)}</h3>
             </div>
             ${group.fields.map(([name, label]) => `
@@ -3710,8 +3827,9 @@ const renderSettings = () => {
         `).join("")}
         <section class="settings-box card reveal">
           <div class="settings-box-head">
-            ${iconMarkup("shield-check")}
+            ${settingsCardAnimation("security", Boolean(settings.jwtConfigured))}
             <h3>Security</h3>
+            <span class="settings-card-status ${settings.maintenanceMode ? "warning" : "ok"}">${settings.maintenanceMode ? "Maintenance" : "Protected"}</span>
           </div>
           <label class="switch-field">
             <input name="maintenanceMode" type="checkbox" ${settings.maintenanceMode ? "checked" : ""} />
@@ -3725,8 +3843,9 @@ const renderSettings = () => {
         </section>
         <section class="settings-box card reveal">
           <div class="settings-box-head">
-            ${iconMarkup("mail-check")}
+            ${settingsCardAnimation("smtp", Boolean(settings.smtpConfigured))}
             <h3>Email and SMTP</h3>
+            <span class="settings-card-status ${settings.smtpConfigured ? "ok" : "warning"}">${settings.smtpConfigured ? "Ready" : "Needs setup"}</span>
           </div>
           <div class="config-flags stacked">
             <span class="pill ${settings.smtpConfigured ? "ok" : "warn"}">SMTP ${settings.smtpConfigured ? "configured" : "missing"}</span>
@@ -3735,14 +3854,14 @@ const renderSettings = () => {
         </section>
         <section class="settings-box card reveal">
           <div class="settings-box-head">
-            ${iconMarkup("palette")}
+            ${settingsCardAnimation("appearance", true)}
             <h3>Appearance</h3>
           </div>
-          <p class="muted-copy">Primary blue and secondary green are applied globally across cards, charts, focus states, and actions.</p>
+          <p class="muted-copy">Black, green, and red accents keep cards, charts, focus states, and actions clear across the admin experience.</p>
         </section>
       </div>
       <div class="sticky-save">
-        <button class="btn" type="submit">${iconMarkup("save", "Save settings")}</button>
+        <button class="btn settings-save-btn ${state.settingsSaveStatus ? `save-${state.settingsSaveStatus}` : ""}" type="submit" ${state.loading ? "disabled aria-busy=\"true\"" : ""}>${iconMarkup(saveIcon, saveLabel)}</button>
       </div>
     </form>
   `;
@@ -3899,6 +4018,7 @@ const renderApp = () => {
   document.body.classList.toggle("certificates-admin-page", state.view === "certificates");
   document.body.classList.toggle("categories-admin-page", state.view === "categories");
   document.body.classList.toggle("notifications-admin-page", state.view === "notifications");
+  document.body.classList.toggle("settings-admin-page", state.view === "settings");
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
@@ -3957,6 +4077,7 @@ const renderApp = () => {
   initCharts();
   initCountUps();
   initCertificateSummaryAnimations();
+  initSettingsAnimations();
 };
 
 const initCharts = () => {
@@ -4309,6 +4430,19 @@ const initCertificateSummaryAnimations = () => {
   visuals.forEach((visual) => observer.observe(visual));
 };
 
+const initSettingsAnimations = () => {
+  const visuals = document.querySelectorAll(".settings-card-animation");
+  if (!visuals.length || !("IntersectionObserver" in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      entry.target.classList.toggle("is-paused", !entry.isIntersecting);
+    });
+  }, { threshold: 0.1 });
+
+  visuals.forEach((visual) => observer.observe(visual));
+};
+
 const findItem = (key, id) => (state.data[key] || []).find((item) => String(item._id) === String(id));
 
 const bindEvents = () => {
@@ -4465,6 +4599,8 @@ const bindEvents = () => {
     button.addEventListener("click", () => bulkUsers(button.dataset.bulkAction));
   });
   document.querySelector("#export-users")?.addEventListener("click", exportUsers);
+  document.querySelector("#settings-form")?.addEventListener("input", trackSettingsDraft);
+  document.querySelector("#settings-form")?.addEventListener("change", trackSettingsDraft);
   document.querySelector("#settings-form")?.addEventListener("submit", saveSettings);
 };
 
@@ -4670,32 +4806,65 @@ const exportUsers = async () => {
   }
 };
 
+const getSettingsPayloadFromForm = (form) => ({
+  platformName: String(form.get("platformName") || "").trim(),
+  logoUrl: String(form.get("logoUrl") || "").trim(),
+  contactEmail: String(form.get("contactEmail") || "").trim(),
+  privacyPolicyUrl: String(form.get("privacyPolicyUrl") || "").trim(),
+  termsUrl: String(form.get("termsUrl") || "").trim(),
+  storageProvider: String(form.get("storageProvider") || "").trim(),
+  maintenanceMode: form.get("maintenanceMode") === "on",
+});
+
+const trackSettingsDraft = (event) => {
+  const form = event.currentTarget;
+  state.settingsDraft = {
+    ...(state.settings || {}),
+    ...getSettingsPayloadFromForm(new FormData(form)),
+  };
+  if (state.settingsSaveStatus) state.settingsSaveStatus = "";
+};
+
 const saveSettings = async (event) => {
   event.preventDefault();
-  const form = new FormData(event.currentTarget);
-  const payload = {
-    platformName: String(form.get("platformName") || "").trim(),
-    logoUrl: String(form.get("logoUrl") || "").trim(),
-    contactEmail: String(form.get("contactEmail") || "").trim(),
-    privacyPolicyUrl: String(form.get("privacyPolicyUrl") || "").trim(),
-    termsUrl: String(form.get("termsUrl") || "").trim(),
-    storageProvider: String(form.get("storageProvider") || "").trim(),
-    maintenanceMode: form.get("maintenanceMode") === "on",
+  if (state.loading) return;
+
+  const form = event.currentTarget;
+  const payload = getSettingsPayloadFromForm(new FormData(form));
+  state.settingsDraft = {
+    ...(state.settings || {}),
+    ...payload,
   };
+  state.settingsSaveStatus = "saving";
+  state.loading = true;
+  render();
 
   try {
-    setBusy(true);
     const response = await request("/admins/settings", {
       method: "PATCH",
       body: JSON.stringify(payload),
     });
     state.settings = response.data;
+    state.settingsDraft = null;
+    state.settingsSaveStatus = "success";
     state.message = "Settings saved successfully.";
+    state.error = "";
   } catch (error) {
+    state.settingsDraft = {
+      ...(state.settings || {}),
+      ...payload,
+    };
+    state.settingsSaveStatus = "error";
     state.error = error.message;
   } finally {
     state.loading = false;
     render();
+    window.clearTimeout(saveSettings.statusTimer);
+    saveSettings.statusTimer = window.setTimeout(() => {
+      if (state.view !== "settings") return;
+      state.settingsSaveStatus = "";
+      render();
+    }, 1800);
   }
 };
 
