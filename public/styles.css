@@ -1870,6 +1870,8 @@ h3 {
 }
 
 /* Categories and notifications summary animations */
+body.courses-admin-page .entity-summary,
+body.modules-admin-page .entity-summary,
 body.categories-admin-page .entity-summary,
 body.notifications-admin-page .entity-summary {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1877,12 +1879,18 @@ body.notifications-admin-page .entity-summary {
   gap: 18px;
 }
 
+body.courses-admin-page .animated-summary-card,
+body.modules-admin-page .animated-summary-card,
 body.categories-admin-page .animated-summary-card,
 body.notifications-admin-page .animated-summary-card {
+  position: relative;
+  box-sizing: border-box;
   min-height: 128px;
   width: 100%;
+  min-width: 0;
   gap: 18px;
   padding: 20px;
+  overflow: hidden;
   border: 1px solid #dde5dd;
   border-radius: 22px;
   background: #ffffff;
@@ -1893,51 +1901,97 @@ body.notifications-admin-page .animated-summary-card {
   transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
 }
 
+body.courses-admin-page .animated-summary-card::before,
+body.modules-admin-page .animated-summary-card::before,
+body.categories-admin-page .animated-summary-card::before,
+body.notifications-admin-page .animated-summary-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: #16a34a;
+}
+
+body.courses-admin-page .animated-summary-card:nth-child(2),
+body.modules-admin-page .animated-summary-card:nth-child(2),
 body.categories-admin-page .animated-summary-card:nth-child(2),
 body.notifications-admin-page .animated-summary-card:nth-child(2) {
   animation-delay: 0.08s;
 }
 
+body.courses-admin-page .animated-summary-card:nth-child(3),
+body.modules-admin-page .animated-summary-card:nth-child(3),
 body.categories-admin-page .animated-summary-card:nth-child(3),
 body.notifications-admin-page .animated-summary-card:nth-child(3) {
   animation-delay: 0.16s;
 }
 
+body.courses-admin-page .animated-summary-card:hover,
+body.modules-admin-page .animated-summary-card:hover,
 body.categories-admin-page .animated-summary-card:hover,
 body.notifications-admin-page .animated-summary-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: 0 20px 42px rgba(11, 15, 12, 0.11);
 }
 
+body.courses-admin-page .animated-summary-card.accent-black:hover,
+body.modules-admin-page .animated-summary-card.accent-black:hover,
 body.categories-admin-page .animated-summary-card.accent-black:hover,
 body.notifications-admin-page .animated-summary-card.accent-black:hover {
   border-color: #0b0f0c;
 }
 
+body.courses-admin-page .animated-summary-card.accent-green:hover,
+body.modules-admin-page .animated-summary-card.accent-green:hover,
 body.categories-admin-page .animated-summary-card.accent-green:hover,
 body.notifications-admin-page .animated-summary-card.accent-green:hover {
   border-color: #16a34a;
 }
 
+body.courses-admin-page .animated-summary-card.accent-red:hover,
+body.modules-admin-page .animated-summary-card.accent-red:hover,
 body.categories-admin-page .animated-summary-card.accent-red:hover,
 body.notifications-admin-page .animated-summary-card.accent-red:hover {
   border-color: #e3262e;
 }
 
+body.courses-admin-page button.animated-summary-card,
+body.modules-admin-page button.animated-summary-card,
 body.categories-admin-page button.animated-summary-card,
 body.notifications-admin-page button.animated-summary-card {
   cursor: pointer;
 }
 
+body.courses-admin-page button.animated-summary-card:focus-visible,
+body.modules-admin-page button.animated-summary-card:focus-visible,
+body.categories-admin-page button.animated-summary-card:focus-visible,
+body.notifications-admin-page button.animated-summary-card:focus-visible {
+  outline: 3px solid #16a34a;
+  outline-offset: 3px;
+}
+
+body.courses-admin-page .animated-summary-card > div,
+body.modules-admin-page .animated-summary-card > div,
+body.categories-admin-page .animated-summary-card > div,
+body.notifications-admin-page .animated-summary-card > div {
+  min-width: 0;
+}
+
+body.courses-admin-page .animated-summary-card span:not(.ui-icon, .admin-summary-visual),
+body.modules-admin-page .animated-summary-card span:not(.ui-icon, .admin-summary-visual),
 body.categories-admin-page .animated-summary-card span:not(.ui-icon, .admin-summary-visual),
 body.notifications-admin-page .animated-summary-card span:not(.ui-icon, .admin-summary-visual) {
   color: #4b5563;
 }
 
+body.courses-admin-page .animated-summary-card b,
+body.modules-admin-page .animated-summary-card b,
 body.categories-admin-page .animated-summary-card b,
 body.notifications-admin-page .animated-summary-card b {
+  max-width: 100%;
   color: #0b0f0c;
   font-size: 1.05rem;
+  overflow-wrap: anywhere;
 }
 
 .admin-summary-visual {
@@ -1957,18 +2011,24 @@ body.notifications-admin-page .animated-summary-card b {
   height: 72px;
 }
 
+.courses-visual-records,
+.modules-visual-records,
 .category-visual-records,
 .notification-visual-records {
   background: #f3f4f3;
   color: #0b0f0c;
 }
 
+.courses-visual-create,
+.modules-visual-create,
 .category-visual-create,
 .notification-visual-create {
   background: #dcfce7;
   color: #16a34a;
 }
 
+.courses-visual-api,
+.modules-visual-api,
 .category-visual-api,
 .notification-visual-api {
   background: #fee2e2;
@@ -1989,6 +2049,12 @@ body.notifications-admin-page .animated-summary-card b {
 }
 
 .admin-summary-visual .category-tile,
+.admin-summary-visual .summary-course-book,
+.admin-summary-visual .summary-course-doc,
+.admin-summary-visual .summary-course-api-card,
+.admin-summary-visual .summary-module-block,
+.admin-summary-visual .summary-module-card,
+.admin-summary-visual .summary-module-node,
 .admin-summary-visual .category-folder,
 .admin-summary-visual .notification-card,
 .admin-summary-visual .notification-bell,
@@ -2000,6 +2066,22 @@ body.notifications-admin-page .animated-summary-card b {
 
 .admin-summary-visual .category-tile {
   animation: categoryTileStack 2.4s ease-in-out infinite;
+}
+
+.admin-summary-visual .summary-course-book {
+  animation: summaryCourseStack 2.7s ease-in-out infinite;
+}
+
+.admin-summary-visual .book-two,
+.admin-summary-visual .block-two,
+.admin-summary-visual .card-two {
+  animation-delay: 0.16s;
+}
+
+.admin-summary-visual .book-three,
+.admin-summary-visual .block-three,
+.admin-summary-visual .card-three {
+  animation-delay: 0.32s;
 }
 
 .admin-summary-visual .tile-two {
@@ -2045,8 +2127,20 @@ body.notifications-admin-page .animated-summary-card b {
 }
 
 .admin-summary-visual .category-folder-lid,
-.admin-summary-visual .category-label {
+.admin-summary-visual .category-label,
+.admin-summary-visual .summary-course-line,
+.admin-summary-visual .summary-course-fold,
+.admin-summary-visual .summary-course-api-line,
+.admin-summary-visual .summary-module-line,
+.admin-summary-visual .summary-module-link {
   color: #065f46;
+  stroke-width: 3;
+}
+
+.admin-summary-visual .summary-course-line,
+.admin-summary-visual .summary-module-line {
+  stroke-dasharray: 22;
+  animation: adminCheckDraw 2.6s ease-in-out infinite;
 }
 
 .admin-summary-visual .summary-server {
@@ -2063,6 +2157,16 @@ body.notifications-admin-page .animated-summary-card b {
 .admin-summary-visual .notification-mini-bell {
   color: #991b1b;
   fill: #ffffff;
+}
+
+.admin-summary-visual .summary-course-api-card,
+.admin-summary-visual .summary-module-node {
+  color: #991b1b;
+}
+
+.admin-summary-visual .summary-module-block,
+.admin-summary-visual .summary-module-card {
+  animation: summaryModuleSettle 2.7s ease-in-out infinite;
 }
 
 .admin-summary-visual .summary-route {
@@ -2310,6 +2414,28 @@ body.notifications-admin-page .animated-summary-card b {
 
   50% {
     transform: scale(1.04);
+  }
+}
+
+@keyframes summaryCourseStack {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+}
+
+@keyframes summaryModuleSettle {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(2px, -3px);
   }
 }
 
@@ -2623,6 +2749,8 @@ body.notifications-admin-page .animated-summary-card b {
 @media (max-width: 1020px) {
   .users-summary-grid,
   .admins-summary-grid,
+  body.courses-admin-page .entity-summary,
+  body.modules-admin-page .entity-summary,
   body.categories-admin-page .entity-summary,
   body.notifications-admin-page .entity-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2643,6 +2771,8 @@ body.notifications-admin-page .animated-summary-card b {
 @media (max-width: 640px) {
   .users-summary-grid,
   .admins-summary-grid,
+  body.courses-admin-page .entity-summary,
+  body.modules-admin-page .entity-summary,
   body.categories-admin-page .entity-summary,
   body.notifications-admin-page .entity-summary {
     grid-template-columns: 1fr;
@@ -2650,6 +2780,8 @@ body.notifications-admin-page .animated-summary-card b {
 
   .users-summary-grid .animated-summary-card,
   .admins-summary-grid .animated-summary-card,
+  body.courses-admin-page .animated-summary-card,
+  body.modules-admin-page .animated-summary-card,
   body.categories-admin-page .animated-summary-card,
   body.notifications-admin-page .animated-summary-card {
     min-height: 104px;
@@ -2681,6 +2813,8 @@ body.notifications-admin-page .animated-summary-card b {
 @media (prefers-reduced-motion: reduce) {
   .users-summary-grid .animated-summary-card,
   .admins-summary-grid .animated-summary-card,
+  body.courses-admin-page .animated-summary-card,
+  body.modules-admin-page .animated-summary-card,
   body.categories-admin-page .animated-summary-card,
   body.notifications-admin-page .animated-summary-card,
   .admin-summary-visual *,
@@ -2690,6 +2824,8 @@ body.notifications-admin-page .animated-summary-card b {
 
   .users-summary-grid .animated-summary-card:hover,
   .admins-summary-grid .animated-summary-card:hover,
+  body.courses-admin-page .animated-summary-card:hover,
+  body.modules-admin-page .animated-summary-card:hover,
   body.categories-admin-page .animated-summary-card:hover,
   body.notifications-admin-page .animated-summary-card:hover {
     transform: none;

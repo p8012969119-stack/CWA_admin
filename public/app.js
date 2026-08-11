@@ -977,6 +977,98 @@ const adminSummaryIllustration = (type) => {
     `;
   }
 
+  if (type === "courses-records") {
+    return `
+      <span class="admin-summary-visual courses-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-course-book book-one" x="18" y="45" width="18" height="25" rx="5"></rect>
+          <rect class="summary-course-book book-two" x="35" y="35" width="18" height="35" rx="5"></rect>
+          <rect class="summary-course-book book-three" x="52" y="25" width="18" height="45" rx="5"></rect>
+          <path class="summary-course-line" d="M23 55h8M40 45h8M57 36h8"></path>
+          <circle class="summary-active-dot" cx="68" cy="22" r="6"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "courses-create") {
+    return `
+      <span class="admin-summary-visual courses-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-course-doc" x="23" y="17" width="39" height="54" rx="8"></rect>
+          <path class="summary-course-fold" d="M52 17v13h10"></path>
+          <path class="summary-course-line line-one" d="M32 40h20"></path>
+          <path class="summary-course-line line-two" d="M32 51h15"></path>
+          <circle class="summary-plus-disc" cx="64" cy="63" r="13"></circle>
+          <path class="summary-plus" d="M64 55v16M56 63h16"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "courses-api" || type === "courses-source") {
+    return `
+      <span class="admin-summary-visual courses-visual-api" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-server" x="14" y="21" width="32" height="46" rx="8"></rect>
+          <path class="summary-server-line" d="M23 35h14M23 47h14M23 58h10"></path>
+          <rect class="summary-course-api-card" x="60" y="28" width="17" height="29" rx="5"></rect>
+          <path class="summary-course-api-line" d="M64 38h9M64 47h7"></path>
+          <path class="summary-route route-one" d="M47 36h12"></path>
+          <path class="summary-route route-two" d="M47 56h13"></path>
+          <circle class="summary-packet packet-one" cx="52" cy="36" r="3"></circle>
+          <circle class="summary-packet packet-two" cx="55" cy="56" r="3"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "modules-records") {
+    return `
+      <span class="admin-summary-visual modules-visual-records" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-module-block block-one" x="17" y="27" width="20" height="20" rx="6"></rect>
+          <rect class="summary-module-block block-two" x="51" y="27" width="20" height="20" rx="6"></rect>
+          <rect class="summary-module-block block-three" x="34" y="54" width="20" height="20" rx="6"></rect>
+          <path class="summary-module-link" d="M37 37h14M31 47l9 8M57 47l-9 8"></path>
+          <circle class="summary-active-dot" cx="67" cy="23" r="6"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "modules-create") {
+    return `
+      <span class="admin-summary-visual modules-visual-create" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-module-card card-one" x="19" y="35" width="27" height="21" rx="6"></rect>
+          <rect class="summary-module-card card-two" x="29" y="22" width="27" height="21" rx="6"></rect>
+          <rect class="summary-module-card card-three" x="39" y="48" width="27" height="21" rx="6"></rect>
+          <path class="summary-module-line" d="M27 45h11M37 32h11M47 58h11"></path>
+          <circle class="summary-plus-disc" cx="66" cy="61" r="13"></circle>
+          <path class="summary-plus" d="M66 53v16M58 61h16"></path>
+        </svg>
+      </span>
+    `;
+  }
+
+  if (type === "modules-api" || type === "modules-source") {
+    return `
+      <span class="admin-summary-visual modules-visual-api" aria-hidden="true">
+        <svg viewBox="0 0 88 88" focusable="false">
+          <rect class="summary-server" x="14" y="22" width="32" height="44" rx="8"></rect>
+          <path class="summary-server-line" d="M23 36h14M23 48h14M23 59h10"></path>
+          <rect class="summary-module-node node-one" x="61" y="26" width="15" height="15" rx="4"></rect>
+          <rect class="summary-module-node node-two" x="61" y="51" width="15" height="15" rx="4"></rect>
+          <path class="summary-route route-one" d="M47 35h14"></path>
+          <path class="summary-route route-two" d="M47 57h14"></path>
+          <circle class="summary-packet packet-one" cx="52" cy="35" r="3"></circle>
+          <circle class="summary-packet packet-two" cx="55" cy="57" r="3"></circle>
+        </svg>
+      </span>
+    `;
+  }
+
   if (type === "category-records") {
     return `
       <span class="admin-summary-visual category-visual-records" aria-hidden="true">
@@ -1326,8 +1418,8 @@ const renderEntitySummary = (key, count, endpoint) => {
     `;
   }
 
-  if (key === "users" || key === "admins" || key === "categories" || key === "notifications") {
-    const prefix = key === "users" ? "users" : key === "admins" ? "admins" : key === "categories" ? "category" : "notification";
+  if (key === "users" || key === "admins" || key === "courses" || key === "modules" || key === "categories" || key === "notifications") {
+    const prefix = key === "categories" ? "category" : key === "notifications" ? "notification" : key;
     return `
       <section class="entity-summary animated-summary-grid ${escapeHtml(key)}-summary-grid">
         ${animatedSummaryCard({ key, label: "Loaded records", value: count, type: `${prefix}-records`, accent: "black" })}
