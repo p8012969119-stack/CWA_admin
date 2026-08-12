@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">ElevenLabs AI voice fallback</title>
+  <desc id="desc">Voice waveform mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M28 68V52M44 82V38M60 94V26M76 82V38M92 68V52" stroke="#0B0F0C" stroke-width="9" stroke-linecap="round"/>
+  <path d="M36 60h48" stroke="#16A34A" stroke-width="8" stroke-linecap="round"/>
+</svg>

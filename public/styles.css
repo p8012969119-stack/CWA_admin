@@ -14132,34 +14132,47 @@ body.courses-admin-page textarea:focus-visible {
 
 .course-card-top {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
+  grid-template-columns: 96px minmax(0, 1fr);
   gap: 16px;
   align-items: start;
 }
 
 .course-card-thumb {
+  position: relative;
   display: inline-flex;
-  width: 88px;
-  height: 88px;
+  width: 96px;
+  height: 96px;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 12px;
+  padding: 14px;
   border: 1px solid #b7e4c7;
-  border-radius: 18px;
+  border-radius: 20px;
   background: #dcfce7;
   color: #064e3b;
   flex: 0 0 auto;
 }
 
 .course-card-thumb.is-cover {
-  padding: 0;
+  padding: 8px;
 }
 
 .course-card-thumb img {
   width: 100%;
   height: 100%;
   filter: none;
+  opacity: 0;
+  object-position: center;
+  transform: scale(1);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.course-card-thumb img.is-loaded {
+  opacity: 1;
+}
+
+.course-management-card:hover .course-card-thumb img {
+  transform: scale(1.04);
 }
 
 .course-card-thumb .course-image-contain {
@@ -14173,6 +14186,22 @@ body.courses-admin-page textarea:focus-visible {
 .course-card-thumb svg {
   width: 32px;
   height: 32px;
+}
+
+.course-card-initials {
+  display: none;
+  color: #064e3b;
+  font-size: 1.3rem;
+  font-weight: 950;
+  letter-spacing: 0.02em;
+}
+
+.course-card-thumb.show-initials .course-card-initials {
+  display: inline-flex;
+}
+
+.course-card-thumb.show-initials img {
+  display: none;
 }
 
 .course-card-heading {
@@ -14492,14 +14521,23 @@ body.courses-admin-page textarea:focus-visible {
   }
 
   .course-card-top {
-    grid-template-columns: 76px minmax(0, 1fr);
+    grid-template-columns: 82px minmax(0, 1fr);
     gap: 12px;
   }
 
   .course-card-thumb,
   .course-skeleton-thumb {
-    width: 76px;
-    height: 76px;
+    width: 82px;
+    height: 82px;
+    border-radius: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-card-thumb img,
+  .course-management-card:hover .course-card-thumb img {
+    transition: none;
+    transform: none;
   }
 }
 

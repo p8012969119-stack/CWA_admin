@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Canva AI logo fallback</title>
+  <desc id="desc">Design canvas and brush mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <rect x="24" y="28" width="55" height="55" rx="13" fill="#0B0F0C"/>
+  <path d="M42 64c9-20 19-29 41-38 7 7 8 18 1 26-16 17-28 23-42 12Z" fill="#16A34A"/>
+  <path d="M35 76c-5 2-9 8-9 16 8 0 14-4 16-9" stroke="#0B0F0C" stroke-width="7" stroke-linecap="round"/>
+</svg>

@@ -475,10 +475,38 @@ const courseFallbackImages = [
   { keys: ["github-copilot", "copilot"], src: "/assets/ai-courses/github-copilot.svg" },
   { keys: ["chatgpt-mastery", "chatgpt", "openai"], src: "/assets/ai-courses/chatgpt-mastery.svg" },
   { keys: ["perplexity-ai-research", "perplexity"], src: "/assets/ai-courses/perplexity-ai-research.svg" },
+  { keys: ["notion-ai-productivity", "notion"], src: "/assets/ai-courses/notion-ai-productivity.svg" },
+  { keys: ["runway-ai-video-generation", "runway"], src: "/assets/ai-courses/runway-ai-video-generation.svg" },
+  { keys: ["pika-ai-video-creator", "pika"], src: "/assets/ai-courses/pika-ai-video-creator.svg" },
+  { keys: ["zapier-ai-automation", "zapier"], src: "/assets/ai-courses/zapier-ai-automation.svg" },
+  { keys: ["canva-ai-design", "canva"], src: "/assets/ai-courses/canva-ai-design.svg" },
+  { keys: ["elevenlabs-ai-voice", "elevenlabs"], src: "/assets/ai-courses/elevenlabs-ai-voice.svg" },
+  { keys: ["gamma-ai-presentation", "gamma"], src: "/assets/ai-courses/gamma-ai-presentation.svg" },
+  { keys: ["bolt-ai", "bolt"], src: "/assets/ai-courses/bolt-ai.svg" },
+  { keys: ["lovable-ai", "lovable"], src: "/assets/ai-courses/lovable-ai.svg" },
 ];
 
+const objectTextValue = (value, fields = ["slug", "name", "title", "_id"]) => {
+  if (!value || typeof value !== "object") return "";
+  return fields.map((field) => value[field]).filter(Boolean).join(" ");
+};
+
 const getCourseFallbackImage = (course) => {
-  const haystack = [course.slug, course.title, course.name]
+  const haystack = [
+    course._id,
+    course.slug,
+    course.toolSlug,
+    course.aiToolSlug,
+    course.flowType,
+    typeof course.aiTool === "string" ? course.aiTool : "",
+    typeof course.tool === "string" ? course.tool : "",
+    typeof course.relatedTool === "string" ? course.relatedTool : "",
+    objectTextValue(course.aiTool),
+    objectTextValue(course.tool),
+    objectTextValue(course.relatedTool),
+    course.title,
+    course.name,
+  ]
     .map(normalizeAssetKey)
     .filter(Boolean)
     .join(" ");
@@ -488,11 +516,15 @@ const getCourseFallbackImage = (course) => {
 
 const getCourseImageSource = (course) => {
   const fallback = getCourseFallbackImage(course);
-  const primary = course.thumbnail || course.image || course.logo || "";
+  const relatedTool = course.aiTool || course.tool || course.relatedTool || {};
+  const primary = course.thumbnail || course.image || course.imageUrl || course.logo || course.iconUrl || "";
+  const related = relatedTool.logo || relatedTool.thumbnail || relatedTool.image || relatedTool.imageUrl || relatedTool.iconUrl || "";
+
   return {
-    src: primary || fallback,
+    src: primary || related || fallback,
     fallback,
-    fitClass: course.thumbnail ? "course-image-cover" : "course-image-contain",
+    initials: initials(course.title || course.name || "AI"),
+    fitClass: primary && primary === course.thumbnail ? "course-image-cover" : "course-image-contain",
   };
 };
 
@@ -2025,10 +2057,13 @@ const renderCourseCard = (item) => {
           class="${escapeHtml(image.fitClass)}"
           src="${escapeHtml(image.src)}"
           data-fallback-src="${escapeHtml(image.fallback)}"
-          alt="${escapeHtml(item.title || "Course")} logo"
+          data-initials="${escapeHtml(image.initials)}"
+          alt="${escapeHtml(item.title || "Course")} course image"
           loading="lazy"
-          onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.remove('course-image-cover');this.classList.add('course-image-contain');this.parentElement.classList.remove('is-cover');"
+          onload="this.classList.add('is-loaded');"
+          onerror="if(this.dataset.errorStage==='fallback'){this.hidden=true;this.parentElement.classList.add('show-initials');return;}this.dataset.errorStage='fallback';this.src=this.dataset.fallbackSrc;this.classList.remove('course-image-cover');this.classList.add('course-image-contain');this.parentElement.classList.remove('is-cover');"
         />
+        <span class="course-card-initials" aria-hidden="true">${escapeHtml(image.initials)}</span>
       </span>
       <div class="course-card-heading">
         <h3>${escapeHtml(item.title || "Untitled course")}</h3>

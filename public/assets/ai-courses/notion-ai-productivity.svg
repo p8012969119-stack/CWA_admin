@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Notion AI logo fallback</title>
+  <desc id="desc">Notion-style document block in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <rect x="29" y="22" width="62" height="76" rx="10" fill="#FFFFFF" stroke="#0B0F0C" stroke-width="7"/>
+  <path d="M45 43h30M45 58h30M45 73h20" stroke="#16A34A" stroke-width="7" stroke-linecap="round"/>
+  <path d="M77 22v21h14" fill="none" stroke="#0B0F0C" stroke-width="7" stroke-linejoin="round"/>
+</svg>

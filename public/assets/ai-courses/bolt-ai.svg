@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Bolt AI logo fallback</title>
+  <desc id="desc">Fast build bolt mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M66 16 28 64h27l-8 40 45-58H65l1-30Z" fill="#16A34A"/>
+  <path d="M60 26 41 56h22l-5 25 23-33H61l-1-22Z" fill="#0B0F0C"/>
+</svg>

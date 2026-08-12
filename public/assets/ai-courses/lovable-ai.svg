@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Lovable AI logo fallback</title>
+  <desc id="desc">App builder heart and code mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M60 92 31 63c-12-12-6-32 11-35 8-1 14 2 18 9 4-7 10-10 18-9 17 3 23 23 11 35L60 92Z" fill="#0B0F0C"/>
+  <path d="m46 55-9 8 9 8M74 55l9 8-9 8" stroke="#16A34A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

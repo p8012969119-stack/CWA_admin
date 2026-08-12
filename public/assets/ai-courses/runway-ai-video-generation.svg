@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Runway AI logo fallback</title>
+  <desc id="desc">Video runway play mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <rect x="24" y="32" width="72" height="56" rx="14" fill="#0B0F0C"/>
+  <path d="M53 48v24l23-12-23-12Z" fill="#16A34A"/>
+  <path d="M33 42h10M77 42h10M33 78h10M77 78h10" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+</svg>

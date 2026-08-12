@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Zapier AI logo fallback</title>
+  <desc id="desc">Automation hub and spokes in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <circle cx="60" cy="60" r="16" fill="#16A34A"/>
+  <path d="M60 18v84M18 60h84M30 30l60 60M90 30 30 90" stroke="#0B0F0C" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="60" cy="60" r="10" fill="#DCFCE7"/>
+</svg>

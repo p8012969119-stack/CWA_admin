@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Gamma AI presentation fallback</title>
+  <desc id="desc">Presentation slides and sparkle mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <rect x="25" y="34" width="70" height="48" rx="10" fill="#0B0F0C"/>
+  <path d="M42 51h22M42 65h36" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M84 19c3 12 10 19 22 22-12 3-19 10-22 22-3-12-10-19-22-22 12-3 19-10 22-22Z" fill="#16A34A"/>
+  <path d="M60 82v13M44 95h32" stroke="#0B0F0C" stroke-width="7" stroke-linecap="round"/>
+</svg>

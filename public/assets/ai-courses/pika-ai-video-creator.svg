@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Pika AI logo fallback</title>
+  <desc id="desc">Pika-style lightning video mark in green and black.</desc>
+  <rect width="120" height="120" rx="24" fill="#DCFCE7"/>
+  <path d="M66 18 30 66h25l-9 36 44-56H63l3-28Z" fill="#0B0F0C"/>
+  <path d="M61 43 50 58h14l-4 16 17-22H63l-2-9Z" fill="#16A34A"/>
+</svg>
