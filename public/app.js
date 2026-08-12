@@ -4612,7 +4612,7 @@ const renderWorkspaceToolShortcut = (tool) => {
   const name = tool?.name || tool?.title || "AI Tool";
   const flow = tool?.flowType || tool?.slug || "workspace";
   return `
-    <button class="workspace-tool-shortcut" data-workspace-tool="${escapeHtml(id)}" type="button" aria-label="Open ${escapeHtml(name)} in AI tools">
+    <button class="workspace-tool-shortcut" data-workspace-tool="${escapeHtml(id)}" type="button" aria-selected="false" aria-label="Open ${escapeHtml(name)} in AI tools">
       <span class="workspace-tool-icon">${renderAiToolAnimation(tool)}</span>
       <span class="workspace-tool-copy">
         <strong>${escapeHtml(name)}</strong>
