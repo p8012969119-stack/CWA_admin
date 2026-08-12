@@ -1947,18 +1947,20 @@ h3 {
 
 .workspace-open-button:not(.secondary) {
   border-color: #16a34a !important;
-  background: #16a34a !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  color: #065f46 !important;
 }
 
 .workspace-open-button:not(.secondary):hover {
   border-color: #065f46 !important;
-  background: #065f46 !important;
+  background: #dcfce7 !important;
+  color: #065f46 !important;
 }
 
 .workspace-open-button:not(.secondary):active {
   border-color: #047857 !important;
-  background: #047857 !important;
+  background: #bbf7d0 !important;
+  color: #065f46 !important;
   transform: scale(0.98);
 }
 
@@ -1981,8 +1983,8 @@ h3 {
   content: "";
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-top-color: #ffffff;
+  border: 2px solid rgba(22, 163, 74, 0.28);
+  border-top-color: #065f46;
   border-radius: 50%;
   animation: workspaceCtaSpin 700ms linear infinite;
 }
