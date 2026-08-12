@@ -3466,6 +3466,9 @@ const loadAuditLogs = async (options = {}) => {
   const search = normalizeSearchQuery(state.auditSearch);
   const page = Math.max(Number(options.page || state.auditPage || 1), 1);
   const action = auditActionParam();
+  const previousPage = state.auditPagination?.page || state.auditPage || 1;
+  const previousPagination = { ...(state.auditPagination || {}) };
+  const previousLogs = Array.isArray(state.data.auditLogs) ? [...state.data.auditLogs] : [];
   state.auditPage = page;
   state.auditSearch = search;
 
@@ -3481,21 +3484,33 @@ const loadAuditLogs = async (options = {}) => {
 
   try {
     const response = await request(`/admins/audit-logs${params.toString() ? `?${params.toString()}` : ""}`, options.signal ? { signal: options.signal } : {});
+    const payload = response.data && typeof response.data === "object" && !Array.isArray(response.data)
+      ? response.data
+      : response;
     const records = Array.isArray(response.data)
       ? response.data
+      : Array.isArray(payload.logs)
+        ? payload.logs
+        : Array.isArray(payload.records)
+          ? payload.records
+          : Array.isArray(payload.items)
+            ? payload.items
       : Array.isArray(response.logs)
         ? response.logs
         : [];
     const fallbackTotal = records.length;
-    const pagination = response.pagination || response.meta || response.data?.pagination || {};
+    const pagination = response.pagination || response.meta || payload.pagination || payload.meta || {};
+    const metadataPage = Number(pagination.page || pagination.currentPage || pagination.current || page);
+    const metadataTotalPages = Number(pagination.totalPages || pagination.pages || pagination.pageCount || Math.max(Math.ceil(fallbackTotal / state.auditLimit), 1));
+    const metadataTotalRecords = Number(pagination.totalRecords || pagination.total || pagination.totalDocs || pagination.count || fallbackTotal);
     state.data.auditLogs = records;
     state.auditPagination = {
-      page: Number(pagination.page || pagination.currentPage || page),
+      page: metadataPage,
       limit: Number(pagination.limit || pagination.pageSize || state.auditLimit),
-      totalRecords: Number(pagination.totalRecords || pagination.total || pagination.totalDocs || fallbackTotal),
-      totalPages: Number(pagination.totalPages || pagination.pages || Math.max(Math.ceil(fallbackTotal / state.auditLimit), 1)),
-      hasPrevPage: Boolean(pagination.hasPrevPage ?? pagination.hasPreviousPage ?? page > 1),
-      hasNextPage: Boolean(pagination.hasNextPage ?? pagination.hasMore ?? (Number(pagination.page || page) < Number(pagination.totalPages || pagination.pages || 1))),
+      totalRecords: metadataTotalRecords,
+      totalPages: Math.max(metadataTotalPages, 1),
+      hasPrevPage: Boolean(pagination.hasPrevPage ?? pagination.hasPreviousPage ?? pagination.hasPrevious ?? metadataPage > 1),
+      hasNextPage: Boolean(pagination.hasNextPage ?? pagination.hasMore ?? pagination.hasNext ?? metadataPage < Math.max(metadataTotalPages, 1)),
       from: Number(pagination.from || pagination.start || (fallbackTotal ? (page - 1) * state.auditLimit + 1 : 0)),
       to: Number(pagination.to || pagination.end || (fallbackTotal ? (page - 1) * state.auditLimit + records.length : 0)),
     };
@@ -3506,6 +3521,11 @@ const loadAuditLogs = async (options = {}) => {
   } catch (error) {
     if (error.name === "AbortError") return;
     state.auditError = error.message || "Unable to load audit logs.";
+    if (options.keepRowsOnError) {
+      state.data.auditLogs = previousLogs;
+      state.auditPagination = previousPagination;
+      state.auditPage = previousPage;
+    }
   } finally {
     if (options.signal?.aborted) return;
     state.auditLoading = false;
@@ -5296,6 +5316,7 @@ const renderAuditLogs = () => {
   const logs = state.data.auditLogs || [];
   const isLoading = state.auditLoading;
   const isError = Boolean(state.auditError);
+  const showTableError = isError && !logs.length;
 
   return `
     <section class="toolbar card reveal">
@@ -5337,7 +5358,7 @@ const renderAuditLogs = () => {
             </tr>
           </thead>
           <tbody>
-            ${isLoading ? renderAuditSkeletonRows() : isError ? `
+            ${isLoading && !logs.length ? renderAuditSkeletonRows() : showTableError ? `
               <tr>
                 <td colspan="7" class="audit-empty audit-error">
                   ${iconMarkup("circle-alert")}
@@ -5372,6 +5393,13 @@ const renderAuditLogs = () => {
           </tbody>
         </table>
       </div>
+      ${isError && logs.length ? `
+        <div class="audit-inline-error" role="alert">
+          ${iconMarkup("circle-alert")}
+          <span>${escapeHtml(state.auditError)}</span>
+          <button class="audit-inline-retry" data-refresh-logs type="button">Retry</button>
+        </div>
+      ` : ""}
       ${renderAuditPagination()}
     </section>
   `;
@@ -5997,17 +6025,18 @@ const bindEvents = () => {
     state.auditPage = 1;
     loadAuditLogs({ replaceHistory: true, force: true });
   });
-  document.querySelectorAll("[data-audit-page]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const page = Math.max(Number(button.dataset.auditPage || 1), 1);
-      loadAuditLogs({
-        page,
-        replaceHistory: true,
-        force: true,
-        scrollTable: true,
-        direction: button.dataset.auditDirection || "",
-        restoreFocusDirection: button.dataset.auditDirection || "",
-      });
+  document.querySelector(".audit-pagination")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-audit-page]");
+    if (!button || button.disabled || state.auditLoading) return;
+    const page = Math.max(Number(button.dataset.auditPage || 1), 1);
+    loadAuditLogs({
+      page,
+      replaceHistory: true,
+      force: true,
+      scrollTable: true,
+      direction: button.dataset.auditDirection || "",
+      restoreFocusDirection: button.dataset.auditDirection || "",
+      keepRowsOnError: true,
     });
   });
   document.querySelectorAll("[data-open-form]").forEach((button) => {
