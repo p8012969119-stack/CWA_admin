@@ -46,6 +46,7 @@ const state = {
   auditPage: 1,
   auditLimit: 10,
   auditLoading: false,
+  auditLoadingDirection: "",
   auditError: "",
   auditPagination: {
     page: 1,
@@ -3474,6 +3475,7 @@ const loadAuditLogs = async (options = {}) => {
   if (action) params.set("action", action);
   if (search) params.set("search", search);
   state.auditLoading = true;
+  state.auditLoadingDirection = options.direction || "";
   state.auditError = "";
   if (state.view === "auditLogs") render();
 
@@ -3507,11 +3509,18 @@ const loadAuditLogs = async (options = {}) => {
   } finally {
     if (options.signal?.aborted) return;
     state.auditLoading = false;
+    const focusDirection = options.restoreFocusDirection || state.auditLoadingDirection;
+    state.auditLoadingDirection = "";
     render();
     if (options.scrollTable) {
       document.querySelector(".audit-table-card")?.scrollIntoView({
         block: "start",
         behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth",
+      });
+    }
+    if (focusDirection) {
+      window.requestAnimationFrame(() => {
+        document.querySelector(`[data-audit-direction="${focusDirection}"]`)?.focus?.();
       });
     }
   }
@@ -4813,22 +4822,33 @@ const renderAuditPagination = () => {
   const from = Number(pagination.from || 0);
   const to = Number(pagination.to || 0);
   const subject = auditActionSubject();
-  const loading = state.auditLoading ? "disabled aria-busy=\"true\"" : "";
-  const previousDisabled = state.auditLoading || !pagination.hasPrevPage ? "disabled" : "";
-  const nextDisabled = state.auditLoading || !pagination.hasNextPage ? "disabled" : "";
+  const previousDisabled = state.auditLoading || !pagination.hasPrevPage;
+  const nextDisabled = state.auditLoading || !pagination.hasNextPage;
+  const previousIcon = state.auditLoading && state.auditLoadingDirection === "previous" ? "loader-2" : "chevron-up";
+  const nextIcon = state.auditLoading && state.auditLoadingDirection === "next" ? "loader-2" : "chevron-down";
+  const previousBusy = state.auditLoading && state.auditLoadingDirection === "previous" ? " aria-busy=\"true\"" : "";
+  const nextBusy = state.auditLoading && state.auditLoadingDirection === "next" ? " aria-busy=\"true\"" : "";
 
   return `
     <div class="audit-pagination" aria-live="polite">
-      <p>
+      <p class="audit-pagination-summary">
         <strong>Showing ${escapeHtml(from)}-${escapeHtml(to)} of ${escapeHtml(total)} ${escapeHtml(subject)}</strong>
         <span aria-current="page">Page ${escapeHtml(page)} of ${escapeHtml(totalPages)}</span>
       </p>
       <div class="audit-pagination-controls">
-        <button class="btn secondary audit-page-btn" data-audit-page="${escapeHtml(page - 1)}" type="button" ${previousDisabled} ${loading} aria-label="Previous 10 audit logs">
-          ${iconMarkup("arrow-left", "Previous 10")}
+        <button class="audit-page-btn" data-audit-page="${escapeHtml(page - 1)}" data-audit-direction="previous" type="button" ${previousDisabled ? "disabled" : ""}${previousBusy} aria-label="Show previous 10 newer login records">
+          ${iconMarkup(previousIcon)}
+          <span class="audit-page-btn-text">
+            <strong>↑ Show previous 10</strong>
+            <small>View newer login records</small>
+          </span>
         </button>
-        <button class="btn secondary audit-page-btn" data-audit-page="${escapeHtml(page + 1)}" type="button" ${nextDisabled} ${loading} aria-label="Next 10 audit logs">
-          ${iconMarkup("arrow-right", "Next 10")}
+        <button class="audit-page-btn" data-audit-page="${escapeHtml(page + 1)}" data-audit-direction="next" type="button" ${nextDisabled ? "disabled" : ""}${nextBusy} aria-label="Show next 10 older login records">
+          ${iconMarkup(nextIcon)}
+          <span class="audit-page-btn-text">
+            <strong>↓ Show next 10</strong>
+            <small>View older login records</small>
+          </span>
         </button>
       </div>
     </div>
@@ -5980,7 +6000,14 @@ const bindEvents = () => {
   document.querySelectorAll("[data-audit-page]").forEach((button) => {
     button.addEventListener("click", () => {
       const page = Math.max(Number(button.dataset.auditPage || 1), 1);
-      loadAuditLogs({ page, replaceHistory: true, force: true, scrollTable: true });
+      loadAuditLogs({
+        page,
+        replaceHistory: true,
+        force: true,
+        scrollTable: true,
+        direction: button.dataset.auditDirection || "",
+        restoreFocusDirection: button.dataset.auditDirection || "",
+      });
     });
   });
   document.querySelectorAll("[data-open-form]").forEach((button) => {
