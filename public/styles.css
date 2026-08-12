@@ -628,16 +628,177 @@ h3 {
   justify-content: flex-end;
 }
 
-.profile {
+.account-menu-shell {
+  position: relative;
+  z-index: 35;
+  box-sizing: border-box;
+}
+
+.account-avatar-button,
+.account-avatar-skeleton {
   display: inline-flex;
+  width: 48px;
+  height: 48px;
   align-items: center;
-  min-height: 42px;
-  padding: 0 14px;
-  border: 1px solid rgba(37, 99, 235, 0.12);
-  border-radius: 999px;
-  background: var(--primary-soft);
-  color: var(--primary);
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid rgba(22, 163, 74, 0.34);
+  border-radius: 50%;
+  background: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 14px 32px rgba(22, 163, 74, 0.22);
+  font-size: 1.2rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.account-avatar-button {
+  cursor: pointer;
+  transition: transform 180ms var(--ease), background 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+
+.account-avatar-button:hover,
+.account-avatar-button[aria-expanded="true"] {
+  background: #166534;
+  box-shadow: 0 16px 36px rgba(22, 101, 52, 0.26);
+  transform: translateY(-1px);
+}
+
+.account-avatar-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.account-avatar-button:focus-visible,
+.account-logout-button:focus-visible {
+  outline: 3px solid rgba(22, 163, 74, 0.42);
+  outline-offset: 3px;
+}
+
+.account-avatar-skeleton {
+  border-color: #e5e7eb;
+  background: linear-gradient(90deg, #f3f4f6, #ffffff, #f3f4f6);
+  background-size: 220% 100%;
+  box-shadow: none;
+  animation: shimmer 1.2s linear infinite;
+}
+
+.account-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  display: grid;
+  width: min(280px, calc(100vw - 32px));
+  gap: 14px;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #0b0f0c;
+  box-shadow: 0 24px 64px rgba(11, 15, 12, 0.18);
+}
+
+.account-menu-identity {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.account-menu-initial {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 950;
+}
+
+.account-menu-identity strong,
+.account-menu-identity small,
+.account-menu-identity em {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-menu-identity strong {
+  color: #0b0f0c;
+  font-size: 0.98rem;
+  font-weight: 950;
+}
+
+.account-menu-identity small {
+  margin-top: 3px;
+  color: #4b5563;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.account-menu-identity em {
+  margin-top: 6px;
+  color: #166534;
+  font-size: 0.76rem;
+  font-style: normal;
   font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.account-logout-button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 14px;
+  background: #e3262e;
+  color: #ffffff;
+  font-weight: 950;
+  box-shadow: 0 14px 28px rgba(227, 38, 46, 0.22);
+}
+
+.account-logout-button:hover {
+  background: #991b1b;
+}
+
+.account-logout-button:active {
+  transform: translateY(1px);
+}
+
+.account-logout-button:disabled {
+  cursor: wait;
+  opacity: 0.78;
+}
+
+.account-logout-button[aria-busy="true"] .ui-icon {
+  animation: spin 0.8s linear infinite;
+}
+
+@media (max-width: 560px) {
+  .account-menu-dropdown {
+    position: fixed;
+    top: 84px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-avatar-skeleton,
+  .account-logout-button[aria-busy="true"] .ui-icon {
+    animation: none;
+  }
 }
 
 .card {
@@ -6919,6 +7080,32 @@ textarea:focus-visible {
 .btn:hover,
 .btn.danger:hover {
   background: var(--primary-strong);
+}
+
+.account-avatar-button {
+  border-color: rgba(22, 163, 74, 0.34);
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.account-avatar-button:hover,
+.account-avatar-button[aria-expanded="true"] {
+  background: #166534;
+}
+
+.account-menu-dropdown {
+  border-color: #e5e7eb;
+  background: #ffffff;
+  color: #0b0f0c;
+}
+
+.account-logout-button {
+  background: #e3262e;
+  color: #ffffff;
+}
+
+.account-logout-button:hover {
+  background: #991b1b;
 }
 
 .btn.secondary {

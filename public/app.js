@@ -20,6 +20,9 @@ const state = {
   entitySearches: {},
   entityFilters: {},
   highlightRecord: null,
+  accountMenuOpen: false,
+  accountLogoutLoading: false,
+  returnFocusToAccountButton: false,
   globalSearch: {
     query: "",
     status: "idle",
@@ -521,6 +524,7 @@ const searchResultLimit = 5;
 let globalSearchTimer = null;
 let globalSearchController = null;
 let globalSearchDocumentEventsBound = false;
+let accountMenuDocumentEventsBound = false;
 let routeEventsBound = false;
 const entitySearchTimers = {};
 const entitySearchControllers = {};
@@ -536,6 +540,70 @@ const entitySearchKeys = () => [...Object.keys(entityConfigs), "auditLogs"];
 const searchableEntityKeys = () => Object.keys(entityConfigs);
 const isSearchableEntity = (key) => Object.prototype.hasOwnProperty.call(entityConfigs, key);
 const recordDomId = (key, id) => `admin-record-${normalizeAssetKey(key)}-${normalizeAssetKey(id || "unknown")}`;
+
+const adminDisplayName = () => {
+  const admin = state.admin || {};
+  const name = String(admin.fullName || admin.name || admin.username || "").trim();
+  return name || String(admin.email || "").trim() || "Admin";
+};
+
+const adminProfileInitial = () => {
+  const admin = state.admin || {};
+  const source = [admin.fullName, admin.username, admin.email]
+    .map((value) => String(value || "").trim())
+    .find(Boolean) || "A";
+  return source.charAt(0).toUpperCase() || "A";
+};
+
+const adminRoleLabel = () => {
+  const role = String(state.admin?.role || "Administrator").trim();
+  if (!role) return "Administrator";
+  return role
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+};
+
+const renderAccountMenu = () => {
+  if (!state.admin && state.token) {
+    return `<span class="account-avatar-skeleton" aria-label="Loading admin profile"></span>`;
+  }
+
+  const isOpen = state.accountMenuOpen;
+  const name = adminDisplayName();
+  const email = String(state.admin?.email || "").trim();
+  const role = adminRoleLabel();
+  const busy = state.accountLogoutLoading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
+
+  return `
+    <div class="account-menu-shell">
+      <button
+        class="account-avatar-button"
+        id="account-menu-button"
+        type="button"
+        aria-label="${escapeHtml(isOpen ? "Close admin account menu" : "Open admin account menu")}"
+        aria-haspopup="menu"
+        aria-expanded="${isOpen ? "true" : "false"}"
+        aria-controls="account-menu-dropdown">
+        <span aria-hidden="true">${escapeHtml(adminProfileInitial())}</span>
+      </button>
+      ${isOpen ? `
+        <div class="account-menu-dropdown" id="account-menu-dropdown" role="menu" aria-labelledby="account-menu-button">
+          <div class="account-menu-identity">
+            <span class="account-menu-initial" aria-hidden="true">${escapeHtml(adminProfileInitial())}</span>
+            <div>
+              <strong>${escapeHtml(name)}</strong>
+              ${email ? `<small>${escapeHtml(email)}</small>` : ""}
+              <em>${escapeHtml(role)}</em>
+            </div>
+          </div>
+          <button class="account-logout-button" id="account-logout" role="menuitem" type="button" ${busy}>
+            ${iconMarkup(state.accountLogoutLoading ? "loader-2" : "log-out", state.accountLogoutLoading ? "Logging out..." : "Logout")}
+          </button>
+        </div>
+      ` : ""}
+    </div>
+  `;
+};
 
 const isHighlightedRecord = (key, item) =>
   state.highlightRecord?.key === key && String(state.highlightRecord?.id || "") === String(item?._id || item?.id || "");
@@ -2830,6 +2898,19 @@ const closeGlobalSearch = () => {
   render();
 };
 
+const closeAccountMenu = ({ returnFocus = false, rerender = true } = {}) => {
+  if (!state.accountMenuOpen && !returnFocus) return;
+  state.accountMenuOpen = false;
+  state.returnFocusToAccountButton = Boolean(returnFocus);
+  if (rerender) render();
+};
+
+const restoreAccountMenuFocus = () => {
+  if (!state.returnFocusToAccountButton) return;
+  state.returnFocusToAccountButton = false;
+  document.querySelector("#account-menu-button")?.focus({ preventScroll: true });
+};
+
 const openGlobalSearch = () => {
   if (state.globalSearch.isOpen) {
     state.globalSearch.focusInput = true;
@@ -3001,6 +3082,42 @@ const bindGlobalSearchEvents = () => {
     state.globalSearch.activeIndex = -1;
     state.globalSearch.focusInput = false;
     render();
+  });
+};
+
+const bindAccountMenuEvents = () => {
+  document.querySelector("#account-menu-button")?.addEventListener("click", () => {
+    state.accountMenuOpen = !state.accountMenuOpen;
+    state.globalSearch.isOpen = false;
+    state.globalSearch.focusInput = false;
+    render();
+  });
+
+  document.querySelector("#account-logout")?.addEventListener("click", () => {
+    if (state.accountLogoutLoading) return;
+    state.accountLogoutLoading = true;
+    state.accountMenuOpen = true;
+    render();
+    window.setTimeout(() => {
+      state.accountMenuOpen = false;
+      state.accountLogoutLoading = false;
+      logout();
+    }, 80);
+  });
+
+  if (accountMenuDocumentEventsBound) return;
+  accountMenuDocumentEventsBound = true;
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!state.accountMenuOpen) return;
+    if (event.target.closest?.(".account-menu-shell")) return;
+    closeAccountMenu({ rerender: true });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !state.accountMenuOpen) return;
+    event.preventDefault();
+    closeAccountMenu({ returnFocus: true });
   });
 };
 
@@ -3261,6 +3378,7 @@ const switchView = async (view, options = {}) => {
   state.error = "";
   state.message = "";
   state.view = view;
+  state.accountMenuOpen = false;
   if (options.search !== undefined && isSearchableEntity(view)) {
     state.entitySearches[view] = normalizeSearchQuery(options.search);
   }
@@ -5075,13 +5193,12 @@ const renderApp = () => {
             <button id="sidebar-toggle" class="icon-btn" title="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <div>
               <h1>${escapeHtml(viewTitle())}</h1>
-              <p class="breadcrumb">${escapeHtml(state.admin?.fullName || "")} · <span class="current-date">${new Date().toLocaleDateString()}</span></p>
+              <p class="breadcrumb">Admin Panel · <span class="current-date">${new Date().toLocaleDateString()}</span></p>
             </div>
             ${renderGlobalSearch()}
           </div>
           <div class="actions">
-            <div class="profile"><span class="admin-name">${escapeHtml(state.admin?.fullName || "Admin")}</span></div>
-            <button class="btn danger" id="logout" type="button">Logout</button>
+            ${renderAccountMenu()}
           </div>
         </header>
         ${state.error ? `<div class="alert error">${escapeHtml(state.error)}</div>` : ""}
@@ -5098,6 +5215,7 @@ const renderApp = () => {
   bindSidebarScrollPersistence();
   bindRouteEvents();
   restoreGlobalSearchFocus();
+  restoreAccountMenuFocus();
   scrollHighlightedRecordIntoView();
   initCharts();
   initCountUps();
@@ -5481,6 +5599,7 @@ const bindEvents = () => {
     document.documentElement.classList.toggle('dark');
   });
   bindGlobalSearchEvents();
+  bindAccountMenuEvents();
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
       saveSidebarScrollPosition();
@@ -5513,7 +5632,6 @@ const bindEvents = () => {
       render();
     });
   });
-  document.querySelector("#logout")?.addEventListener("click", () => logout());
   document.querySelectorAll("[data-refresh]").forEach((button) => {
     button.addEventListener("click", () => loadEntity(button.dataset.refresh));
   });
