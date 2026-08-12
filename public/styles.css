@@ -7219,9 +7219,117 @@ body.analytics-admin-page .main {
   display: block;
 }
 
+.audit-error {
+  color: #991b1b;
+}
+
+.audit-error .ui-icon {
+  color: #dc2626;
+}
+
+.audit-retry-btn {
+  margin-top: 12px;
+}
+
+.audit-skeleton-row span {
+  display: block;
+  width: 100%;
+  height: 18px;
+  border-radius: 999px;
+  background: #dcfce7;
+  animation: workspaceSkeleton 1.2s ease-in-out infinite;
+}
+
+.audit-skeleton-row td:nth-child(1) span {
+  width: 78%;
+}
+
+.audit-skeleton-row td:nth-child(2) span {
+  width: 92%;
+}
+
+.audit-skeleton-row td:nth-child(4) span,
+.audit-skeleton-row td:nth-child(6) span {
+  width: 68%;
+}
+
+.audit-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 6px 0;
+}
+
+.audit-pagination p {
+  min-width: 0;
+  margin: 0;
+  color: #065f46;
+  font-weight: 850;
+}
+
+.audit-pagination p strong,
+.audit-pagination p span {
+  display: block;
+}
+
+.audit-pagination p span {
+  margin-top: 4px;
+  color: #525252;
+  font-size: 0.86rem;
+}
+
+.audit-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.audit-page-btn {
+  min-height: 46px;
+  border-color: #bbf7d0 !important;
+  color: #065f46 !important;
+}
+
+.audit-page-btn:not(:disabled):hover {
+  border-color: #16a34a !important;
+  background: #dcfce7 !important;
+  color: #065f46 !important;
+}
+
+.audit-page-btn:focus-visible {
+  outline: 3px solid #065f46;
+  outline-offset: 3px;
+}
+
+.audit-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+body:has(#audit-type option[value="Admin.Login"]:checked) #audit-type {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #065f46;
+}
+
 @media (max-width: 760px) {
   .audit-table-card {
     padding: 14px;
+  }
+
+  .audit-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .audit-pagination-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .audit-page-btn {
+    width: 100%;
   }
 }
 

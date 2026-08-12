@@ -42,7 +42,21 @@ const state = {
   data: {},
   selectedIds: new Set(),
   auditSearch: "",
-  auditType: "",
+  auditType: "Admin.Login",
+  auditPage: 1,
+  auditLimit: 10,
+  auditLoading: false,
+  auditError: "",
+  auditPagination: {
+    page: 1,
+    limit: 10,
+    totalRecords: 0,
+    totalPages: 1,
+    hasPrevPage: false,
+    hasNextPage: false,
+    from: 0,
+    to: 0,
+  },
   settingsDraft: null,
   settingsSaveStatus: "",
   analyticsFilters: {
@@ -661,6 +675,10 @@ const searchParamsFromState = () => {
   const search = getCurrentEntitySearch(state.view);
   if (isSearchableEntity(state.view) && search) params.set("search", search);
   if (state.view === "auditLogs" && state.auditSearch) params.set("search", normalizeSearchQuery(state.auditSearch));
+  if (state.view === "auditLogs") {
+    if (state.auditType) params.set("action", state.auditType);
+    if (state.auditPage > 1) params.set("page", String(state.auditPage));
+  }
   if (state.highlightRecord?.key === state.view && state.highlightRecord?.id) {
     params.set("highlight", state.highlightRecord.id);
   }
@@ -686,6 +704,15 @@ const applyUrlState = () => {
   state.view = view;
   if (isSearchableEntity(view) && search) state.entitySearches[view] = search;
   if (view === "auditLogs" && search) state.auditSearch = search;
+  if (view === "auditLogs") {
+    const actionParam = normalizeSearchQuery(params.get("action") || "");
+    state.auditType = params.has("action")
+      ? String(actionParam).toLowerCase() === "admin.login"
+        ? "Admin.Login"
+        : actionParam
+      : "Admin.Login";
+    state.auditPage = Math.max(Number.parseInt(params.get("page") || "1", 10) || 1, 1);
+  }
   state.highlightRecord = highlight ? { key: view, id: highlight } : null;
 };
 
@@ -3428,18 +3455,65 @@ const loadSettings = async () => {
 };
 
 const loadAuditLogs = async (options = {}) => {
+  if (state.auditLoading && !options.force) return;
+  if (!options.signal) {
+    entitySearchControllers.auditLogs?.abort();
+    entitySearchControllers.auditLogs = new AbortController();
+    options.signal = entitySearchControllers.auditLogs.signal;
+  }
   const params = new URLSearchParams();
   const search = normalizeSearchQuery(state.auditSearch);
+  const page = Math.max(Number(options.page || state.auditPage || 1), 1);
+  const action = auditActionParam();
+  state.auditPage = page;
+  state.auditSearch = search;
+
+  params.set("page", String(page));
+  params.set("limit", String(state.auditLimit));
+  params.set("sort", "-createdAt");
+  if (action) params.set("action", action);
   if (search) params.set("search", search);
+  state.auditLoading = true;
+  state.auditError = "";
+  if (state.view === "auditLogs") render();
+
   try {
     const response = await request(`/admins/audit-logs${params.toString() ? `?${params.toString()}` : ""}`, options.signal ? { signal: options.signal } : {});
-    state.data.auditLogs = response.data || [];
+    const records = Array.isArray(response.data)
+      ? response.data
+      : Array.isArray(response.logs)
+        ? response.logs
+        : [];
+    const fallbackTotal = records.length;
+    const pagination = response.pagination || response.meta || response.data?.pagination || {};
+    state.data.auditLogs = records;
+    state.auditPagination = {
+      page: Number(pagination.page || pagination.currentPage || page),
+      limit: Number(pagination.limit || pagination.pageSize || state.auditLimit),
+      totalRecords: Number(pagination.totalRecords || pagination.total || pagination.totalDocs || fallbackTotal),
+      totalPages: Number(pagination.totalPages || pagination.pages || Math.max(Math.ceil(fallbackTotal / state.auditLimit), 1)),
+      hasPrevPage: Boolean(pagination.hasPrevPage ?? pagination.hasPreviousPage ?? page > 1),
+      hasNextPage: Boolean(pagination.hasNextPage ?? pagination.hasMore ?? (Number(pagination.page || page) < Number(pagination.totalPages || pagination.pages || 1))),
+      from: Number(pagination.from || pagination.start || (fallbackTotal ? (page - 1) * state.auditLimit + 1 : 0)),
+      to: Number(pagination.to || pagination.end || (fallbackTotal ? (page - 1) * state.auditLimit + records.length : 0)),
+    };
+    state.auditPage = state.auditPagination.page;
     state.view = "auditLogs";
+    state.auditError = "";
     updateAdminUrl({ replace: options.replaceHistory !== false });
-    render();
   } catch (error) {
     if (error.name === "AbortError") return;
-    throw error;
+    state.auditError = error.message || "Unable to load audit logs.";
+  } finally {
+    if (options.signal?.aborted) return;
+    state.auditLoading = false;
+    render();
+    if (options.scrollTable) {
+      document.querySelector(".audit-table-card")?.scrollIntoView({
+        block: "start",
+        behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth",
+      });
+    }
   }
 };
 
@@ -4702,6 +4776,65 @@ const renderWorkspace = () => `
   </section>
 `;
 
+const auditCell = (value, className = "") => {
+  const safeValue = String(value || "-");
+  return `<td class="${escapeHtml(className)}" title="${escapeHtml(safeValue)}">${escapeHtml(safeValue)}</td>`;
+};
+
+const auditActionParam = () => {
+  const action = String(state.auditType || "").trim();
+  if (action === "Admin.Login") return "admin.login";
+  return action;
+};
+
+const auditActionSubject = () => {
+  if (state.auditType === "Admin.Login") return "login records";
+  return state.auditType ? `${state.auditType} records` : "audit records";
+};
+
+const renderAuditSkeletonRows = () =>
+  Array.from({ length: state.auditLimit }, (_, index) => `
+    <tr class="audit-skeleton-row" aria-hidden="true">
+      <td><span></span></td>
+      <td><span></span></td>
+      <td><span></span></td>
+      <td><span></span></td>
+      <td><span></span></td>
+      <td><span></span></td>
+      <td><span></span></td>
+    </tr>
+  `).join("");
+
+const renderAuditPagination = () => {
+  const pagination = state.auditPagination || {};
+  const total = Number(pagination.totalRecords || 0);
+  const page = Number(pagination.page || state.auditPage || 1);
+  const totalPages = Math.max(Number(pagination.totalPages || 1), 1);
+  const from = Number(pagination.from || 0);
+  const to = Number(pagination.to || 0);
+  const subject = auditActionSubject();
+  const loading = state.auditLoading ? "disabled aria-busy=\"true\"" : "";
+  const previousDisabled = state.auditLoading || !pagination.hasPrevPage ? "disabled" : "";
+  const nextDisabled = state.auditLoading || !pagination.hasNextPage ? "disabled" : "";
+
+  return `
+    <div class="audit-pagination" aria-live="polite">
+      <p>
+        <strong>Showing ${escapeHtml(from)}-${escapeHtml(to)} of ${escapeHtml(total)} ${escapeHtml(subject)}</strong>
+        <span aria-current="page">Page ${escapeHtml(page)} of ${escapeHtml(totalPages)}</span>
+      </p>
+      <div class="audit-pagination-controls">
+        <button class="btn secondary audit-page-btn" data-audit-page="${escapeHtml(page - 1)}" type="button" ${previousDisabled} ${loading} aria-label="Previous 10 audit logs">
+          ${iconMarkup("arrow-left", "Previous 10")}
+        </button>
+        <button class="btn secondary audit-page-btn" data-audit-page="${escapeHtml(page + 1)}" type="button" ${nextDisabled} ${loading} aria-label="Next 10 audit logs">
+          ${iconMarkup("arrow-right", "Next 10")}
+        </button>
+      </div>
+    </div>
+  `;
+};
+
 const renderFormFields = (config, item = {}, mode = "create") =>
   config.fields
     .filter((field) => !(field.createOnly && mode !== "create"))
@@ -5141,22 +5274,8 @@ const renderSettings = () => {
 
 const renderAuditLogs = () => {
   const logs = state.data.auditLogs || [];
-  const search = state.auditSearch.trim().toLowerCase();
-  const type = state.auditType.trim().toLowerCase();
-  const filteredLogs = logs.filter((log) => {
-    const haystack = [
-      log.action,
-      log.admin?.email,
-      log.entityType,
-      log.entityId,
-      log.description,
-      log.ipAddress,
-      log.device,
-    ].join(" ").toLowerCase();
-    const matchesSearch = !search || haystack.includes(search);
-    const matchesType = !type || String(log.action || "").toLowerCase().includes(type);
-    return matchesSearch && matchesType;
-  });
+  const isLoading = state.auditLoading;
+  const isError = Boolean(state.auditError);
 
   return `
     <section class="toolbar card reveal">
@@ -5174,10 +5293,10 @@ const renderAuditLogs = () => {
         <select id="audit-type" aria-label="Filter audit action">
           ${[
             ["", "All actions"],
-            ["login", "Login"],
-            ["create", "Create"],
-            ["update", "Update"],
-            ["delete", "Delete"],
+            ["Admin.Login", "Admin Login"],
+            ["created", "Create"],
+            ["updated", "Update"],
+            ["deleted", "Delete"],
           ].map(([value, label]) => `<option value="${value}" ${state.auditType === value ? "selected" : ""}>${label}</option>`).join("")}
         </select>
         <button class="btn secondary" data-refresh-logs type="button">Refresh</button>
@@ -5198,31 +5317,42 @@ const renderAuditLogs = () => {
             </tr>
           </thead>
           <tbody>
-            ${filteredLogs.map((log, index) => {
+            ${isLoading ? renderAuditSkeletonRows() : isError ? `
+              <tr>
+                <td colspan="7" class="audit-empty audit-error">
+                  ${iconMarkup("circle-alert")}
+                  <span>Unable to load audit logs</span>
+                  <small>${escapeHtml(state.auditError)}</small>
+                  <button class="btn secondary audit-retry-btn" data-refresh-logs type="button">Retry</button>
+                </td>
+              </tr>
+            ` : logs.map((log, index) => {
               const rowRecord = { ...log, _id: auditLogRecordId(log, index) };
+              const device = [log.ipAddress, log.device || log.userAgent].filter(Boolean).join(" / ") || "-";
               return `
                 <tr class="${isHighlightedRecord("auditLogs", rowRecord) ? "record-highlight" : ""}" ${recordDomAttributes("auditLogs", rowRecord)}>
                   <td>${statusPill(log.action || "Activity")}</td>
-                  <td class="audit-description">${escapeHtml(log.description || log.action || "Admin activity")}</td>
-                  <td>${escapeHtml(log.admin?.email || "-")}</td>
-                  <td>${escapeHtml(log.entityType || "-")}</td>
-                  <td>${escapeHtml(log.entityId || "-")}</td>
-                  <td>${escapeHtml(log.ipAddress || log.device || "-")}</td>
-                  <td>${escapeHtml(formatDate(log.createdAt))}</td>
+                  ${auditCell(log.description || log.action || "Admin activity", "audit-description")}
+                  ${auditCell(log.admin?.email || "-")}
+                  ${auditCell(log.entityType || "-")}
+                  ${auditCell(log.entityId || "-")}
+                  ${auditCell(device)}
+                  ${auditCell(formatDate(log.createdAt))}
                 </tr>
               `;
             }).join("") || `
               <tr>
                 <td colspan="7" class="audit-empty">
                   ${iconMarkup("file-search")}
-                  <span>No audit logs found</span>
-                  <small>Platform actions will appear here when available from the API or when filters match.</small>
+                  <span>No ${escapeHtml(state.auditType || "audit")} logs found</span>
+                  <small>Try another action filter, clear the search, or refresh the current page.</small>
                 </td>
               </tr>
             `}
           </tbody>
         </table>
       </div>
+      ${renderAuditPagination()}
     </section>
   `;
 };
@@ -5820,26 +5950,38 @@ const bindEvents = () => {
       loadEntity(key, { replaceHistory: true });
     });
   });
-  document.querySelector("[data-refresh-logs]")?.addEventListener("click", loadAuditLogs);
+  document.querySelectorAll("[data-refresh-logs]").forEach((button) => {
+    button.addEventListener("click", () => loadAuditLogs({ force: true, replaceHistory: true }));
+  });
   document.querySelector("#audit-search")?.addEventListener("input", (event) => {
     state.auditSearch = normalizeSearchQuery(event.target.value || "");
+    state.auditPage = 1;
     window.clearTimeout(entitySearchTimers.auditLogs);
-    entitySearchTimers.auditLogs = window.setTimeout(() => loadAuditLogs({ replaceHistory: true }), 300);
+    entitySearchTimers.auditLogs = window.setTimeout(() => loadAuditLogs({ replaceHistory: true, force: true }), 300);
   });
   document.querySelector("#audit-search")?.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       window.clearTimeout(entitySearchTimers.auditLogs);
       state.auditSearch = normalizeSearchQuery(event.target.value || "");
-      loadAuditLogs({ replaceHistory: true });
+      state.auditPage = 1;
+      loadAuditLogs({ replaceHistory: true, force: true });
     }
   });
   document.querySelector("[data-clear-audit-search]")?.addEventListener("click", () => {
     state.auditSearch = "";
-    loadAuditLogs({ replaceHistory: true });
+    state.auditPage = 1;
+    loadAuditLogs({ replaceHistory: true, force: true });
   });
   document.querySelector("#audit-type")?.addEventListener("change", (event) => {
     state.auditType = event.target.value || "";
-    render();
+    state.auditPage = 1;
+    loadAuditLogs({ replaceHistory: true, force: true });
+  });
+  document.querySelectorAll("[data-audit-page]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const page = Math.max(Number(button.dataset.auditPage || 1), 1);
+      loadAuditLogs({ page, replaceHistory: true, force: true, scrollTable: true });
+    });
   });
   document.querySelectorAll("[data-open-form]").forEach((button) => {
     button.addEventListener("click", () => openForm(button.dataset.openForm));
