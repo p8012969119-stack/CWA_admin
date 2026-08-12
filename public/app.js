@@ -32,6 +32,10 @@ const state = {
     error: "",
     focusInput: false,
   },
+  workspaceTools: {
+    status: "idle",
+    error: "",
+  },
   stats: null,
   analytics: null,
   settings: null,
@@ -3386,6 +3390,36 @@ const loadEntity = async (key, options = {}) => {
   }
 };
 
+const activeAiTools = (items = state.data.aiTools || []) =>
+  items.filter((item) => String(item?.status || "active").toLowerCase() === "active");
+
+const loadWorkspaceTools = async ({ force = false } = {}) => {
+  const config = entityConfigs.aiTools;
+  const existingTools = Array.isArray(state.data.aiTools) ? state.data.aiTools : null;
+
+  if (!force && existingTools && state.workspaceTools.status === "success") {
+    state.workspaceTools = { status: "success", error: "" };
+    if (state.view === "workspace") render();
+    return;
+  }
+
+  state.workspaceTools = { status: "loading", error: "" };
+  if (state.view === "workspace") render();
+
+  try {
+    const response = await request(config.endpoint);
+    state.data.aiTools = config.unwrap(response);
+    state.workspaceTools = { status: "success", error: "" };
+  } catch (error) {
+    state.workspaceTools = {
+      status: "error",
+      error: error.message || "Unable to load AI tools.",
+    };
+  } finally {
+    if (state.view === "workspace") render();
+  }
+};
+
 const loadSettings = async () => {
   const response = await request("/admins/settings");
   state.settings = response.data;
@@ -3426,6 +3460,7 @@ const switchView = async (view, options = {}) => {
 
   try {
     if (view === "dashboard") await loadDashboard();
+    else if (view === "workspace") await loadWorkspaceTools();
     else if (view === "analytics" && !state.analytics) await refreshAnalyticsOverview();
     else if (view === "settings") await loadSettings();
     else if (view === "auditLogs") await loadAuditLogs();
@@ -4572,6 +4607,85 @@ const renderLearning = () => `
   </section>
 `;
 
+const renderWorkspaceToolShortcut = (tool) => {
+  const id = tool?._id || tool?.id || "";
+  const name = tool?.name || tool?.title || "AI Tool";
+  const flow = tool?.flowType || tool?.slug || "workspace";
+  return `
+    <button class="workspace-tool-shortcut" data-workspace-tool="${escapeHtml(id)}" type="button" aria-label="Open ${escapeHtml(name)} in AI tools">
+      <span class="workspace-tool-icon">${renderAiToolAnimation(tool)}</span>
+      <span class="workspace-tool-copy">
+        <strong>${escapeHtml(name)}</strong>
+        <small><i aria-hidden="true"></i>${escapeHtml(flow)}</small>
+      </span>
+    </button>
+  `;
+};
+
+const renderWorkspaceQuickStart = () => {
+  const status = state.workspaceTools.status;
+
+  if (status === "idle" || status === "loading") {
+    return `
+      <aside class="workspace-quick-card is-loading" aria-live="polite" aria-busy="true">
+        <div class="workspace-skeleton" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <b></b>
+        </div>
+        <p class="visually-hidden">Loading workspace tools</p>
+      </aside>
+    `;
+  }
+
+  if (status === "error") {
+    return `
+      <aside class="workspace-quick-card is-error" role="alert" aria-live="polite">
+        <p class="workspace-quick-label">WORKSPACE DISCONNECTED</p>
+        <h3>Unable to load workspace tools.</h3>
+        <p class="workspace-quick-copy">${escapeHtml(state.workspaceTools.error || "Check the connection and try again.")}</p>
+        <button class="btn secondary workspace-retry-button" data-workspace-retry type="button">
+          ${iconMarkup("refresh-cw", "Retry")}
+        </button>
+      </aside>
+    `;
+  }
+
+  const tools = activeAiTools();
+  const previewTools = tools.slice(0, 3);
+
+  if (!tools.length) {
+    return `
+      <aside class="workspace-quick-card is-empty" aria-live="polite">
+        <p class="workspace-quick-label">WORKSPACE READY</p>
+        <h3>Start with an AI tool</h3>
+        <p class="workspace-quick-copy">No active AI tools are available.</p>
+        <button class="btn secondary workspace-open-button" data-view="aiTools" type="button">
+          ${iconMarkup("settings-2", "Manage AI Tools")}
+        </button>
+      </aside>
+    `;
+  }
+
+  return `
+    <aside class="workspace-quick-card is-ready" aria-live="polite">
+      <p class="workspace-quick-label">WORKSPACE READY</p>
+      <h3>Start with an AI tool</h3>
+      <p class="workspace-quick-copy">Pick an active tool to continue through the existing AI Tools workspace.</p>
+      <div class="workspace-tool-list">
+        ${previewTools.map(renderWorkspaceToolShortcut).join("")}
+      </div>
+      <div class="workspace-tool-footer">
+        <span>${tools.length} active ${tools.length === 1 ? "tool" : "tools"} available</span>
+        <button class="btn workspace-open-button" data-view="aiTools" type="button">
+          ${iconMarkup("arrow-right", "Open Workspace")}
+        </button>
+      </div>
+    </aside>
+  `;
+};
+
 const renderWorkspace = () => `
   <section class="workspace-shell card reveal">
     <div class="workspace-copy">
@@ -4580,12 +4694,7 @@ const renderWorkspace = () => `
       <p class="workspace-description">Chat with AI, write emails, generate images, create code, summarize PDFs, translate content, and produce voice, all from one intelligent workspace.</p>
       <p class="workspace-support">Choose a tool, enter your prompt, and continue your recent work anytime.</p>
     </div>
-    <div class="chat-preview" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
-      <b></b>
-    </div>
+    ${renderWorkspaceQuickStart()}
     <div class="hero-actions">
       <button class="btn workspace-primary-cta" data-view="aiTools" type="button" aria-label="Start creating in AI Workspace">${iconMarkup("sparkles", "Start Creating")}</button>
       <button class="btn secondary" data-view="categories" type="button">${iconMarkup("folder-tree", "Manage categories")}</button>
@@ -5639,6 +5748,19 @@ const bindEvents = () => {
     button.addEventListener("click", () => {
       saveSidebarScrollPosition();
       switchView(button.dataset.view);
+    });
+  });
+  document.querySelector("[data-workspace-retry]")?.addEventListener("click", () => {
+    loadWorkspaceTools({ force: true });
+  });
+  document.querySelectorAll("[data-workspace-tool]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = button.dataset.workspaceTool;
+      if (!id) {
+        switchView("aiTools");
+        return;
+      }
+      switchView("aiTools", { highlight: id });
     });
   });
   document.querySelector("[data-growth-range]")?.addEventListener("change", (event) => {
