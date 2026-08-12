@@ -48,6 +48,9 @@ const state = {
   auditLoading: false,
   auditLoadingDirection: "",
   auditError: "",
+  auditVisiblePage: 1,
+  auditLoadedGroups: {},
+  auditScrollTargetId: "",
   auditPagination: {
     page: 1,
     limit: 10,
@@ -661,6 +664,8 @@ const isHighlightedRecord = (key, item) =>
 
 const auditLogRecordId = (log, index = 0) =>
   String(log?._id || log?.id || log?.entityId || log?.createdAt || `${log?.action || "audit"}-${index}`);
+
+const auditGroupDomId = (page) => `audit-group-${Math.max(Number(page) || 1, 1)}`;
 
 const recordDomAttributes = (key, item) => {
   const id = key === "auditLogs" ? auditLogRecordId(item) : item?._id || item?.id || "";
@@ -3457,6 +3462,7 @@ const loadSettings = async () => {
 
 const loadAuditLogs = async (options = {}) => {
   if (state.auditLoading && !options.force) return;
+  const mode = options.mode || "replace";
   if (!options.signal) {
     entitySearchControllers.auditLogs?.abort();
     entitySearchControllers.auditLogs = new AbortController();
@@ -3469,6 +3475,9 @@ const loadAuditLogs = async (options = {}) => {
   const previousPage = state.auditPagination?.page || state.auditPage || 1;
   const previousPagination = { ...(state.auditPagination || {}) };
   const previousLogs = Array.isArray(state.data.auditLogs) ? [...state.data.auditLogs] : [];
+  const previousGroups = { ...(state.auditLoadedGroups || {}) };
+  const previousVisiblePage = state.auditVisiblePage || 1;
+  const previousScrollTargetId = state.auditScrollTargetId || "";
   state.auditPage = page;
   state.auditSearch = search;
 
@@ -3503,7 +3512,33 @@ const loadAuditLogs = async (options = {}) => {
     const metadataPage = Number(pagination.page || pagination.currentPage || pagination.current || page);
     const metadataTotalPages = Number(pagination.totalPages || pagination.pages || pagination.pageCount || Math.max(Math.ceil(fallbackTotal / state.auditLimit), 1));
     const metadataTotalRecords = Number(pagination.totalRecords || pagination.total || pagination.totalDocs || pagination.count || fallbackTotal);
-    state.data.auditLogs = records;
+    const currentLogs = mode === "append" ? previousLogs : [];
+    const existingIds = new Set(currentLogs.map((log, index) => auditLogRecordId(log, index)));
+    const uniqueRecords = records.filter((log, index) => {
+      const id = auditLogRecordId(log, index);
+      if (existingIds.has(id)) return false;
+      existingIds.add(id);
+      return true;
+    });
+    const mergedLogs = mode === "append" ? [...currentLogs, ...uniqueRecords] : records;
+    state.data.auditLogs = mergedLogs;
+    const groupStartIndex = mode === "append" ? currentLogs.length : 0;
+    state.auditLoadedGroups = mode === "append"
+      ? {
+        ...previousGroups,
+        [metadataPage]: {
+          start: groupStartIndex,
+          count: uniqueRecords.length,
+        },
+      }
+      : {
+        [metadataPage]: {
+          start: 0,
+          count: records.length,
+        },
+      };
+    state.auditVisiblePage = metadataPage;
+    state.auditScrollTargetId = mode === "append" && uniqueRecords.length ? auditGroupDomId(metadataPage) : "";
     state.auditPagination = {
       page: metadataPage,
       limit: Number(pagination.limit || pagination.pageSize || state.auditLimit),
@@ -3517,12 +3552,15 @@ const loadAuditLogs = async (options = {}) => {
     state.auditPage = state.auditPagination.page;
     state.view = "auditLogs";
     state.auditError = "";
-    updateAdminUrl({ replace: options.replaceHistory !== false });
+    if (mode !== "append") updateAdminUrl({ replace: options.replaceHistory !== false });
   } catch (error) {
     if (error.name === "AbortError") return;
     state.auditError = error.message || "Unable to load audit logs.";
     if (options.keepRowsOnError) {
       state.data.auditLogs = previousLogs;
+      state.auditLoadedGroups = previousGroups;
+      state.auditVisiblePage = previousVisiblePage;
+      state.auditScrollTargetId = previousScrollTargetId;
       state.auditPagination = previousPagination;
       state.auditPage = previousPage;
     }
@@ -3532,7 +3570,17 @@ const loadAuditLogs = async (options = {}) => {
     const focusDirection = options.restoreFocusDirection || state.auditLoadingDirection;
     state.auditLoadingDirection = "";
     render();
-    if (options.scrollTable) {
+    const scrollTargetId = options.scrollTargetId || state.auditScrollTargetId || "";
+    if (scrollTargetId) {
+      window.requestAnimationFrame(() => {
+        const scrollTarget = document.querySelector(`[data-audit-group-id="${escapeHtml(scrollTargetId)}"]`) || document.getElementById(scrollTargetId);
+        scrollTarget?.scrollIntoView({
+          block: "start",
+          behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth",
+        });
+        state.auditScrollTargetId = "";
+      });
+    } else if (options.scrollTable) {
       document.querySelector(".audit-table-card")?.scrollIntoView({
         block: "start",
         behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth",
@@ -4839,34 +4887,40 @@ const renderAuditPagination = () => {
   const total = Number(pagination.totalRecords || 0);
   const page = Number(pagination.page || state.auditPage || 1);
   const totalPages = Math.max(Number(pagination.totalPages || 1), 1);
-  const from = Number(pagination.from || 0);
-  const to = Number(pagination.to || 0);
+  const loadedCount = Array.isArray(state.data.auditLogs) ? state.data.auditLogs.length : 0;
+  const from = loadedCount ? 1 : Number(pagination.from || 0);
+  const to = loadedCount || Number(pagination.to || 0);
+  const visiblePage = Number(state.auditVisiblePage || page || 1);
+  const previousGroupPage = Math.max(visiblePage - 1, 1);
+  const nextGroupPage = visiblePage + 1;
+  const hasLoadedNextGroup = Boolean(state.auditLoadedGroups?.[nextGroupPage]);
   const subject = auditActionSubject();
-  const previousDisabled = state.auditLoading || !pagination.hasPrevPage;
-  const nextDisabled = state.auditLoading || !pagination.hasNextPage;
+  const previousDisabled = state.auditLoading || visiblePage <= 1 || !state.auditLoadedGroups?.[previousGroupPage];
+  const nextDisabled = state.auditLoading || (!hasLoadedNextGroup && !pagination.hasNextPage);
   const previousIcon = state.auditLoading && state.auditLoadingDirection === "previous" ? "loader-2" : "chevron-up";
   const nextIcon = state.auditLoading && state.auditLoadingDirection === "next" ? "loader-2" : "chevron-down";
   const previousBusy = state.auditLoading && state.auditLoadingDirection === "previous" ? " aria-busy=\"true\"" : "";
   const nextBusy = state.auditLoading && state.auditLoadingDirection === "next" ? " aria-busy=\"true\"" : "";
+  const nextTitle = state.auditLoading && state.auditLoadingDirection === "next" ? "Loading older records..." : "↓ Show next 10";
 
   return `
     <div class="audit-pagination" aria-live="polite">
       <p class="audit-pagination-summary">
         <strong>Showing ${escapeHtml(from)}-${escapeHtml(to)} of ${escapeHtml(total)} ${escapeHtml(subject)}</strong>
-        <span aria-current="page">Page ${escapeHtml(page)} of ${escapeHtml(totalPages)}</span>
+        <span aria-current="page">Viewing group ${escapeHtml(visiblePage)} · Loaded through page ${escapeHtml(page)} of ${escapeHtml(totalPages)}</span>
       </p>
       <div class="audit-pagination-controls">
-        <button class="audit-page-btn" data-audit-page="${escapeHtml(page - 1)}" data-audit-direction="previous" type="button" ${previousDisabled ? "disabled" : ""}${previousBusy} aria-label="Show previous 10 newer login records">
+        <button class="audit-page-btn" data-audit-page="${escapeHtml(previousGroupPage)}" data-audit-direction="previous" data-audit-scroll-group="${escapeHtml(auditGroupDomId(previousGroupPage))}" type="button" ${previousDisabled ? "disabled" : ""}${previousBusy} aria-label="Show previous 10 newer login records">
           ${iconMarkup(previousIcon)}
           <span class="audit-page-btn-text">
             <strong>↑ Show previous 10</strong>
             <small>View newer login records</small>
           </span>
         </button>
-        <button class="audit-page-btn" data-audit-page="${escapeHtml(page + 1)}" data-audit-direction="next" type="button" ${nextDisabled ? "disabled" : ""}${nextBusy} aria-label="Show next 10 older login records">
+        <button class="audit-page-btn" data-audit-page="${escapeHtml(hasLoadedNextGroup ? nextGroupPage : page + 1)}" data-audit-direction="next" ${hasLoadedNextGroup ? `data-audit-scroll-group="${escapeHtml(auditGroupDomId(nextGroupPage))}"` : ""} type="button" ${nextDisabled ? "disabled" : ""}${nextBusy} aria-label="Show next 10 older login records">
           ${iconMarkup(nextIcon)}
           <span class="audit-page-btn-text">
-            <strong>↓ Show next 10</strong>
+            <strong>${escapeHtml(nextTitle)}</strong>
             <small>View older login records</small>
           </span>
         </button>
@@ -5370,8 +5424,11 @@ const renderAuditLogs = () => {
             ` : logs.map((log, index) => {
               const rowRecord = { ...log, _id: auditLogRecordId(log, index) };
               const device = [log.ipAddress, log.device || log.userAgent].filter(Boolean).join(" / ") || "-";
+              const groupEntry = Object.entries(state.auditLoadedGroups || {}).find(([, group]) => Number(group.start) === index);
+              const groupPage = groupEntry ? Number(groupEntry[0]) : 0;
+              const groupAttributes = groupPage ? ` data-audit-group-id="${escapeHtml(auditGroupDomId(groupPage))}" data-audit-group-page="${escapeHtml(groupPage)}"` : "";
               return `
-                <tr class="${isHighlightedRecord("auditLogs", rowRecord) ? "record-highlight" : ""}" ${recordDomAttributes("auditLogs", rowRecord)}>
+                <tr class="${isHighlightedRecord("auditLogs", rowRecord) ? "record-highlight" : ""}" ${groupAttributes} ${recordDomAttributes("auditLogs", rowRecord)}>
                   <td>${statusPill(log.action || "Activity")}</td>
                   ${auditCell(log.description || log.action || "Admin activity", "audit-description")}
                   ${auditCell(log.admin?.email || "-")}
@@ -6029,13 +6086,28 @@ const bindEvents = () => {
     const button = event.target.closest("[data-audit-page]");
     if (!button || button.disabled || state.auditLoading) return;
     const page = Math.max(Number(button.dataset.auditPage || 1), 1);
+    const scrollGroup = button.dataset.auditScrollGroup || "";
+    const direction = button.dataset.auditDirection || "";
+    if (scrollGroup) {
+      state.auditVisiblePage = page;
+      state.auditScrollTargetId = "";
+      render();
+      window.requestAnimationFrame(() => {
+        document.querySelector(`[data-audit-group-id="${scrollGroup}"]`)?.scrollIntoView({
+          block: "start",
+          behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth",
+        });
+        document.querySelector(`[data-audit-direction="${direction}"]`)?.focus?.();
+      });
+      return;
+    }
     loadAuditLogs({
       page,
-      replaceHistory: true,
+      replaceHistory: direction !== "next",
       force: true,
-      scrollTable: true,
-      direction: button.dataset.auditDirection || "",
-      restoreFocusDirection: button.dataset.auditDirection || "",
+      mode: direction === "next" ? "append" : "replace",
+      direction,
+      restoreFocusDirection: direction,
       keepRowsOnError: true,
     });
   });
