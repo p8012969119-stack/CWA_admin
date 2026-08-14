@@ -21,6 +21,7 @@ const state = {
   highlightRecord: null,
   accountMenuOpen: false,
   accountLogoutLoading: false,
+  actionBusyKey: "",
   returnFocusToAccountButton: false,
   globalSearch: {
     query: "",
@@ -572,6 +573,8 @@ const statusPill = (value, fallback = "Draft") =>
 
 const iconMarkup = (name, label = "") =>
   `<span class="ui-icon" aria-hidden="true"><i data-lucide="${escapeHtml(name)}"></i></span>${label ? `<span>${escapeHtml(label)}</span>` : ""}`;
+
+const actionBusyKey = (...parts) => parts.map((part) => String(part ?? "")).join(":");
 
 const searchResultLimit = 5;
 let globalSearchTimer = null;
@@ -3203,8 +3206,9 @@ const bindRouteEvents = () => {
   });
 };
 
-const setBusy = (loading) => {
+const setBusy = (loading, busyKey = "") => {
   state.loading = loading;
+  state.actionBusyKey = loading ? busyKey : "";
   render();
 };
 
@@ -5065,7 +5069,95 @@ const renderBulkActions = () => `
   </div>
 `;
 
+const renderUserActionButton = ({ item, action, label, tooltip, icon, attributes, tone = "neutral" }) => {
+  const key = actionBusyKey("users", item._id, action);
+  const isBusy = state.actionBusyKey === key;
+  const disabled = state.loading ? "disabled aria-disabled=\"true\"" : "";
+  const busy = isBusy ? "aria-busy=\"true\"" : "";
+  const safeTooltip = escapeHtml(tooltip || label);
+
+  return `
+    <button
+      class="mini user-action-button ${escapeHtml(tone)}-action"
+      ${attributes}
+      data-user-action-key="${escapeHtml(key)}"
+      data-tooltip="${safeTooltip}"
+      aria-label="${safeTooltip}"
+      title="${safeTooltip}"
+      ${disabled}
+      ${busy}
+      type="button"
+    >
+      ${iconMarkup(isBusy ? "loader-2" : icon)}
+    </button>
+  `;
+};
+
+const renderUserActions = (item) => {
+  const isActive = item.isActive !== false;
+  const isPremium = Boolean(item.isPremium);
+
+  return [
+    renderUserActionButton({
+      item,
+      action: "view",
+      label: "View",
+      tooltip: "View user details",
+      icon: "eye",
+      attributes: `data-view-record="users:${item._id}"`,
+      tone: "neutral",
+    }),
+    renderUserActionButton({
+      item,
+      action: "edit",
+      label: "Edit",
+      tooltip: "Edit user",
+      icon: "pencil",
+      attributes: `data-edit-record="users:${item._id}"`,
+      tone: "neutral",
+    }),
+    renderUserActionButton({
+      item,
+      action: "status",
+      label: isActive ? "Deactivate" : "Activate",
+      tooltip: isActive ? "Deactivate user" : "Activate user",
+      icon: isActive ? "user-x" : "user-check",
+      attributes: `data-user-status="users:${item._id}:${isActive ? "false" : "true"}"`,
+      tone: isActive ? "danger" : "success",
+    }),
+    renderUserActionButton({
+      item,
+      action: "premium",
+      label: isPremium ? "Remove premium" : "Assign premium",
+      tooltip: isPremium ? "Remove premium" : "Assign premium",
+      icon: "badge-dollar-sign",
+      attributes: `data-user-premium="${item._id}:${isPremium ? "false" : "true"}"`,
+      tone: isPremium ? "danger" : "success",
+    }),
+    renderUserActionButton({
+      item,
+      action: "export",
+      label: "Export",
+      tooltip: "Export user",
+      icon: "download",
+      attributes: `data-export-user="${item._id}"`,
+      tone: "neutral",
+    }),
+    renderUserActionButton({
+      item,
+      action: "delete",
+      label: "Delete",
+      tooltip: "Delete user",
+      icon: "trash-2",
+      attributes: `data-delete-record="users:${item._id}"`,
+      tone: "danger",
+    }),
+  ].join("");
+};
+
 const renderActions = (key, item) => {
+  if (key === "users") return renderUserActions(item);
+
   const config = entityConfigs[key];
   const busy = state.loading ? "disabled aria-disabled=\"true\" aria-busy=\"true\"" : "";
   const actionButton = (label, attributes, className = "mini", icon = "circle") =>
@@ -6107,13 +6199,15 @@ const bindEvents = () => {
     button.addEventListener("click", () => openForm(button.dataset.openForm));
   });
   document.querySelectorAll("[data-edit-record]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
       const [key, id] = button.dataset.editRecord.split(":");
       openForm(key, findItem(key, id));
     });
   });
   document.querySelectorAll("[data-view-record]").forEach((button) => {
-    button.addEventListener("click", async () => {
+    button.addEventListener("click", async (event) => {
+      event.stopPropagation();
       const [key, id] = button.dataset.viewRecord.split(":");
       await openDetail(key, id);
     });
@@ -6122,9 +6216,10 @@ const bindEvents = () => {
     button.addEventListener("click", () => openLessonPreview(button.dataset.previewLesson));
   });
   document.querySelectorAll("[data-delete-record]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
       const [key, id] = button.dataset.deleteRecord.split(":");
-      deleteRecord(key, id);
+      deleteRecord(key, id, button.dataset.userActionKey || "");
     });
   });
   document.querySelectorAll("[data-password-record]").forEach((button) => {
@@ -6134,15 +6229,23 @@ const bindEvents = () => {
     });
   });
   document.querySelectorAll("[data-user-status]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
       const [key, id, isActive] = button.dataset.userStatus.split(":");
-      updateStatus(key, id, isActive === "true");
+      updateStatus(key, id, isActive === "true", button.dataset.userActionKey || "");
     });
   });
   document.querySelectorAll("[data-user-premium]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
       const [id, isPremium] = button.dataset.userPremium.split(":");
-      patchAndReload("/admins/users", id, { isPremium: isPremium === "true" }, "users");
+      updateUserPremium(id, isPremium === "true", button.dataset.userActionKey || "");
+    });
+  });
+  document.querySelectorAll("[data-export-user]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      exportUser(button.dataset.exportUser);
     });
   });
   document.querySelectorAll("[data-status-record]").forEach((button) => {
@@ -6257,10 +6360,10 @@ const saveRecord = async (event) => {
   }
 };
 
-const deleteRecord = async (key, id) => {
+const deleteRecord = async (key, id, busyKey = "") => {
   if (!confirm("Delete this record?")) return;
   try {
-    setBusy(true);
+    setBusy(true, busyKey);
     await request(`${entityConfigs[key].endpoint}/${id}`, { method: "DELETE" });
     state.message = "Record deleted successfully.";
     await loadEntity(key);
@@ -6293,9 +6396,12 @@ const resetPassword = async (key, id) => {
   }
 };
 
-const updateStatus = async (key, id, isActive) => {
+const updateStatus = async (key, id, isActive, busyKey = "") => {
+  const item = findItem(key, id) || {};
+  if (key === "users" && !isActive && !confirm(`Deactivate ${recordTitle(item)}?`)) return;
+
   try {
-    setBusy(true);
+    setBusy(true, busyKey);
     const endpoint = key === "admins" ? `/admins/${id}` : `/admins/users/${id}/status`;
     await request(endpoint, {
       method: "PATCH",
@@ -6311,9 +6417,9 @@ const updateStatus = async (key, id, isActive) => {
   }
 };
 
-const patchAndReload = async (base, id, payload, key, method = "PATCH") => {
+const patchAndReload = async (base, id, payload, key, method = "PATCH", busyKey = "") => {
   try {
-    setBusy(true);
+    setBusy(true, busyKey);
     await request(id === "revoke" ? `${base}/revoke` : `${base}/${id}`, {
       method,
       body: JSON.stringify(payload),
@@ -6326,6 +6432,13 @@ const patchAndReload = async (base, id, payload, key, method = "PATCH") => {
     state.loading = false;
     render();
   }
+};
+
+const updateUserPremium = async (id, isPremium, busyKey = "") => {
+  const item = findItem("users", id) || {};
+  if (!isPremium && !confirm(`Remove premium access for ${recordTitle(item)}?`)) return;
+
+  await patchAndReload("/admins/users", id, { isPremium }, "users", "PATCH", busyKey);
 };
 
 const duplicateRecord = async (encoded) => {
@@ -6380,6 +6493,47 @@ const bulkUsers = async (action) => {
     state.loading = false;
     render();
   }
+};
+
+const csvCell = (value) => {
+  const text = String(value ?? "");
+  return `"${text.replace(/"/g, '""')}"`;
+};
+
+const downloadCsv = (filename, rows) => {
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+const exportUser = (id) => {
+  const item = findItem("users", id);
+  if (!item) {
+    setMessage("", "User not found for export.");
+    return;
+  }
+
+  const rows = [
+    ["Full name", "Email", "Role", "Status", "Verified", "Premium", "Joined", "Updated"],
+    [
+      item.fullName || item.name || "",
+      item.email || "",
+      item.role || "user",
+      item.isActive === false ? "Inactive" : "Active",
+      item.isVerified ? "Yes" : "No",
+      item.isPremium ? "Yes" : "No",
+      formatDate(item.createdAt),
+      formatDate(item.updatedAt),
+    ],
+  ];
+  const safeName = normalizeAssetKey(item.email || item.fullName || item._id || "user");
+  downloadCsv(`crackwithai-user-${safeName}.csv`, rows);
+  setMessage("User export downloaded.");
 };
 
 const exportUsers = async () => {
