@@ -15916,6 +15916,80 @@ body.courses-admin-page .nav button.active .ui-icon {
   outline-offset: 3px;
 }
 
+.sidebar .brand.brand-link {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: transparent !important;
+  color: #064e3b !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.sidebar .brand.brand-link:hover {
+  color: #064e3b !important;
+  transform: none !important;
+}
+
+.sidebar .brand.brand-link:focus-visible {
+  outline: 3px solid rgba(124, 58, 237, 0.32) !important;
+  outline-offset: 6px !important;
+}
+
+.brand-logo-shell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  overflow: visible;
+}
+
+.brand-logo {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.brand-copy {
+  display: grid;
+  min-width: 0;
+  line-height: 1.12;
+}
+
+.brand-copy b,
+.brand-copy small {
+  overflow-wrap: anywhere;
+}
+
+.brand-fallback[hidden] {
+  display: none !important;
+}
+
+.brand-logo-shell .brand-fallback:not([hidden]) {
+  display: inline-flex !important;
+}
+
+@media (max-width: 760px) {
+  .brand-logo-shell,
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .sidebar .nav button:not(.active):hover {
     background: #d1fae5 !important;

@@ -5632,10 +5632,23 @@ const renderApp = () => {
   app.innerHTML = `
     <section class="layout">
       <aside class="sidebar">
-        <div class="brand">
-          <span class="brand-mark" aria-hidden="true">C</span>
-          <span><b>CrackWithAI</b><small>Admin Panel</small></span>
-        </div>
+        <a class="brand brand-link" href="?view=dashboard" data-view="dashboard" aria-label="Go to Admin Dashboard">
+          <span class="brand-logo-shell" aria-hidden="true">
+            <img
+              class="brand-logo"
+              src="/assets/brand/crackwithai-admin-logo.svg"
+              alt=""
+              width="56"
+              height="56"
+              draggable="false"
+              decoding="async"
+              fetchpriority="high"
+              onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
+            />
+            <span class="brand-mark brand-fallback" hidden>C</span>
+          </span>
+          <span class="brand-copy"><b>CrackWithAI</b><small>Admin Panel</small></span>
+        </a>
         <nav class="nav">
           ${sections
             .map((section) => `
@@ -6064,7 +6077,8 @@ const bindEvents = () => {
   bindGlobalSearchEvents();
   bindAccountMenuEvents();
   document.querySelectorAll("[data-view]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
       saveSidebarScrollPosition();
       switchView(button.dataset.view);
     });
