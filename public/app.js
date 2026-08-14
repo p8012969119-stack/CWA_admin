@@ -15,7 +15,6 @@ const state = {
   admin: null,
   token: localStorage.getItem(storageKey),
   view: "dashboard",
-  sidebarCollapsed: false,
   sidebarScrollTop: readStoredSidebarScrollTop(),
   entitySearches: {},
   entityFilters: {},
@@ -5539,7 +5538,7 @@ const renderApp = () => {
 
   const sections = [...new Set(navItems.map((item) => item.section))];
   app.innerHTML = `
-    <section class="layout${state.sidebarCollapsed ? " sidebar-collapsed" : ""}">
+    <section class="layout">
       <aside class="sidebar">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true">C</span>
@@ -5569,7 +5568,6 @@ const renderApp = () => {
       <section class="main">
         <header class="topbar">
           <div class="left">
-            <button id="sidebar-toggle" class="icon-btn" title="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <div>
               <h1>${escapeHtml(viewTitle())}</h1>
               <p class="breadcrumb">Admin Panel · <span class="current-date">${new Date().toLocaleDateString()}</span></p>
@@ -5968,12 +5966,6 @@ const initSettingsAnimations = () => {
 const findItem = (key, id) => (state.data[key] || []).find((item) => String(item._id) === String(id));
 
 const bindEvents = () => {
-  document.querySelector("#sidebar-toggle")?.addEventListener("click", () => {
-    saveSidebarScrollPosition();
-    state.sidebarCollapsed = !state.sidebarCollapsed;
-    document.querySelector('.layout')?.classList.toggle('sidebar-collapsed', state.sidebarCollapsed);
-    if (!state.sidebarCollapsed) restoreSidebarScrollPosition();
-  });
   document.querySelector('#theme-toggle')?.addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');
   });
