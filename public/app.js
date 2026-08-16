@@ -3376,7 +3376,6 @@ const loadDashboard = async ({ setView = true } = {}) => {
 };
 
 const refreshAnalyticsOverview = async () => {
-  const currentView = state.view;
   state.loading = true;
   render();
 
@@ -3388,7 +3387,7 @@ const refreshAnalyticsOverview = async () => {
 
     state.stats = statsResponse.data;
     state.analytics = analyticsResponse.data;
-    state.view = currentView === "dashboard" ? "dashboard" : "analytics";
+    state.view = "analytics";
     state.error = "";
     state.message = "Analytics refreshed.";
   } catch (error) {
@@ -3933,16 +3932,6 @@ const renderAnalyticsKpiCard = ({ title, value, note, icon, trendWindow }) => {
   `;
 };
 
-const getActiveUserMetrics = (analytics = state.analytics || {}, stats = state.stats || {}) => {
-  const users = stats?.users || {};
-
-  return {
-    daily: analytics.activeUsers?.daily ?? users.dailyActive ?? 0,
-    weekly: analytics.activeUsers?.weekly ?? users.weeklyActive ?? 0,
-    monthly: analytics.activeUsers?.monthly ?? users.monthlyActive ?? 0,
-  };
-};
-
 const completionLabel = (key) => {
   const raw = String(key ?? "").trim();
   const value = Number(raw);
@@ -4066,7 +4055,6 @@ const renderPopularCoursesOverview = () => {
 
 const renderAnalyticsOverview = () => {
   const analytics = state.analytics || {};
-  const activeUsers = getActiveUserMetrics(analytics, state.stats || {});
   const growthRows = getAnalyticsUserGrowthSeries();
   const completionRows = getCompletionRows();
   const completionTotal = completionRows.reduce((sum, row) => sum + row.value, 0);
@@ -4084,7 +4072,7 @@ const renderAnalyticsOverview = () => {
           <label class="analytics-range-control">
             <i data-lucide="calendar-days"></i>
             <select data-analytics-range aria-label="Analytics date range">
-              ${[[7, "Last 7 days"], [30, "Last 30 days"], [90, "Last 90 days"], [365, "This year"]].map(([value, label]) => `
+              ${[[7, "Last 7 days"], [30, "Last 30 days"], [90, "Last 90 days"], [365, "Last 12 months"]].map(([value, label]) => `
                 <option value="${value}" ${range === value ? "selected" : ""}>${label}</option>
               `).join("")}
             </select>
@@ -4101,9 +4089,9 @@ const renderAnalyticsOverview = () => {
       </div>
 
       <section class="analytics-kpi-grid" aria-label="Active user metrics">
-        ${renderAnalyticsKpiCard({ title: "Daily Active", value: activeUsers.daily, note: "active today", icon: "user", trendWindow: 1 })}
-        ${renderAnalyticsKpiCard({ title: "Weekly Active", value: activeUsers.weekly, note: "active this week", icon: "users", trendWindow: 7 })}
-        ${renderAnalyticsKpiCard({ title: "Monthly Active", value: activeUsers.monthly, note: "active this month", icon: "calendar-days", trendWindow: 30 })}
+        ${renderAnalyticsKpiCard({ title: "Daily Active", value: analytics.activeUsers?.daily ?? 0, note: "active today", icon: "user", trendWindow: 1 })}
+        ${renderAnalyticsKpiCard({ title: "Weekly Active", value: analytics.activeUsers?.weekly ?? 0, note: "active this week", icon: "users", trendWindow: 7 })}
+        ${renderAnalyticsKpiCard({ title: "Monthly Active", value: analytics.activeUsers?.monthly ?? 0, note: "active this month", icon: "calendar-days", trendWindow: 30 })}
       </section>
 
       <section class="analytics-chart-grid">
@@ -4159,7 +4147,7 @@ const exportAnalyticsCsv = () => {
   const completionRows = getCompletionRows();
   const monthlyRows = getAnalyticsMonthlyRegistrations();
   const popularRows = getPopularCourseRows();
-  const activeUsers = getActiveUserMetrics(state.analytics || {}, state.stats || {});
+  const activeUsers = state.analytics?.activeUsers || {};
   const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
   const rows = [
     ["Section", "Label", "Value", "Secondary"],
@@ -4695,8 +4683,62 @@ const renderSessionLoading = () => {
 };
 
 const renderDashboard = () => {
-  if (state.loading && !state.analytics) return renderAnalyticsSkeleton();
-  return renderAnalyticsOverview();
+  const stats = state.stats || {};
+  const users = stats.users || {};
+  const courses = stats.courses || {};
+  const modules = stats.modules || {};
+  const aiTools = stats.aiTools || {};
+  const certs = stats.certificates || {};
+  const learning = stats.learning || {};
+  const analytics = state.analytics || {};
+  const dashboardMetrics = [
+    { label: "Total Users", value: users.total ?? 0, note: `${users.active ?? 0} active`, icon: "users", trend: "Live", type: "users" },
+    { label: "Daily Active", value: users.dailyActive ?? 0, note: `${users.weeklyActive ?? 0} weekly`, icon: "activity", trend: "Today", type: "daily-active" },
+    { label: "Courses", value: courses.total ?? 0, note: `${courses.published ?? 0} published`, icon: "graduation-cap", trend: "Content", type: "courses" },
+    { label: "AI Tools", value: aiTools.total ?? 0, note: `${aiTools.active ?? 0} active`, icon: "wand", trend: "Tools", type: "ai-tools" },
+    { label: "Certificates", value: certs.issued ?? 0, note: "issued", icon: "shield", trend: "Trust", type: "certificates" },
+    { label: "Registrations", value: users.newRegistrations ?? 0, note: "last 7 days", icon: "bar-chart-2", trend: "Growth", type: "registrations" },
+    { label: "Avg Completion", value: `${learning.averageProgress ?? 0}%`, note: `${learning.completedEnrollments ?? 0} complete`, icon: "pie-chart", trend: "Learning", type: "completion", percentage: learning.averageProgress ?? 0 },
+    { label: "Lessons", value: modules.lessons ?? 0, note: `${modules.total ?? 0} modules`, icon: "book-open", trend: "Library", type: "lessons" }
+  ];
+
+  return `
+    <section class="hero-card card reveal">
+      <div>
+        <p class="eyebrow">Command center</p>
+        <h2>Good morning, ${escapeHtml(state.admin?.fullName || "Admin")}</h2>
+        <p class="hero-copy">Live platform health, learning performance, users, and AI tool activity in one focused admin workspace.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn" data-view="courses" type="button">${iconMarkup("plus", "Add course")}</button>
+        <button class="btn secondary" data-view="aiTools" type="button">${iconMarkup("sparkles", "Review AI tools")}</button>
+      </div>
+    </section>
+
+    ${renderDashboardMetricsTable(dashboardMetrics)}
+
+    ${!state.analytics && state.loading ? analyticsSkeleton() : `
+    <div class="grid dashboard-panels premium-analytics-grid">
+      ${renderUserGrowthCard(analytics, stats)}
+      ${renderCalendarCard(analytics)}
+      ${renderPopularCoursesCard(analytics)}
+    </div>
+    `}
+    <div class="grid dashboard-panels dashboard-secondary-panels">
+      <section class="card panel-small analytics-card reveal">
+        <div class="panel-header">
+          <div>
+            <h2>AI Tool Usage</h2>
+            <p class="chart-subtitle">Usage share across top tools</p>
+          </div>
+          <div class="chart-actions">
+            <button type="button">Top 5</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-ai-tool-usage" class="chart-canvas" data-chart="topAiTools"></canvas></div>
+      </section>
+    </div>
+  `;
 };
 
 const renderLearning = () => `
@@ -5594,7 +5636,6 @@ const renderApp = () => {
   document.body.classList.toggle("quizzes-admin-page", state.view === "quizzes");
   document.body.classList.toggle("ai-tools-admin-page", state.view === "aiTools");
   document.body.classList.toggle("analytics-admin-page", state.view === "analytics");
-  document.body.classList.toggle("dashboard-admin-page", state.view === "dashboard");
   document.body.classList.toggle("certificates-admin-page", state.view === "certificates");
   document.body.classList.toggle("categories-admin-page", state.view === "categories");
   document.body.classList.toggle("notifications-admin-page", state.view === "notifications");
