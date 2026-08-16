@@ -16175,19 +16175,19 @@ body.courses-admin-page .nav button.active .ui-icon {
 /* Final Admin Dashboard analytics 2x2 layout */
 .dashboard-analytics-grid {
   display: grid !important;
-  grid-template-columns: repeat(2, minmax(420px, 1fr));
+  grid-template-columns: repeat(2, minmax(380px, 1fr));
   grid-template-areas:
     "user-growth popular-courses"
     "monthly-registrations ai-tool-usage";
   align-items: stretch;
   grid-auto-rows: auto;
   justify-content: center;
-  gap: clamp(18px, 2vw, 24px);
+  gap: clamp(14px, 1.6vw, 20px);
   width: 100%;
-  max-width: 1480px;
+  max-width: 1360px;
   min-width: 0;
-  margin: 24px auto 0;
-  padding-inline: clamp(12px, 1.2vw, 20px);
+  margin: 20px auto 0;
+  padding-inline: clamp(8px, 1vw, 14px);
 }
 
 .dashboard-analytics-grid > .analytics-card,
@@ -16205,14 +16205,14 @@ body.courses-admin-page .nav button.active .ui-icon {
   border: 1px solid #E5E7EB !important;
   border-radius: 22px !important;
   background: #FFFFFF !important;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.07) !important;
 }
 
 .dashboard-analytics-grid > .analytics-card {
   position: relative;
   min-height: 0;
-  overflow: visible;
-  padding: clamp(20px, 2vw, 24px) !important;
+  overflow: hidden;
+  padding: clamp(16px, 1.55vw, 20px) !important;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
@@ -16228,7 +16228,7 @@ body.courses-admin-page .nav button.active .ui-icon {
 
 .dashboard-analytics-grid > .analytics-card:hover {
   border-color: #BBF7D0 !important;
-  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.11) !important;
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.1) !important;
   transform: translateY(-2px);
 }
 
@@ -16238,12 +16238,12 @@ body.courses-admin-page .nav button.active .ui-icon {
 
 .dashboard-user-growth-card {
   grid-area: user-growth;
-  min-height: 560px;
+  min-height: 500px;
 }
 
 .dashboard-popular-courses-card {
   grid-area: popular-courses;
-  min-height: 560px;
+  min-height: 500px;
 }
 
 .dashboard-monthly-registrations-card {
@@ -16258,15 +16258,15 @@ body.courses-admin-page .nav button.active .ui-icon {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .dashboard-analytics-grid .analytics-card-header h2 {
   margin: 0;
   color: #111827 !important;
-  font-size: clamp(1.55rem, 2.1vw, 2.25rem);
+  font-size: clamp(1.35rem, 1.8vw, 2rem);
   line-height: 1.05;
   letter-spacing: 0;
 }
@@ -16304,8 +16304,8 @@ body.courses-admin-page .nav button.active .ui-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 18px;
+  min-height: 38px;
+  padding: 0 14px;
   border-radius: 999px;
   font-weight: 900;
 }
@@ -16318,15 +16318,15 @@ body.courses-admin-page .nav button.active .ui-icon {
 .dashboard-analytics-grid .growth-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0 0 20px;
+  gap: 10px;
+  margin: 0 0 14px;
 }
 
 .dashboard-analytics-grid .growth-summary div {
   min-width: 0;
-  padding: 16px;
+  padding: 12px 14px;
   border: 1px solid #E5E7EB;
-  border-radius: 16px;
+  border-radius: 14px;
   background: #FCFCFD;
 }
 
@@ -16343,23 +16343,23 @@ body.courses-admin-page .nav button.active .ui-icon {
   display: block;
   margin-top: 6px;
   color: #050505;
-  font-size: clamp(1.5rem, 2.2vw, 2.15rem);
+  font-size: clamp(1.35rem, 1.9vw, 1.85rem);
   line-height: 1;
 }
 
 .dashboard-analytics-grid .premium-chart-frame,
 .dashboard-analytics-grid .chart-wrap {
   flex: 1 1 auto;
-  min-height: 300px;
+  min-height: 260px;
   border: 1px solid #E5E7EB;
-  border-radius: 18px;
+  border-radius: 16px;
   background: #FFFFFF;
   box-shadow: inset 0 0 0 1px #F3F4F6;
 }
 
 .dashboard-analytics-grid .analytics-growth-card .premium-chart-frame {
-  min-height: clamp(300px, 34vw, 380px);
-  padding: 18px;
+  min-height: clamp(260px, 26vw, 330px);
+  padding: 14px;
 }
 
 .dashboard-analytics-grid .analytics-growth-card .growth-canvas,
@@ -16370,30 +16370,30 @@ body.courses-admin-page .nav button.active .ui-icon {
 
 .dashboard-analytics-grid .courses-usage-card .course-usage-list {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
   max-height: none !important;
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 
 .dashboard-analytics-grid .course-usage-row {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) minmax(84px, 112px);
+  grid-template-columns: 48px minmax(0, 1fr) minmax(72px, 92px);
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
-  min-height: 78px;
-  padding: 12px 14px;
+  min-height: 66px;
+  padding: 10px 12px;
   border: 1px solid #E5E7EB !important;
-  border-radius: 18px !important;
+  border-radius: 16px !important;
   background: #FFFFFF !important;
   box-shadow: none !important;
 }
 
 .dashboard-analytics-grid .course-thumb {
-  width: 50px;
-  height: 50px;
-  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   border: 1px solid #E5E7EB;
   background: #F3F4F6;
   overflow: hidden;
@@ -16428,7 +16428,7 @@ body.courses-admin-page .nav button.active .ui-icon {
   margin: 0;
   overflow: hidden;
   color: #050505 !important;
-  font-size: 1rem;
+  font-size: 0.92rem;
   line-height: 1.15;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -16449,7 +16449,7 @@ body.courses-admin-page .nav button.active .ui-icon {
 }
 
 .dashboard-analytics-grid .course-progress-line {
-  margin-top: 8px;
+  margin-top: 6px;
   background: #E5E7EB !important;
 }
 
@@ -16458,13 +16458,13 @@ body.courses-admin-page .nav button.active .ui-icon {
 }
 
 .dashboard-analytics-grid .course-sparkline {
-  width: 96px;
-  min-width: 84px;
+  width: 82px;
+  min-width: 72px;
   color: #111827;
 }
 
 .dashboard-analytics-grid .monthly-registration-card {
-  min-height: 600px;
+  min-height: 520px;
   max-width: none !important;
   margin: 0 !important;
 }
@@ -16487,7 +16487,7 @@ body.courses-admin-page .nav button.active .ui-icon {
 .dashboard-analytics-grid .monthly-registration-card .registration-calendar {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   min-width: 0;
 }
@@ -16500,10 +16500,10 @@ body.courses-admin-page .nav button.active .ui-icon {
 
 .dashboard-analytics-grid .monthly-registration-card .calendar-cell {
   aspect-ratio: 1.22 / 1;
-  min-height: 44px;
-  padding: 8px 9px;
+  min-height: 38px;
+  padding: 6px 7px;
   border: 1px solid transparent !important;
-  border-radius: 14px !important;
+  border-radius: 12px !important;
   background: #FFFFFF !important;
   color: #050505 !important;
   box-shadow: none !important;
@@ -16543,7 +16543,7 @@ body.courses-admin-page .nav button.active .ui-icon {
 }
 
 .dashboard-analytics-grid .monthly-registration-card .calendar-day-report {
-  margin-top: 18px;
+  margin-top: 14px;
   border: 1px solid #E5E7EB;
   border-radius: 18px;
   background: #FCFCFD;
@@ -16573,7 +16573,7 @@ body.courses-admin-page .nav button.active .ui-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 380px;
+  min-height: 320px;
   padding: clamp(12px, 2vw, 22px);
 }
 
@@ -16582,12 +16582,12 @@ body.courses-admin-page .nav button.active .ui-icon {
 }
 
 .dashboard-analytics-skeleton .skeleton-card {
-  min-height: 520px;
+  min-height: 460px;
 }
 
 @media (max-width: 1180px) {
   .dashboard-analytics-grid {
-    grid-template-columns: repeat(2, minmax(360px, 1fr));
+    grid-template-columns: repeat(2, minmax(330px, 1fr));
     max-width: 100%;
     padding-inline: 0;
   }
