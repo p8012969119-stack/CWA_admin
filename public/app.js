@@ -1935,7 +1935,8 @@ const cardShell = (key, item, body, extraClass = "") => `
 `;
 
 const renderUserCard = (item) => {
-  const progress = Number(item.progressPercentage || item.learningProgress || item.progress?.progressPercentage || 0);
+  const progress = userProgressValue(item);
+  const progressLabel = userProgressLabel(item);
 
   return cardShell("users", item, `
     <div class="entity-head">
@@ -1954,7 +1955,7 @@ const renderUserCard = (item) => {
       ${metaItem("Premium", item.isPremium ? "Yes" : "No")}
     </div>
     <div class="progress-block">
-      <div><span>Learning progress</span><b>${escapeHtml(progress)}%</b></div>
+      <div><span>Learning progress</span><b>${escapeHtml(progressLabel)}</b></div>
       ${progressBar(progress)}
     </div>
   `);
@@ -1968,8 +1969,15 @@ const userPipelineStages = [
   { key: "closed", label: "Closed", tone: "pink" },
 ];
 
+const hasUserProgressData = (item) =>
+  [item.progressPercentage, item.learningProgress, item.progress?.progressPercentage]
+    .some((value) => value !== undefined && value !== null && value !== "");
+
 const userProgressValue = (item) =>
   Math.max(0, Math.min(100, Number(item.progressPercentage || item.learningProgress || item.progress?.progressPercentage || 0)));
+
+const userProgressLabel = (item) =>
+  hasUserProgressData(item) ? `${userProgressValue(item)}%` : "No progress data";
 
 const userPipelineStageKey = (item) => {
   const progress = userProgressValue(item);
@@ -1984,6 +1992,7 @@ const userPipelineStageKey = (item) => {
 
 const renderUserPipelineRow = (item) => {
   const progress = userProgressValue(item);
+  const progressLabel = userProgressLabel(item);
   const stage = userPipelineStageKey(item);
   const stageIndex = userPipelineStages.findIndex((pipelineStage) => pipelineStage.key === stage);
   const joinedLabel = formatDate(item.createdAt);
@@ -2017,7 +2026,7 @@ const renderUserPipelineRow = (item) => {
         <span>${escapeHtml(verifiedLabel)}</span>
         <span>${escapeHtml(premiumLabel)}</span>
         <div class="user-pipeline-progress">
-          <div><span>${escapeHtml(item.role || "user")}</span><b>${escapeHtml(progress)}%</b></div>
+          <div><span>${escapeHtml(item.role || "User")}</span><b>${escapeHtml(progressLabel)}</b></div>
           ${progressBar(progress)}
         </div>
       </div>
@@ -5072,9 +5081,11 @@ const renderBulkActions = () => `
 const renderUserActionButton = ({ item, action, label, tooltip, icon, attributes, tone = "neutral" }) => {
   const key = actionBusyKey("users", item._id, action);
   const isBusy = state.actionBusyKey === key;
-  const disabled = state.loading ? "disabled aria-disabled=\"true\"" : "";
+  const isUserActionBusy = Boolean(state.actionBusyKey && state.actionBusyKey.startsWith(actionBusyKey("users", item._id, "")));
+  const disabled = state.loading || (isUserActionBusy && !isBusy) ? "disabled aria-disabled=\"true\"" : "";
   const busy = isBusy ? "aria-busy=\"true\"" : "";
   const safeTooltip = escapeHtml(tooltip || label);
+  const buttonLabel = isBusy ? "Working..." : label;
 
   return `
     <button
@@ -5088,7 +5099,8 @@ const renderUserActionButton = ({ item, action, label, tooltip, icon, attributes
       ${busy}
       type="button"
     >
-      ${iconMarkup(isBusy ? "loader-2" : icon)}
+      <span class="user-action-icon" aria-hidden="true">${iconMarkup(isBusy ? "loader-2" : icon)}</span>
+      <span class="user-action-label">${escapeHtml(buttonLabel)}</span>
     </button>
   `;
 };
@@ -5096,6 +5108,7 @@ const renderUserActionButton = ({ item, action, label, tooltip, icon, attributes
 const renderUserActions = (item) => {
   const isActive = item.isActive !== false;
   const isPremium = Boolean(item.isPremium);
+  const isVerified = Boolean(item.isVerified);
 
   return [
     renderUserActionButton({
@@ -5114,7 +5127,7 @@ const renderUserActions = (item) => {
       tooltip: "Edit user",
       icon: "pencil",
       attributes: `data-edit-record="users:${item._id}"`,
-      tone: "neutral",
+      tone: "primary",
     }),
     renderUserActionButton({
       item,
@@ -5127,21 +5140,21 @@ const renderUserActions = (item) => {
     }),
     renderUserActionButton({
       item,
-      action: "premium",
-      label: isPremium ? "Remove premium" : "Assign premium",
-      tooltip: isPremium ? "Remove premium" : "Assign premium",
-      icon: "badge-dollar-sign",
-      attributes: `data-user-premium="${item._id}:${isPremium ? "false" : "true"}"`,
-      tone: isPremium ? "danger" : "success",
+      action: "verification",
+      label: isVerified ? "Unverify" : "Verify",
+      tooltip: isVerified ? "Remove user verification" : "Verify user",
+      icon: isVerified ? "shield-x" : "badge-check",
+      attributes: `data-user-verification="${item._id}:${isVerified ? "false" : "true"}"`,
+      tone: isVerified ? "danger" : "success",
     }),
     renderUserActionButton({
       item,
-      action: "export",
-      label: "Export",
-      tooltip: "Export user",
-      icon: "download",
-      attributes: `data-export-user="${item._id}"`,
-      tone: "neutral",
+      action: "premium",
+      label: isPremium ? "Remove Premium" : "Assign Premium",
+      tooltip: isPremium ? "Remove premium access" : "Assign premium access",
+      icon: "badge-dollar-sign",
+      attributes: `data-user-premium="${item._id}:${isPremium ? "false" : "true"}"`,
+      tone: isPremium ? "danger" : "success",
     }),
     renderUserActionButton({
       item,
@@ -6256,6 +6269,13 @@ const bindEvents = () => {
       updateUserPremium(id, isPremium === "true", button.dataset.userActionKey || "");
     });
   });
+  document.querySelectorAll("[data-user-verification]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const [id, isVerified] = button.dataset.userVerification.split(":");
+      updateUserVerification(id, isVerified === "true", button.dataset.userActionKey || "");
+    });
+  });
   document.querySelectorAll("[data-export-user]").forEach((button) => {
     button.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -6375,7 +6395,11 @@ const saveRecord = async (event) => {
 };
 
 const deleteRecord = async (key, id, busyKey = "") => {
-  if (!confirm("Delete this record?")) return;
+  const item = findItem(key, id) || {};
+  const label = key === "users" ? `user ${recordTitle(item)}` : `record ${recordTitle(item)}`;
+
+  if (!confirm(`Delete ${label}? This cannot be undone.`)) return;
+
   try {
     setBusy(true, busyKey);
     await request(`${entityConfigs[key].endpoint}/${id}`, { method: "DELETE" });
@@ -6453,6 +6477,13 @@ const updateUserPremium = async (id, isPremium, busyKey = "") => {
   if (!isPremium && !confirm(`Remove premium access for ${recordTitle(item)}?`)) return;
 
   await patchAndReload("/admins/users", id, { isPremium }, "users", "PATCH", busyKey);
+};
+
+const updateUserVerification = async (id, isVerified, busyKey = "") => {
+  const item = findItem("users", id) || {};
+  if (!isVerified && !confirm(`Remove verification for ${recordTitle(item)}?`)) return;
+
+  await patchAndReload("/admins/users", id, { isVerified }, "users", "PATCH", busyKey);
 };
 
 const duplicateRecord = async (encoded) => {
