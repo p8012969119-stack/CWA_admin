@@ -6497,17 +6497,20 @@ body {
 }
 
 /* Analytics overview redesign */
-body.analytics-admin-page {
-  background: #f8faf9;
+body.analytics-admin-page,
+body.dashboard-admin-page {
+  background: #f7f8f7;
   color: #0b0f0c;
 }
 
-body.analytics-admin-page::before {
+body.analytics-admin-page::before,
+body.dashboard-admin-page::before {
   display: none;
 }
 
-body.analytics-admin-page .main {
-  background: #f8faf9;
+body.analytics-admin-page .main,
+body.dashboard-admin-page .main {
+  background: #f7f8f7;
 }
 
 .analytics-overview-page {
