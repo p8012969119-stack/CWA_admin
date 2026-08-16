@@ -4451,8 +4451,9 @@ const getPopularCoursesModel = (analytics) => {
 };
 
 const analyticsSkeleton = () => `
-  <div class="analytics-skeleton-grid" aria-label="Loading analytics">
-    <div class="skeleton-card skeleton-large"></div>
+  <div class="dashboard-analytics-grid dashboard-analytics-skeleton" aria-label="Loading dashboard analytics">
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
     <div class="skeleton-card"></div>
     <div class="skeleton-card"></div>
   </div>
@@ -4462,11 +4463,11 @@ const renderUserGrowthCard = (analytics, stats) => {
   const model = getUserGrowthModel(analytics, stats);
 
   return `
-    <section class="card panel-large analytics-card analytics-growth-card reveal">
+    <section class="card panel-large analytics-card analytics-growth-card dashboard-user-growth-card reveal">
       <div class="panel-header analytics-card-header">
         <div>
           <h2>User Growth</h2>
-          <p class="chart-subtitle">Tracking new users over the past week</p>
+          <p class="chart-subtitle">Tracking new users over the selected period</p>
         </div>
         <div class="chart-actions">
           <label class="visually-hidden" for="user-growth-range">User growth range</label>
@@ -4496,7 +4497,7 @@ const renderCalendarCard = (analytics) => {
   const selectedComparison = `${(selected?.comparison || 0) >= 0 ? "+" : ""}${percentLabel(selected?.comparison || 0)} vs previous day`;
 
   return `
-    <section class="card panel-small analytics-card registration-card monthly-registration-card reveal">
+    <section class="card panel-small analytics-card registration-card monthly-registration-card dashboard-monthly-registrations-card reveal">
       <div class="panel-header analytics-card-header">
         <div>
           <h2>Monthly Registrations</h2>
@@ -4559,7 +4560,7 @@ const renderPopularCoursesCard = (analytics) => {
   const model = getPopularCoursesModel(analytics);
 
   return `
-    <section class="card panel-small analytics-card courses-usage-card reveal">
+    <section class="card panel-small analytics-card courses-usage-card dashboard-popular-courses-card reveal">
       <div class="panel-header analytics-card-header">
         <div>
           <h2>Popular Courses</h2>
@@ -4718,26 +4719,24 @@ const renderDashboard = () => {
     ${renderDashboardMetricsTable(dashboardMetrics)}
 
     ${!state.analytics && state.loading ? analyticsSkeleton() : `
-    <div class="grid dashboard-panels premium-analytics-grid">
+    <div class="dashboard-analytics-grid" aria-label="Dashboard analytics overview">
       ${renderUserGrowthCard(analytics, stats)}
-      ${renderCalendarCard(analytics)}
       ${renderPopularCoursesCard(analytics)}
-    </div>
-    `}
-    <div class="grid dashboard-panels dashboard-secondary-panels">
-      <section class="card panel-small analytics-card reveal">
-        <div class="panel-header">
+      ${renderCalendarCard(analytics)}
+      <section class="card panel-small analytics-card dashboard-ai-tool-usage-card reveal">
+        <div class="panel-header analytics-card-header">
           <div>
             <h2>AI Tool Usage</h2>
             <p class="chart-subtitle">Usage share across top tools</p>
           </div>
           <div class="chart-actions">
-            <button type="button">Top 5</button>
+            <span class="analytics-pill">Top 5</span>
           </div>
         </div>
-        <div class="chart-wrap"><canvas id="chart-ai-tool-usage" class="chart-canvas" data-chart="topAiTools"></canvas></div>
+        <div class="chart-wrap"><canvas id="chart-ai-tool-usage" class="chart-canvas" data-chart="topAiTools" aria-label="Top AI tool usage share"></canvas></div>
       </section>
     </div>
+    `}
   `;
 };
 
@@ -5884,13 +5883,13 @@ const initCharts = () => {
     const ctx1 = document.getElementById('chart-user-growth');
     if (ctx1 && growthModel.points.length) {
       const chartContext = ctx1.getContext('2d');
-      const gradientOrange = chartContext.createLinearGradient(0, 0, 0, 280);
-      gradientOrange.addColorStop(0, 'rgba(242, 140, 115, 0.35)');
-      gradientOrange.addColorStop(1, 'rgba(242, 140, 115, 0)');
+      const gradientNeutral = chartContext.createLinearGradient(0, 0, 0, 280);
+      gradientNeutral.addColorStop(0, 'rgba(100, 116, 139, 0.16)');
+      gradientNeutral.addColorStop(1, 'rgba(100, 116, 139, 0)');
 
-      const gradientTeal = chartContext.createLinearGradient(0, 0, 0, 280);
-      gradientTeal.addColorStop(0, 'rgba(88, 195, 170, 0.35)');
-      gradientTeal.addColorStop(1, 'rgba(88, 195, 170, 0)');
+      const gradientGreen = chartContext.createLinearGradient(0, 0, 0, 280);
+      gradientGreen.addColorStop(0, 'rgba(22, 163, 74, 0.24)');
+      gradientGreen.addColorStop(1, 'rgba(22, 163, 74, 0)');
 
       new Chart(chartContext, {
         type: 'line',
@@ -5901,8 +5900,8 @@ const initCharts = () => {
               label: 'Total users',
               data: growthModel.points.map((point) => point.total),
               yAxisID: 'y',
-              backgroundColor: gradientOrange,
-              borderColor: 'rgba(242, 140, 115, 1)',
+              backgroundColor: gradientNeutral,
+              borderColor: '#64748B',
               borderWidth: 2,
               tension: 0.4,
               pointRadius: 0,
@@ -5913,8 +5912,8 @@ const initCharts = () => {
               label: 'New users',
               data: growthModel.points.map((point) => point.newUsers),
               yAxisID: 'y1',
-              backgroundColor: gradientTeal,
-              borderColor: 'rgba(88, 195, 170, 1)',
+              backgroundColor: gradientGreen,
+              borderColor: '#16A34A',
               borderWidth: 2,
               tension: 0.4,
               pointRadius: 0,
@@ -5977,7 +5976,7 @@ const initCharts = () => {
             {
               label: 'Registrations',
               data: regData.map(d => Number(d.count || 0)),
-              backgroundColor: '#e67357',
+              backgroundColor: '#16A34A',
               borderRadius: 6,
               borderSkipped: false,
               barPercentage: 0.75,
@@ -5986,7 +5985,7 @@ const initCharts = () => {
             {
               label: 'Active Users',
               data: regData.map(d => Math.round(Number(d.count || 0) * 0.76)),
-              backgroundColor: '#35a794',
+              backgroundColor: '#065F46',
               borderRadius: 6,
               borderSkipped: false,
               barPercentage: 0.75,
@@ -6009,13 +6008,17 @@ const initCharts = () => {
     const tools = makeDataset((state.analytics?.topAiTools||[]).map(t=>({title:t.name,count:t.count||1})),'count');
     const ctx4 = document.getElementById('chart-ai-tool-usage');
     if (ctx4 && tools.labels.length) {
+      const toolPalette = ['#065F46', '#15803D', '#16A34A', '#22C55E', '#86EFAC'];
       new Chart(ctx4.getContext('2d'), {
         type: 'doughnut',
         data: {
           labels: tools.labels,
           datasets: [{
             data: tools.data,
-            backgroundColor: tools.labels.map((_, index) => (index % 2 === 0 ? 'rgba(91,45,16,0.94)' : 'rgba(184,123,56,0.88)'))
+            backgroundColor: tools.labels.map((_, index) => toolPalette[index % toolPalette.length]),
+            borderColor: '#FFFFFF',
+            borderWidth: 4,
+            hoverOffset: 4,
           }]
         },
         options: {
@@ -6023,7 +6026,15 @@ const initCharts = () => {
           maintainAspectRatio: false,
           cutout: '62%',
           plugins: {
-            legend: { position: 'right' }
+            legend: {
+              position: 'right',
+              labels: {
+                color: '#374151',
+                boxWidth: 14,
+                usePointStyle: true,
+                pointStyle: 'circle',
+              },
+            }
           }
         }
       });
